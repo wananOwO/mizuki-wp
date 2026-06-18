@@ -1,0 +1,12 @@
+{
+  "core": null,
+  "phpVersion": "8.2",
+  "themes": [ "./theme/mizuki-wp" ],
+  "plugins": [ "https://downloads.wordpress.org/plugin/theme-check.zip" ],
+  "config": {
+    "WP_DEBUG": true,
+    "WP_DEBUG_LOG": true,
+    "WP_DEBUG_DISPLAY": false
+  },
+  "mappings": {}
+}
