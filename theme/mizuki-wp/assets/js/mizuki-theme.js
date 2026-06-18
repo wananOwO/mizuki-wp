@@ -90,4 +90,18 @@
     }, { rootMargin: '-20% 0px -60% 0px' });
     for (var k = 0; k < headings.length; k++) { observer.observe(headings[k]); }
   });
+
+  // === Fancybox 画廊(文章图片灯箱) ===
+  var postImages = document.querySelectorAll('.markdown-content img');
+  for (var fi = 0; fi < postImages.length; fi++) {
+    var pimg = postImages[fi];
+    if (!pimg.closest('a')) {
+      var fa = document.createElement('a');
+      fa.href = pimg.src;
+      fa.dataset.fancybox = 'gallery';
+      fa.dataset.caption = pimg.alt || '';
+      pimg.parentNode.insertBefore(fa, pimg);
+      fa.appendChild(pimg);
+    }
+  }
 })();
