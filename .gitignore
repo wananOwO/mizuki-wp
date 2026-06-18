@@ -9,6 +9,9 @@ node_modules/
 /.wp-env/
 /wordpress/
 
+# 视觉对比输出(生成的截图)
+/tools/visual-out/
+
 # 系统
 .DS_Store
 *.log
