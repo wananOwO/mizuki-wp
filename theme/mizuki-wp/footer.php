@@ -60,6 +60,15 @@ defined( 'ABSPATH' ) || exit;
 	</div><!-- max-w wrapper -->
 </div><!-- absolute z-30 wrapper -->
 
+<?php if ( ! get_theme_mod( 'mizuki_hue_fixed', false ) ) : ?>
+<div class="hue-slider-wrapper px-4 py-2">
+  <label class="text-50 text-xs"><?php esc_html_e( '主题色', 'mizuki' ); ?></label>
+  <input type="range" id="hue-slider" min="0" max="360" step="1"
+         data-default="<?php echo esc_attr( get_theme_mod( 'mizuki_hue', 240 ) ); ?>"
+         class="w-full accent-[var(--primary)]" />
+</div>
+<?php endif; ?>
+
 <?php wp_footer(); ?>
 </body>
 </html>

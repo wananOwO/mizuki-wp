@@ -40,6 +40,11 @@ function mizuki_enqueue_global_styles() {
 
 	// KaTeX + JetBrains Mono 字体(由 CSS @font-face 引用,无额外 enqueue)
 	// 自定义字体(ZenMaruGothic, loli)同上
+
+	$js = MIZUKI_DIR . '/assets/js/mizuki-theme.js';
+	if ( file_exists( $js ) ) {
+		wp_enqueue_script( 'mizuki-theme', MIZUKI_URI . '/assets/js/mizuki-theme.js', array(), $ver, true );
+	}
 }
 add_action( 'wp_enqueue_scripts', 'mizuki_enqueue_global_styles' );
 
