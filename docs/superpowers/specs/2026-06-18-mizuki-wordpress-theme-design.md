@@ -37,10 +37,11 @@ Mizuki 是一个基于 **Astro 6** 的功能丰富静态博客模板,使用 Tail
 - 追番/追剧从 Bangumi/Bilibili 自动同步(改为手动录入)。
 - 全站可视化编辑(Site Editor)的完整支持。
 
-## 3. 开放项(实现前需确认)
+## 3. 已决与约束
 
-1. **许可证**:Mizuki 为 Apache-2.0,与 GPLv3 兼容、与 WordPress.org 要求的 GPLv2 不完全兼容。
-   - 默认按 **GitHub 开源(GPLv3)** 推进;若要上 WordPress.org 官方库需另行处理许可。
+1. **许可证(已定)**:仅在 **GitHub 开源,沿用 Mizuki 的 Apache-2.0**,不上 WordPress.org,故无需改 GPL。
+   - 合规要点:保留 Apache-2.0 全文 LICENSE 与 Mizuki 版权声明(Copyright 2025 Matsuzaka Yuki);保留 NOTICE(若有);在 README 声明「基于 Mizuki 移植、对原文件有改写」(Apache-2.0 §4(b));主题名加限定(如 *Mizuki for WordPress (unofficial)*)不冒用官方名义。
+   - 红线:**不得复制粘贴其他 GPLv2 主题/插件源码**(会与 Apache-2.0 冲突)。自写 PHP + 复用 Mizuki + 调用 WP 公开 API 即保持干净。
 2. **还原基准来源**:实现第一步需 clone Mizuki 并构建(`pnpm build`),从产物提取真实 HTML 结构与编译资源。
 
 ## 4. 架构
