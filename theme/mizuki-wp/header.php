@@ -73,7 +73,19 @@ defined( 'ABSPATH' ) || exit;
 </div>
 
 <!-- Banner 大图区域 -->
-<div id="banner-wrapper" class="absolute z-10 w-full transition duration-700 overflow-hidden">
+<?php
+$banner_img    = get_theme_mod( 'mizuki_banner_image', '' );
+$banner_height = get_theme_mod( 'mizuki_banner_height', '60vh' );
+$banner_style  = '';
+if ( $banner_img ) {
+	$banner_style = sprintf(
+		'style="background-image: url(%s); background-size: cover; background-position: center; min-height: %s;"',
+		esc_url( $banner_img ),
+		esc_attr( $banner_height )
+	);
+}
+?>
+<div id="banner-wrapper" <?php echo $banner_style; ?> class="absolute z-10 w-full transition duration-700 overflow-hidden">
 	<div id="banner-carousel" class="relative h-full w-full">
 		<div class="banner-image-slot-mobile absolute inset-0 block md:hidden"></div>
 		<div class="banner-image-slot-desktop absolute inset-0 hidden md:block">
