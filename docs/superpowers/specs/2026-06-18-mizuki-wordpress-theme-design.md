@@ -74,13 +74,14 @@ mizuki-wp/
   - `anime`:封面、状态、评分、链接、进度
   - `friend`:名称、URL、头像、简介
   - `diary`:短文、配图、日期
-  - `album` / `project` / `skill`:对应同名页字段
+  - `album` / `project` / `skill`:对应同名页字段(**具体字段待阶段 0 从 Mizuki 原始页面结构中确认后逐项枚举**)
   - 时间线/归档:文章按时间聚合的页面模板
 
 ## 6. 主题化与配色
 
 - `theme.json` 定义色板与全局样式,暴露与 Mizuki 一致的 CSS 自定义属性(`--hue` 等);提供"主题色 hue"控件写入该变量,复刻一键换色。
 - 亮暗切换:复用 Mizuki 的 JS(切换 class/属性 + localStorage)与同一套 CSS 变量。
+- **配色单一真相源**:`theme.json` / Customizer 的 hue 控件是主色的唯一权威来源,负责写入 `--hue` CSS 变量;Mizuki 的运行时 JS 只读取该变量、负责亮暗切换与本地持久化,**不得各自维护一份主色状态**,以免 WP 设置与运行时冲突。
 
 ## 7. 交互层
 
@@ -114,7 +115,7 @@ mizuki-wp/
 
 ## 11. 分阶段实现
 
-0. clone Mizuki + 构建,提取还原基准;搭建 WP 本地环境(wp-env/Local)。
+0. clone Mizuki + 构建,提取还原基准;搭建 WP 本地环境(wp-env/Local)。**本阶段首要任务:逐个排查 Mizuki 的 Svelte 交互岛,判定哪些可编译为独立 JS 挂件直接复用、哪些需改写为原生 JS——此结论是阶段 1/4 的前置依赖。**
 1. 主题骨架 + 入队资源 → 核心博客像素级一致。
 2. 主题化(hue/亮暗)、侧栏/widget、原生搜索、404、评论。
 3. 特色页 CPT + 模板。
