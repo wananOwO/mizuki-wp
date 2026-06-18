@@ -1,0 +1,14 @@
+# 还原基准(只读参考,不入库)
+/reference/
+
+# Node
+node_modules/
+/tools/node_modules/
+
+# wp-env 本地数据
+/.wp-env/
+/wordpress/
+
+# 系统
+.DS_Store
+*.log
