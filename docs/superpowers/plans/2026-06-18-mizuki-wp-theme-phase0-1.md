@@ -54,6 +54,10 @@
 **Files:**
 - Create: `/root/mizuki/.gitignore`
 - Create: `/root/mizuki/package.json`
+- Create: `/root/mizuki/LICENSE`(Apache-2.0 全文)
+- Create: `/root/mizuki/README.md`(署名与改动声明)
+
+> 许可证已定:**沿用 Mizuki 的 Apache-2.0,仅 GitHub 开源**。从首个提交起就放入合规材料(见 spec §3)。
 
 - [ ] **Step 1: 写 `.gitignore`**
 
@@ -101,12 +105,29 @@ node_modules/
 Run: `cd /root/mizuki && npm install`
 Expected: 成功安装,生成 `node_modules/` 与 `package-lock.json`,无 error 退出码 0。
 
-- [ ] **Step 4: 提交**
+- [ ] **Step 4: 放入 LICENSE 与 README(Apache-2.0 合规)**
+
+Run: `curl -sL https://www.apache.org/licenses/LICENSE-2.0.txt -o /root/mizuki/LICENSE`
+Create `/root/mizuki/README.md`:
+```markdown
+# Mizuki for WordPress (unofficial)
+
+把 [Mizuki](https://github.com/LyraVoid/Mizuki)(Astro 6 博客主题,作者 Matsuzaka Yuki)移植为 WordPress 混合主题。非官方移植。
+
+## 许可证
+本项目沿用上游的 **Apache License 2.0**(见 `LICENSE`)。
+版权:Copyright 2025 Matsuzaka Yuki(原 Mizuki);移植部分版权归本项目贡献者。
+
+## 与上游的关系 / 改动声明(Apache-2.0 §4(b))
+本项目基于 Mizuki 移植到 WordPress,对原始模板/样式/脚本有大量改写与重组,行为与上游 Astro 版本不同。
+```
+
+- [ ] **Step 5: 提交**
 
 ```bash
 cd /root/mizuki
-git add .gitignore package.json package-lock.json
-git commit -m "chore: project scaffold (gitignore, npm scripts, wp-env + playwright)
+git add .gitignore package.json package-lock.json LICENSE README.md
+git commit -m "chore: project scaffold + Apache-2.0 LICENSE and attribution README
 
 Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 ```
@@ -263,15 +284,15 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 /*
 Theme Name: Mizuki
 Theme URI: https://github.com/LyraVoid/Mizuki
-Author: Mizuki WP port (based on Mizuki by Matsuzaka Yuki)
+Author: Mizuki WP port (unofficial), based on Mizuki by Matsuzaka Yuki
 Author URI: https://github.com/LyraVoid
-Description: 由 Astro 主题 Mizuki 移植而来的 WordPress 混合主题,Material Design 3 风格、亮暗切换、可配主色。
+Description: 由 Astro 主题 Mizuki 移植而来的 WordPress 混合主题,Material Design 3 风格、亮暗切换、可配主色。非官方移植。
 Version: 0.1.0
 Requires at least: 6.4
 Tested up to: 6.7
 Requires PHP: 8.0
-License: GNU General Public License v3.0
-License URI: https://www.gnu.org/licenses/gpl-3.0.html
+License: Apache License 2.0
+License URI: https://www.apache.org/licenses/LICENSE-2.0
 Text Domain: mizuki
 Tags: blog, custom-colors, custom-menu, featured-images, translation-ready, full-width-template
 */
