@@ -43,6 +43,9 @@ defined( 'ABSPATH' ) || exit;
 					?>
 				</div>
 				<div class="flex items-center gap-1">
+					<button id="theme-toggle" class="btn-plain scale-animation rounded-lg h-11 w-11" aria-label="<?php esc_attr_e( '切换明暗', 'mizuki' ); ?>">
+						<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+					</button>
 					<button id="display-settings-switch" class="btn-plain scale-animation rounded-lg h-11 w-11 active:scale-90" aria-label="<?php esc_attr_e( 'Display Settings', 'mizuki' ); ?>">
 						<svg class="text-[1.25rem]" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M12 22C6.49 22 2 17.51 2 12S6.49 2 12 2s10 4.04 10 9c0 3.31-2.69 6-6 6h-1.77c-.28 0-.5.22-.5.5c0 .12.05.23.13.33c.41.47.64 1.06.64 1.67A2.5 2.5 0 0 1 12 22m0-18c-4.41 0-8 3.59-8 8s3.59 8 8 8c.28 0 .5-.22.5-.5a.54.54 0 0 0-.14-.35c-.41-.46-.63-1.05-.63-1.65a2.5 2.5 0 0 1 2.5-2.5H16c2.21 0 4-1.79 4-4c0-3.86-3.59-7-8-7m-5.5 9a1.5 1.5 0 1 0 0-3a1.5 1.5 0 0 0 0 3m3-4a1.5 1.5 0 1 0 0-3a1.5 1.5 0 0 0 0 3m5 0a1.5 1.5 0 1 0 0-3a1.5 1.5 0 0 0 0 3m3 4a1.5 1.5 0 1 0 0-3a1.5 1.5 0 0 0 0 3"/></svg>
 					</button>
