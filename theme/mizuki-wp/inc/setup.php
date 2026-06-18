@@ -35,3 +35,24 @@ function mizuki_register_sidebars() {
 	);
 }
 add_action( 'widgets_init', 'mizuki_register_sidebars' );
+
+/**
+ * 自定义评论输出(套用 Mizuki 样式 class)。
+ */
+function mizuki_comment_template( $comment, $args, $depth ) {
+	$tag = ( 'div' === $args['style'] ) ? 'div' : 'li';
+	?>
+	<<?php echo $tag; ?> id="comment-<?php comment_ID(); ?>" <?php comment_class( 'card-base p-4 mb-2' ); ?>>
+		<div class="comment-author flex items-center gap-3 mb-2">
+			<?php echo get_avatar( $comment, 48, '', '', array( 'class' => 'rounded-full' ) ); ?>
+			<span class="font-bold text-90"><?php comment_author(); ?></span>
+			<span class="text-50 text-sm"><?php comment_date(); ?></span>
+		</div>
+		<div class="comment-content prose dark:prose-invert text-75">
+			<?php comment_text(); ?>
+		</div>
+		<div class="comment-actions text-sm text-50 mt-2">
+			<?php comment_reply_link( array_merge( $args, array( 'depth' => $depth, 'max_depth' => $args['max_depth'] ) ) ); ?>
+		</div>
+	<?php
+}
