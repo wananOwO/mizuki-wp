@@ -75,3 +75,20 @@ function mizuki_comment_template( $comment, $args, $depth ) {
 		</div>
 	<?php
 }
+
+/**
+ * 把主题主色 hue 作为 CSS 变量注入文档头(配色单一真相源)。
+ * 默认值 240(蓝色系),与 Mizuki siteConfig.ts 一致。
+ * 后续 Customizer 设置项可通过 filter 修改此值。
+ */
+function mizuki_output_hue() {
+	/**
+	 * 过滤主题主色 hue 值。
+	 *
+	 * @param int $hue 色相值(0-360),默认 240。
+	 */
+	$hue = (int) apply_filters( 'mizuki_theme_hue', 240 );
+	$hue = max( 0, min( 360, $hue ) );
+	printf( "<style id=\"mizuki-hue\">:root{--hue:%d;--configHue:%d;}</style>\n", absint( $hue ), absint( $hue ) );
+}
+add_action( 'wp_head', 'mizuki_output_hue', 1 );

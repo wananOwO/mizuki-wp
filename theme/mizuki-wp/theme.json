@@ -3,6 +3,32 @@
   "version": 3,
   "settings": {
     "appearanceTools": true,
-    "layout": { "contentSize": "75rem", "wideSize": "90rem" }
+    "layout": {
+      "contentSize": "75rem",
+      "wideSize": "90rem"
+    },
+    "color": {
+      "custom": true,
+      "defaultPalette": false,
+      "palette": [
+        { "slug": "primary", "color": "oklch(0.7 0.14 var(--hue))", "name": "主色" },
+        { "slug": "page-bg", "color": "var(--page-bg)", "name": "页面背景" },
+        { "slug": "card-bg", "color": "var(--card-bg)", "name": "卡片背景" },
+        { "slug": "text", "color": "var(--text)", "name": "正文" }
+      ]
+    },
+    "typography": {
+      "defaultFontSizes": false,
+      "fontFamilies": [
+        { "slug": "sans", "name": "Sans", "fontFamily": "ZenMaruGothic, Roboto, system-ui, sans-serif" },
+        { "slug": "mono", "name": "Mono", "fontFamily": "'JetBrains Mono', monospace" }
+      ],
+      "fontSizes": [
+        { "slug": "sm", "size": "0.875rem", "name": "小" },
+        { "slug": "base", "size": "1rem", "name": "正文" },
+        { "slug": "lg", "size": "1.125rem", "name": "大" },
+        { "slug": "xl", "size": "1.25rem", "name": "特大" }
+      ]
+    }
   }
 }
