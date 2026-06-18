@@ -87,7 +87,7 @@ function mizuki_output_hue() {
 	 *
 	 * @param int $hue 色相值(0-360),默认 240。
 	 */
-	$hue = (int) apply_filters( 'mizuki_theme_hue', 240 );
+	$hue = (int) apply_filters( 'mizuki_theme_hue', (int) get_theme_mod( 'mizuki_hue', 240 ) );
 	$hue = max( 0, min( 360, $hue ) );
 	printf( "<style id=\"mizuki-hue\">:root{--hue:%d;--configHue:%d;}</style>\n", absint( $hue ), absint( $hue ) );
 }

@@ -14,3 +14,4 @@ define( 'MIZUKI_URI', get_template_directory_uri() );
 require_once MIZUKI_DIR . '/inc/setup.php';
 require_once MIZUKI_DIR . '/inc/enqueue.php';
 require_once MIZUKI_DIR . '/inc/template-tags.php';
+require_once MIZUKI_DIR . '/inc/customizer.php';
