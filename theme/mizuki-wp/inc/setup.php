@@ -7,6 +7,25 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
+ * 主题初始化:theme supports + 菜单。
+ */
+function mizuki_setup() {
+	load_theme_textdomain( 'mizuki', MIZUKI_DIR . '/languages' );
+
+	add_theme_support( 'title-tag' );
+	add_theme_support( 'post-thumbnails' );
+	add_theme_support( 'automatic-feed-links' );
+	add_theme_support( 'custom-logo' );
+	add_theme_support( 'responsive-embeds' );
+	add_theme_support( 'align-wide' );
+	add_theme_support(
+		'html5',
+		array( 'search-form', 'comment-form', 'comment-list', 'gallery', 'caption', 'style', 'script' )
+	);
+}
+add_action( 'after_setup_theme', 'mizuki_setup' );
+
+/**
  * 注册菜单位置。
  */
 function mizuki_register_menus() {
