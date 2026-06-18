@@ -9,7 +9,7 @@ get_header();
 ?>
 <main id="main" class="post-single onload-animation">
 	<?php while ( have_posts() ) : the_post(); ?>
-	<div class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative mb-4">
+	<div <?php post_class( 'flex w-full rounded-[var(--radius-large)] overflow-hidden relative mb-4' ); ?>>
 		<div id="post-container" class="card-base z-10 px-6 md:px-9 pt-6">
 			<!-- 字数 + 阅读时间 -->
 			<div class="flex flex-row text-black/30 dark:text-white/30 gap-5 mb-3 transition onload-animation">
@@ -56,7 +56,13 @@ get_header();
 			<!-- 正文(必须用这些精确的 class) -->
 			<div data-pagefind-body
 			     class="prose dark:prose-invert prose-base !max-w-none custom-md mb-6 markdown-content onload-animation">
-				<?php the_content(); ?>
+				<?php
+				the_content();
+				wp_link_pages( array(
+					'before' => '<div class="page-links">' . esc_html__( 'Pages:', 'mizuki' ),
+					'after'  => '</div>',
+				) );
+			?>
 			</div>
 
 			<!-- 标签 -->
