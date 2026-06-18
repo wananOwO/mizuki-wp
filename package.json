@@ -4,10 +4,9 @@
   "version": "0.0.0",
   "description": "Mizuki theme ported to WordPress",
   "scripts": {
-    "env:start": "wp-env start",
-    "env:stop": "wp-env stop",
-    "env:clean": "wp-env clean all",
-    "cli": "wp-env run cli wp",
+    "env:up": "cd /root/wp-env/a2f1695a3ac249d65eabc5cd9da46ed2 && docker compose up -d mysql && docker rm -f wp-manual 2>/dev/null; docker run -d --name wp-manual --network a2f1695a3ac249d65eabc5cd9da46ed2_default -p 8888:80 -e WORDPRESS_DB_HOST=mysql -e WORDPRESS_DB_USER=root -e WORDPRESS_DB_PASSWORD=password -e WORDPRESS_DB_NAME=wordpress -v /root/wp-env/a2f1695a3ac249d65eabc5cd9da46ed2/WordPress:/var/www/html wordpress:php8.2 && docker exec wp-manual sh -c 'curl -sL https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -o /usr/local/bin/wp && chmod +x /usr/local/bin/wp'",
+    "env:stop": "docker rm -f wp-manual 2>/dev/null; cd /root/wp-env/a2f1695a3ac249d65eabc5cd9da46ed2 && docker compose down",
+    "cli": "bash tools/wp-cli.sh",
     "test:visual": "node tools/visual-compare.mjs"
   },
   "devDependencies": {
