@@ -1,0 +1,17 @@
+{
+  "name": "mizuki-wp",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Mizuki theme ported to WordPress",
+  "scripts": {
+    "env:start": "wp-env start",
+    "env:stop": "wp-env stop",
+    "env:clean": "wp-env clean all",
+    "cli": "wp-env run cli wp",
+    "test:visual": "node tools/visual-compare.mjs"
+  },
+  "devDependencies": {
+    "@wordpress/env": "^10.0.0",
+    "playwright": "^1.49.0"
+  }
+}
