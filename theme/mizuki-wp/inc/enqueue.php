@@ -57,16 +57,7 @@ function mizuki_enqueue_global_styles() {
 		}
 	}
 
-	// ── 特色页组：仅特定模板加载 ──
-	if ( is_page_template( 'templates/template-friends.php' ) ||
-	     is_page_template( 'templates/template-projects.php' ) ||
-	     is_page_template( 'templates/template-skills.php' ) ||
-	     is_page_template( 'templates/template-timeline.php' ) ) {
-		$filter_css = MIZUKI_DIR . '/assets/css/mizuki-filter-tabs.css';
-		if ( file_exists( $filter_css ) ) {
-			wp_enqueue_style( 'mizuki-filter-tabs', $base . '/mizuki-filter-tabs.css', array(), $ver );
-		}
-	}
+	// ── 特色页组：filter-tabs CSS/JS 由各模板自行加载（使用 <link> + <script> 标签）──
 
 	// 评论样式（仅文章单页且开启评论时加载）
 	if ( is_single() && ( comments_open() || get_comments_number() ) ) {
