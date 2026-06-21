@@ -16,22 +16,9 @@ $skill_categories = get_terms( array(
 	'orderby'    => 'name',
 ) );
 
-// 分类显示名称映射 (同步原项目)
-$category_names = array(
-	'frontend'  => '前端',
-	'backend'   => '后端',
-	'database'  => '数据库',
-	'tools'     => '工具',
-	'other'     => '其他',
-);
-
-$category_icons = array(
-	'frontend'  => '<svg viewBox="0 0 24 24" width="1em" height="1em" class="text-base w-4 h-4"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>',
-	'backend'   => '<svg viewBox="0 0 24 24" width="1em" height="1em" class="text-base w-4 h-4"><path fill="currentColor" d="M20 13H4c-.55 0-1 .45-1 1v6c0 .55.45 1 1 1h16c.55 0 1-.45 1-1v-6c0-.55-.45-1-1-1zM7 19c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zM20 3H4c-.55 0-1 .45-1 1v6c0 .55.45 1 1 1h16c.55 0 1-.45 1-1V4c0-.55-.45-1-1-1zM7 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>',
-	'database'  => '<svg viewBox="0 0 24 24" width="1em" height="1em" class="text-base w-4 h-4"><path fill="currentColor" d="M2 20h20v-4H2v4zm2-3h2v2H4v-2zM2 4v4h20V4H2zm4 3H4V5h2v2zm-4 7h20v-4H2v4zm2-3h2v2H4v-2z"/></svg>',
-	'tools'     => '<svg viewBox="0 0 24 24" width="1em" height="1em" class="text-base w-4 h-4"><path fill="currentColor" d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/></svg>',
-	'other'     => '<svg viewBox="0 0 24 24" width="1em" height="1em" class="text-base w-4 h-4"><path fill="currentColor" d="M12 2l-5.5 9h11L12 2zm0 3.84L13.93 9h-3.87L12 5.84zM17.5 13c-2.49 0-4.5 2.01-4.5 4.5s2.01 4.5 4.5 4.5 4.5-2.01 4.5-4.5-2.01-4.5-4.5-4.5zm0 7c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5zM3 21.5h8v-8H3v8zm2-6h4v4H5v-4z"/></svg>',
-);
+// 显示名 + 图标映射:theme_mod 覆盖叠加在默认值之上(控制台「技能分类管理」可编辑)。
+$category_names = mizuki_get_category_labels( 'skill_category' );
+$category_icons = mizuki_get_category_icons( 'skill_category' );
 
 // 等级文本映射 (同步原项目 SkillCard)
 function mizuki_skill_level_text( $level ) {
@@ -99,7 +86,11 @@ $total_count = $skill_query->post_count;
 				$icon  = get_post_meta( get_the_ID(), '_mizuki_skill_icon', true );
 				$desc  = wp_strip_all_tags( get_the_excerpt() );
 				$skill_cats = get_the_terms( get_the_ID(), 'skill_category' );
-				$cat_slug = ( $skill_cats && ! is_wp_error( $skill_cats ) ) ? $skill_cats[0]->slug : 'other';
+				if ( $skill_cats && ! is_wp_error( $skill_cats ) && ! empty( $skill_cats ) ) {
+					$cat_slug = implode( ',', wp_list_pluck( $skill_cats, 'slug' ) );
+				} else {
+					$cat_slug = '__none__';
+				}
 			?>
 			<div class="skill-card group relative bg-transparent rounded-xl border border-black/10 dark:border-white/10 overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1" data-category="<?php echo esc_attr( $cat_slug ); ?>">
 				<div class="p-5">
