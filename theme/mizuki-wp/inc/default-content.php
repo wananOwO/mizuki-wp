@@ -95,7 +95,7 @@ add_action( 'admin_init', 'mizuki_create_default_content' );
  * 使用者可在后台直接编辑或删除这些示例。
  */
 function mizuki_seed_demo_content() {
-	// 友链
+	// 友链 (同步原项目 friends.astro)
 	mizuki_seed_cpt_posts(
 		'mizuki_friend',
 		array(
@@ -105,6 +105,7 @@ function mizuki_seed_demo_content() {
 					'_mizuki_friend_url'  => 'https://astro.build',
 					'_mizuki_friend_desc' => '现代化的内容驱动型网站构建框架。',
 				),
+				'terms' => array( 'friend_tag' => array( 'Framework' ) ),
 			),
 			array(
 				'title' => 'WordPress',
@@ -112,6 +113,7 @@ function mizuki_seed_demo_content() {
 					'_mizuki_friend_url'  => 'https://wordpress.org',
 					'_mizuki_friend_desc' => '世界上最流行的开源建站系统。',
 				),
+				'terms' => array( 'friend_tag' => array( 'Blog' ) ),
 			),
 			array(
 				'title' => 'Mizuki',
@@ -119,11 +121,12 @@ function mizuki_seed_demo_content() {
 					'_mizuki_friend_url'  => 'https://github.com/LyraVoid/Mizuki',
 					'_mizuki_friend_desc' => '本主题的原始 Astro 项目。',
 				),
+				'terms' => array( 'friend_tag' => array( 'Framework', 'Blog' ) ),
 			),
 		)
 	);
 
-	// 追番
+	// 追番 (使用 anime_status taxonomy)
 	mizuki_seed_cpt_posts(
 		'mizuki_anime',
 		array(
@@ -131,25 +134,23 @@ function mizuki_seed_demo_content() {
 				'title'   => '示例番剧 · 在看',
 				'content' => '这是一个示例追番条目,请在后台替换为你正在观看的作品。',
 				'meta'    => array(
-					'_mizuki_anime_status'   => 'watching',
 					'_mizuki_anime_score'    => '9.0',
 					'_mizuki_anime_progress' => '6/12',
 				),
+				'terms'   => array( 'anime_status' => array( 'watching' ) ),
 			),
 			array(
 				'title'   => '示例番剧 · 想看',
 				'content' => '这是一个示例追番条目,标记为想看。',
-				'meta'    => array(
-					'_mizuki_anime_status' => 'planned',
-				),
+				'terms'   => array( 'anime_status' => array( 'planned' ) ),
 			),
 			array(
 				'title'   => '示例番剧 · 看完',
 				'content' => '这是一个示例追番条目,已看完。',
 				'meta'    => array(
-					'_mizuki_anime_status' => 'completed',
-					'_mizuki_anime_score'  => '8.5',
+					'_mizuki_anime_score' => '8.5',
 				),
+				'terms'   => array( 'anime_status' => array( 'completed' ) ),
 			),
 		)
 	);
@@ -169,7 +170,7 @@ function mizuki_seed_demo_content() {
 		)
 	);
 
-	// 项目
+	// 项目 (同步原项目 projects.astro 的 category 分类)
 	mizuki_seed_cpt_posts(
 		'mizuki_project',
 		array(
@@ -181,6 +182,7 @@ function mizuki_seed_demo_content() {
 					'_mizuki_project_tech'   => 'PHP, WordPress, Tailwind, JavaScript',
 					'_mizuki_project_source' => 'https://github.com/LyraVoid/Mizuki',
 				),
+				'terms' => array( 'project_category' => array( 'web' ) ),
 			),
 			array(
 				'title' => '示例项目',
@@ -189,33 +191,50 @@ function mizuki_seed_demo_content() {
 					'_mizuki_project_status' => 'completed',
 					'_mizuki_project_tech'   => 'Vue, Vite, TypeScript',
 				),
+				'terms' => array( 'project_category' => array( 'web' ) ),
 			),
 		)
 	);
 
-	// 技能
+	// 技能 (同步原项目 skills.astro 的 category 分类)
 	mizuki_seed_cpt_posts(
 		'mizuki_skill',
 		array(
 			array(
 				'title'   => 'JavaScript',
 				'content' => '前端交互与脚本开发。',
-				'meta'    => array( '_mizuki_skill_level' => '90' ),
+				'meta'    => array( '_mizuki_skill_level' => '90', '_mizuki_skill_icon' => 'devicon-javascript-plain' ),
+				'terms'   => array( 'skill_category' => array( 'frontend' ) ),
 			),
 			array(
 				'title'   => 'PHP',
 				'content' => '服务端开发与 WordPress 主题/插件。',
-				'meta'    => array( '_mizuki_skill_level' => '80' ),
+				'meta'    => array( '_mizuki_skill_level' => '80', '_mizuki_skill_icon' => 'devicon-php-plain' ),
+				'terms'   => array( 'skill_category' => array( 'backend' ) ),
 			),
 			array(
 				'title'   => 'CSS',
 				'content' => '响应式布局与动效。',
-				'meta'    => array( '_mizuki_skill_level' => '85' ),
+				'meta'    => array( '_mizuki_skill_level' => '85', '_mizuki_skill_icon' => 'devicon-css3-plain' ),
+				'terms'   => array( 'skill_category' => array( 'frontend' ) ),
 			),
 			array(
 				'title'   => 'Python',
 				'content' => '脚本与数据处理。',
-				'meta'    => array( '_mizuki_skill_level' => '60' ),
+				'meta'    => array( '_mizuki_skill_level' => '60', '_mizuki_skill_icon' => 'devicon-python-plain' ),
+				'terms'   => array( 'skill_category' => array( 'backend' ) ),
+			),
+			array(
+				'title'   => 'MySQL',
+				'content' => '关系型数据库管理。',
+				'meta'    => array( '_mizuki_skill_level' => '70', '_mizuki_skill_icon' => 'devicon-mysql-plain' ),
+				'terms'   => array( 'skill_category' => array( 'database' ) ),
+			),
+			array(
+				'title'   => 'Git',
+				'content' => '版本控制与团队协作。',
+				'meta'    => array( '_mizuki_skill_level' => '85', '_mizuki_skill_icon' => 'devicon-git-plain' ),
+				'terms'   => array( 'skill_category' => array( 'tools' ) ),
 			),
 		)
 	);
@@ -268,9 +287,17 @@ function mizuki_seed_cpt_posts( $post_type, $items ) {
 				'post_status'  => 'publish',
 			)
 		);
-		if ( $post_id && ! is_wp_error( $post_id ) && ! empty( $item['meta'] ) ) {
-			foreach ( $item['meta'] as $key => $value ) {
-				update_post_meta( $post_id, $key, $value );
+		if ( $post_id && ! is_wp_error( $post_id ) ) {
+			if ( ! empty( $item['meta'] ) ) {
+				foreach ( $item['meta'] as $key => $value ) {
+					update_post_meta( $post_id, $key, $value );
+				}
+			}
+			// 设置分类/标签
+			if ( ! empty( $item['terms'] ) ) {
+				foreach ( $item['terms'] as $taxonomy => $term_slugs ) {
+					wp_set_object_terms( $post_id, $term_slugs, $taxonomy );
+				}
 			}
 		}
 	}

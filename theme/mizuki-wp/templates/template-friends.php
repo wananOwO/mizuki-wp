@@ -2,158 +2,219 @@
 /**
  * Template Name: 友链
  *
- * 友链页面模板 - 以网格卡片形式展示所有友链条目。
+ * 友链页面模板 — 完全同步 Mizuki 原项目 friends.astro。
+ * 使用 friend_tag taxonomy + filter-tag 按钮筛选。
  *
  * @package Mizuki
  */
 defined( 'ABSPATH' ) || exit;
 get_header();
+
+// 获取所有友链标签
+$friend_tags = get_terms( array(
+	'taxonomy'   => 'friend_tag',
+	'hide_empty' => true,
+	'orderby'    => 'name',
+) );
+
+$friend_query = new WP_Query( array(
+	'post_type'              => 'mizuki_friend',
+	'posts_per_page'         => 200,
+	'orderby'                => 'date',
+	'order'                  => 'ASC',
+	'no_found_rows'          => true,
+	'update_post_term_cache' => true,
+) );
+
+$total_count = $friend_query->post_count;
 ?>
+
+<link rel="stylesheet" href="<?php echo esc_url( MIZUKI_URI . '/assets/css/mizuki-filter-tabs.css' ); ?>">
+<script is:inline src="<?php echo esc_url( MIZUKI_URI . '/assets/js/filter-tabs-handler.js' ); ?>"></script>
+
 <main id="main" class="friends-page onload-animation">
 	<div class="card-base px-6 md:px-9 py-6">
-		<h1 class="transition w-full block font-bold mb-6 text-3xl md:text-4xl text-90">
+		<h1 class="transition w-full block font-bold mb-2 text-3xl md:text-4xl text-90">
 			<?php esc_html_e( '友链', 'mizuki' ); ?>
 		</h1>
+		<p class="text-black/50 dark:text-white/50 mb-6"><?php esc_html_e( '我的朋友们', 'mizuki' ); ?></p>
 		<div class="mt-4 border-[var(--line-divider)] border-dashed border-b-[1px] mb-6"></div>
 
-		<?php
-		$friend_query = new WP_Query( array(
-			'post_type'              => 'mizuki_friend',
-			'posts_per_page'         => 200,
-			'orderby'                => 'date',
-			'order'                  => 'ASC',
-			'no_found_rows'          => true,
-			'update_post_term_cache' => false,
-		) );
-
-		if ( $friend_query->have_posts() ) :
-			// 收集所有标签
-			$all_tags = array();
-			foreach ( $friend_query->posts as $friend_post ) {
-				$post_tags = get_the_tags( $friend_post->ID );
-				if ( $post_tags ) {
-					foreach ( $post_tags as $tag ) {
-						if ( ! isset( $all_tags[ $tag->term_id ] ) ) {
-							$all_tags[ $tag->term_id ] = array(
-								'name'  => $tag->name,
-								'slug'  => $tag->slug,
-								'count' => 0,
-							);
-						}
-						$all_tags[ $tag->term_id ]['count']++;
-					}
-				}
-			}
-			// 按名称排序
-			uasort( $all_tags, function( $a, $b ) {
-				return strcmp( $a['name'], $b['name'] );
-			} );
-		?>
-		<!-- 标签过滤 -->
-		<?php if ( ! empty( $all_tags ) ) : ?>
-		<div class="filter-tabs flex flex-wrap gap-2 mb-6">
-			<button class="filter-tabs-item active" data-filter-attr="friend-tags" data-filter-value="all">
-				<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-				</svg>
-				<span><?php esc_html_e( '全部', 'mizuki' ); ?></span>
-				<span class="filter-tabs-count">(<?php echo count( $friend_query->posts ); ?>)</span>
-			</button>
-			<?php foreach ( $all_tags as $tag ) : ?>
-			<button class="filter-tabs-item" data-filter-attr="friend-tags" data-filter-value="<?php echo esc_attr( $tag['slug'] ); ?>">
-				<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
-				</svg>
-				<span><?php echo esc_html( $tag['name'] ); ?></span>
-				<span class="filter-tabs-count">(<?php echo $tag['count']; ?>)</span>
-			</button>
-			<?php endforeach; ?>
-		</div>
-		<?php endif; ?>
-
-		<div id="friends-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-		<?php
-		endif;
-
-		if ( $friend_query->have_posts() ) :
-		?>
-		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-			<?php while ( $friend_query->have_posts() ) : $friend_query->the_post();
-				$friend_url  = get_post_meta( get_the_ID(), '_mizuki_friend_url', true );
-				$friend_desc = get_post_meta( get_the_ID(), '_mizuki_friend_desc', true );
-				$friend_host = $friend_url ? wp_parse_url( $friend_url, PHP_URL_HOST ) : '';
-				$friend_tags = get_the_tags();
-				$tag_slugs   = $friend_tags ? implode( ',', wp_list_pluck( $friend_tags, 'slug' ) ) : '';
-			?>
-			<div class="group relative bg-transparent rounded-xl border border-black/10 dark:border-white/10 overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1" data-friend-tags="<?php echo esc_attr( $tag_slugs ); ?>">
-				<div class="p-6">
-					<!-- 头像和标题区 -->
-					<div class="flex items-start gap-4 mb-4">
-						<div class="w-16 h-16 flex-shrink-0 rounded-xl overflow-hidden bg-[var(--primary)]/10 flex items-center justify-center ring-2 ring-transparent transition-all duration-300">
-							<?php if ( has_post_thumbnail() ) : ?>
-								<?php the_post_thumbnail( 'thumbnail', array( 'class' => 'w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-300', 'loading' => 'lazy' ) ); ?>
-							<?php else : ?>
-								<span class="text-2xl font-bold text-[var(--primary)] group-hover:scale-110 transition-transform duration-300"><?php echo esc_html( mb_substr( get_the_title(), 0, 1 ) ); ?></span>
-							<?php endif; ?>
-						</div>
-						<div class="flex-1 min-w-0">
-							<h3 class="text-xl font-bold text-black/90 dark:text-white/90 mb-1 truncate group-hover:text-[var(--primary)] transition-colors duration-200">
-								<?php the_title(); ?>
-							</h3>
-							<?php if ( $friend_host ) : ?>
-							<a href="<?php echo esc_url( $friend_url ); ?>" target="_blank" rel="noopener noreferrer"
-							   class="text-xs text-black/50 dark:text-white/50 hover:text-[var(--primary)] truncate block transition-colors duration-200">
-								<?php echo esc_html( $friend_host ); ?>
-							</a>
-							<?php endif; ?>
-						</div>
-					</div>
-
-					<!-- 描述 -->
-					<?php if ( $friend_desc ) : ?>
-					<p class="text-sm text-black/60 dark:text-white/60 mb-4 line-clamp-2 min-h-[2.5rem]">
-						<?php echo esc_html( $friend_desc ); ?>
-					</p>
-					<?php endif; ?>
-
-					<!-- 标签 -->
-					<?php if ( $friend_tags ) : ?>
-					<div class="flex flex-wrap gap-2 mb-4">
-						<?php foreach ( $friend_tags as $friend_tag ) : ?>
-						<span class="px-2 py-1 text-xs rounded-md bg-[var(--primary)]/10 text-[var(--primary)] font-medium">
-							<?php echo esc_html( $friend_tag->name ); ?>
-						</span>
-						<?php endforeach; ?>
-					</div>
-					<?php endif; ?>
-
-					<!-- 操作按钮 -->
-					<?php if ( $friend_url ) : ?>
-					<div class="flex gap-2">
-						<a href="<?php echo esc_url( $friend_url ); ?>" target="_blank" rel="noopener noreferrer"
-						   class="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-[var(--primary)] text-white hover:bg-[var(--primary)]/90 active:scale-95 transition-all duration-200 font-medium text-sm">
-							<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-							<?php esc_html_e( '访问', 'mizuki' ); ?>
-						</a>
-					</div>
-					<?php endif; ?>
+		<!-- 搜索和筛选栏 (同步原项目 friends.astro) -->
+		<div class="mb-6 space-y-3">
+			<!-- 搜索框 -->
+			<div class="w-full">
+				<div class="relative">
+					<input
+						type="text"
+						id="friend-search"
+						placeholder="<?php esc_attr_e( '搜索友链...', 'mizuki' ); ?>"
+						class="w-full px-4 py-2 pl-10 rounded-lg bg-[var(--btn-regular-bg)]
+								text-black/90 dark:text-white/90
+								border border-black/10 dark:border-white/10
+								focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50
+								transition-all duration-200"
+					/>
+					<svg
+						class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-black/40 dark:text-white/40"
+						fill="none" stroke="currentColor" viewBox="0 0 24 24"
+					>
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+					</svg>
 				</div>
-
-				<!-- 悬停装饰效果 -->
-				<div class="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-xl"></div>
 			</div>
+
+			<!-- 标签筛选 (同步原项目 filter-tag 按钮) -->
+			<?php if ( ! is_wp_error( $friend_tags ) && ! empty( $friend_tags ) ) : ?>
+			<div class="filter-container flex flex-wrap gap-2">
+				<button class="filter-tag active" data-tag="all">
+					<?php esc_html_e( '全部', 'mizuki' ); ?>
+				</button>
+				<?php foreach ( $friend_tags as $tag ) : ?>
+				<button class="filter-tag" data-tag="<?php echo esc_attr( $tag->name ); ?>">
+					<?php echo esc_html( $tag->name ); ?>
+				</button>
+				<?php endforeach; ?>
+			</div>
+			<?php endif; ?>
+		</div>
+
+		<!-- 友链卡片网格 -->
+		<?php if ( $friend_query->have_posts() ) : ?>
+		<div id="friends-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 mb-6">
+			<?php while ( $friend_query->have_posts() ) : $friend_query->the_post();
+				$furl = get_post_meta( get_the_ID(), '_mizuki_friend_url', true );
+				$desc = get_post_meta( get_the_ID(), '_mizuki_friend_desc', true );
+				$tags = get_the_terms( get_the_ID(), 'friend_tag' );
+				$tag_names = array();
+				if ( $tags && ! is_wp_error( $tags ) ) {
+					$tag_names = wp_list_pluck( $tags, 'name' );
+				}
+				$tag_str = implode( ',', $tag_names );
+			?>
+			<a href="<?php echo esc_url( $furl ?: '#' ); ?>" target="_blank" rel="noopener noreferrer"
+			   class="friend-card group block bg-transparent rounded-xl border border-black/10 dark:border-white/10 overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+			   data-tag="<?php echo esc_attr( $tag_str ); ?>">
+				<div class="p-5 flex items-start gap-4">
+					<div class="w-16 h-16 flex-shrink-0 rounded-xl overflow-hidden">
+						<?php if ( has_post_thumbnail() ) : ?>
+							<?php the_post_thumbnail( 'thumbnail', array( 'class' => 'w-full h-full object-cover', 'loading' => 'lazy' ) ); ?>
+						<?php else : ?>
+							<div class="w-full h-full bg-[var(--primary)]/10 flex items-center justify-center text-2xl font-bold text-[var(--primary)]">
+								<?php echo esc_html( mb_substr( get_the_title(), 0, 1 ) ); ?>
+							</div>
+						<?php endif; ?>
+					</div>
+					<div class="flex-1 min-w-0">
+						<h3 class="text-lg font-bold text-black/90 dark:text-white/90 truncate group-hover:text-[var(--primary)] transition-colors duration-200">
+							<?php the_title(); ?>
+						</h3>
+						<?php if ( $desc ) : ?>
+						<p class="text-sm text-black/60 dark:text-white/60 mt-1 line-clamp-2">
+							<?php echo esc_html( $desc ); ?>
+						</p>
+						<?php endif; ?>
+						<?php if ( ! empty( $tag_names ) ) : ?>
+						<div class="flex flex-wrap gap-1.5 mt-2">
+							<?php foreach ( $tag_names as $tn ) : ?>
+							<span class="px-2 py-0.5 text-xs rounded-md bg-black/5 dark:bg-white/10 text-black/60 dark:text-white/60"><?php echo esc_html( $tn ); ?></span>
+							<?php endforeach; ?>
+						</div>
+						<?php endif; ?>
+					</div>
+				</div>
+			</a>
 			<?php endwhile; wp_reset_postdata(); ?>
 		</div>
-
-		<!-- 无结果提示 -->
-		<div id="no-results" class="hidden text-center py-12">
-			<p class="text-50"><?php esc_html_e( '没有找到匹配的友链。', 'mizuki' ); ?></p>
-		</div>
-
 		<?php else : ?>
 		<p class="text-50 text-center py-12"><?php esc_html_e( '暂无友链。', 'mizuki' ); ?></p>
 		<?php endif; ?>
+
+		<!-- 无结果提示 -->
+		<div id="no-results" class="hidden text-center py-12">
+			<p class="text-black/50 dark:text-white/50 text-lg"><?php esc_html_e( '没有找到匹配的友链。', 'mizuki' ); ?></p>
+		</div>
 	</div>
 </main>
-<?php
-get_footer();
+
+<!-- 友链页面筛选脚本 (同步原项目 friends-page-handler.js 逻辑) -->
+<script is:inline>
+(function() {
+	function initFriendsFilter() {
+		var searchInput = document.getElementById('friend-search');
+		var filterBtns = document.querySelectorAll('.filter-tag');
+		var cards = document.querySelectorAll('.friend-card');
+		var noResults = document.getElementById('no-results');
+		var activeTag = 'all';
+
+		function applyFilters() {
+			var query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+			var visibleCount = 0;
+
+			cards.forEach(function(card) {
+				var title = (card.querySelector('h3') || {}).textContent || '';
+				var desc = (card.querySelector('p') || {}).textContent || '';
+				var cardTags = (card.dataset.tag || '').split(',');
+
+				var matchTag = activeTag === 'all' || cardTags.indexOf(activeTag) !== -1;
+				var matchSearch = !query || title.toLowerCase().indexOf(query) !== -1 || desc.toLowerCase().indexOf(query) !== -1;
+
+				if (matchTag && matchSearch) {
+					card.classList.remove('filtered-out');
+					visibleCount++;
+				} else {
+					card.classList.add('filtered-out');
+				}
+			});
+
+			if (noResults) {
+				noResults.classList.toggle('hidden', visibleCount > 0);
+			}
+		}
+
+		filterBtns.forEach(function(btn) {
+			btn.addEventListener('click', function() {
+				filterBtns.forEach(function(b) { b.classList.remove('active'); });
+				btn.classList.add('active');
+				activeTag = btn.dataset.tag || 'all';
+				applyFilters();
+			});
+		});
+
+		if (searchInput) {
+			searchInput.addEventListener('input', applyFilters);
+		}
+	}
+
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', initFriendsFilter);
+	} else {
+		initFriendsFilter();
+	}
+})();
+</script>
+
+<style>
+	.friend-card {
+		animation: fadeInUp 0.5s ease-out forwards;
+		opacity: 0;
+	}
+	@keyframes fadeInUp {
+		from { opacity: 0; transform: translateY(20px); }
+		to { opacity: 1; transform: translateY(0); }
+	}
+	.friend-card:nth-child(1) { animation-delay: 0.03s; }
+	.friend-card:nth-child(2) { animation-delay: 0.06s; }
+	.friend-card:nth-child(3) { animation-delay: 0.09s; }
+	.friend-card:nth-child(4) { animation-delay: 0.12s; }
+	.friend-card:nth-child(5) { animation-delay: 0.15s; }
+	.friend-card:nth-child(6) { animation-delay: 0.18s; }
+	.line-clamp-2 {
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+	}
+</style>
+
+<?php get_footer(); ?>

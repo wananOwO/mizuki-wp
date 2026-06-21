@@ -1,8 +1,4 @@
-/**
- * Filter tabs styling for Mizuki WordPress theme
- * Used in Friends, Projects, Skills, and Timeline templates
- */
-
+/* FilterTabs 组件样式 — 完全同步 Mizuki 原项目 FilterTabs.astro */
 .filter-tabs {
 	display: flex;
 	flex-wrap: wrap;
@@ -15,7 +11,7 @@
 	gap: 0.375rem;
 	padding: 0.5rem 1rem;
 	border: 1px solid var(--line-divider);
-	border-radius: var(--radius-large, 0.75rem);
+	border-radius: var(--radius-large);
 	background: var(--btn-regular-bg);
 	color: var(--btn-content);
 	font-size: 0.875rem;
@@ -42,7 +38,7 @@
 
 .filter-tabs-item.active {
 	background: var(--primary);
-	color: #fff;
+	color: white;
 	border-color: var(--primary);
 }
 
@@ -55,12 +51,11 @@
 	font-size: 0.8rem;
 }
 
-/* Filtered out items */
+/* 被筛选隐藏的卡片 */
 .filtered-out {
 	display: none !important;
 }
 
-/* Mobile responsive */
 @media (max-width: 768px) {
 	.filter-tabs {
 		gap: 0.375rem;
@@ -74,4 +69,43 @@
 	.filter-tabs-count {
 		display: none;
 	}
+}
+
+/* 友链页面 filter-tag 按钮样式 (同步原项目 friends.astro) */
+.filter-container {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+}
+
+.filter-tag {
+	padding: 0.5rem 1rem;
+	border: 1px solid var(--line-divider);
+	border-radius: var(--radius-large);
+	background: var(--btn-regular-bg);
+	color: var(--btn-content);
+	font-size: 0.875rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	white-space: nowrap;
+}
+
+.filter-tag:hover:not(.active) {
+	background: var(--btn-hover-bg);
+	border-color: var(--primary);
+	transform: translateY(-1px);
+}
+
+.filter-tag.active {
+	background: var(--primary);
+	color: white;
+	border-color: var(--primary);
+}
+
+.filter-tag.active:hover {
+	background: var(--primary) !important;
+	color: white !important;
+	border-color: var(--primary) !important;
+	transform: translateY(-1px);
 }
