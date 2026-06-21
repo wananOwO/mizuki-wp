@@ -36,7 +36,8 @@ function mizuki_register_cpts() {
 			'show_ui'             => true,
 			'show_in_menu'        => 'mizuki-theme-settings', // 挂到"Mizuki 主题"菜单下作为子菜单
 			'menu_icon'           => $cfg['icon'],
-			'supports'            => array( 'title', 'editor', 'thumbnail' ),
+			'supports'            => array( 'title', 'editor', 'thumbnail', 'tags' ),
+			'taxonomies'          => array( 'post_tag' ), // 显式关联标签 taxonomy
 			'has_archive'         => false,
 			'exclude_from_search' => true,
 		) );
