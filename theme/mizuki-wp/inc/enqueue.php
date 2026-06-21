@@ -7,13 +7,18 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * 入队 Mizuki 编译后的全局样式(14 个全站必加载)。
+ * 入队 Mizuki 核心样式（全站必加载）。
+ *
+ * 优化策略：将原先 16 个全站 CSS 拆分为 3 组按需加载：
+ * - 核心组：全站加载（11 个）
+ * - 文章页组：仅 is_single() 加载（4 个，~100K）
+ * - 特色页组：仅特定模板加载（3 个，~28K）
  */
 function mizuki_enqueue_global_styles() {
 	$ver  = MIZUKI_VERSION;
 	$base = MIZUKI_URI . '/assets/css';
 
-	// 全局 CSS (顺序: variables → main layout → markdown → components)
+	// ── 核心组：全站必加载 ──
 	$global_css = array(
 		'mizuki-variables'           => 'mizuki-variables.css',
 		'mizuki-main'                => 'mizuki-main.css',
@@ -21,17 +26,11 @@ function mizuki_enqueue_global_styles() {
 		'mizuki-tw-utilities'        => 'mizuki-tw-utilities.css',
 		'mizuki-markdown-base'       => 'mizuki-markdown-base.css',
 		'mizuki-markdown-components' => 'mizuki-markdown-components.css',
-		'mizuki-markdown-extend'     => 'mizuki-markdown-extend.css',
 		'mizuki-banner'              => 'mizuki-banner.css',
-		'mizuki-katex'               => 'mizuki-katex.css',
-		'mizuki-fancybox'            => 'mizuki-fancybox.css',
-		'mizuki-encrypted'           => 'mizuki-encrypted.css',
 		'mizuki-mobile-fix'          => 'mizuki-mobile-fix.css',
 		'mizuki-transition'          => 'mizuki-transition.css',
-		'mizuki-twikoo'              => 'mizuki-twikoo.css',
 		'mizuki-sidebar-track'       => 'mizuki-sidebar-track.css',
 		'mizuki-widget-responsive'   => 'mizuki-widget-responsive.css',
-		'mizuki-filter-tabs'         => 'mizuki-filter-tabs.css',
 		// 必须最后加载: 修正层,覆盖 main.css 中未限定作用域的卡片/面板规则。
 		'mizuki-overrides'           => 'mizuki-overrides.css',
 	);
@@ -43,22 +42,97 @@ function mizuki_enqueue_global_styles() {
 		}
 	}
 
+	// ── 文章页组：仅文章页加载 ──
+	if ( is_single() ) {
+		$post_css = array(
+			'mizuki-markdown-extend' => 'mizuki-markdown-extend.css',
+			'mizuki-katex'           => 'mizuki-katex.css',
+			'mizuki-fancybox'        => 'mizuki-fancybox.css',
+		);
+		foreach ( $post_css as $handle => $file ) {
+			$path = MIZUKI_DIR . '/assets/css/' . $file;
+			if ( file_exists( $path ) ) {
+				wp_enqueue_style( $handle, $base . '/' . $file, array(), $ver );
+			}
+		}
+	}
+
+	// ── 特色页组：仅特定模板加载 ──
+	if ( is_page_template( 'templates/template-friends.php' ) ||
+	     is_page_template( 'templates/template-projects.php' ) ||
+	     is_page_template( 'templates/template-skills.php' ) ||
+	     is_page_template( 'templates/template-timeline.php' ) ) {
+		$filter_css = MIZUKI_DIR . '/assets/css/mizuki-filter-tabs.css';
+		if ( file_exists( $filter_css ) ) {
+			wp_enqueue_style( 'mizuki-filter-tabs', $base . '/mizuki-filter-tabs.css', array(), $ver );
+		}
+	}
+
+	// 评论样式（仅文章单页且开启评论时加载）
+	if ( is_single() && ( comments_open() || get_comments_number() ) ) {
+		$twikoo_css = MIZUKI_DIR . '/assets/css/mizuki-twikoo.css';
+		if ( file_exists( $twikoo_css ) ) {
+			wp_enqueue_style( 'mizuki-twikoo', $base . '/mizuki-twikoo.css', array(), $ver );
+		}
+	}
+
+	// 加密内容样式（仅文章单页需要的懒加载，由 JS 按需注入）
+	if ( is_single() ) {
+		$encrypted_css = MIZUKI_DIR . '/assets/css/mizuki-encrypted.css';
+		if ( file_exists( $encrypted_css ) ) {
+			wp_enqueue_style( 'mizuki-encrypted', $base . '/mizuki-encrypted.css', array(), $ver );
+		}
+	}
+
+	// 相册页也加载 Fancybox
+	if ( is_page_template( 'templates/template-albums.php' ) ) {
+		$fb_css = MIZUKI_DIR . '/assets/css/mizuki-fancybox.css';
+		if ( file_exists( $fb_css ) ) {
+			wp_enqueue_style( 'mizuki-fancybox', $base . '/mizuki-fancybox.css', array(), $ver );
+		}
+	}
+
 	// KaTeX + JetBrains Mono 字体(由 CSS @font-face 引用,无额外 enqueue)
 	// 自定义字体(ZenMaruGothic, loli)同上
 
-	// Fancybox 图片灯箱库(mizuki-fancybox.css 已提供配套样式)。
-	wp_enqueue_script( 'fancybox', 'https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js', array(), '5.0', true );
+	// ── JS 条件加载 ──
 
-	$js = MIZUKI_DIR . '/assets/js/mizuki-theme.js';
-	if ( file_exists( $js ) ) {
-		// 依赖 fancybox,确保灯箱库先于主题脚本加载。
-		wp_enqueue_script( 'mizuki-theme', MIZUKI_URI . '/assets/js/mizuki-theme.js', array( 'fancybox' ), $ver, true );
+	// Fancybox 图片灯箱库: 仅文章页或相册页加载
+	if ( is_single() || is_page_template( 'templates/template-albums.php' ) ) {
+		wp_enqueue_script( 'fancybox', 'https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js', array(), '5.0', true );
+
+		$js = MIZUKI_DIR . '/assets/js/mizuki-theme.js';
+		if ( file_exists( $js ) ) {
+			// 依赖 fancybox,确保灯箱库先于主题脚本加载。
+			wp_enqueue_script( 'mizuki-theme', MIZUKI_URI . '/assets/js/mizuki-theme.js', array( 'fancybox' ), $ver, true );
+		}
+	} else {
+		// 非文章页：仅加载核心主题 JS（主题切换、回到顶部等）
+		$js = MIZUKI_DIR . '/assets/js/mizuki-theme.js';
+		if ( file_exists( $js ) ) {
+			wp_enqueue_script( 'mizuki-theme', MIZUKI_URI . '/assets/js/mizuki-theme.js', array(), $ver, true );
+		}
 	}
 
-	// 标签过滤功能(用于友链、项目、技能、时间线页面)。
-	$filter_js = MIZUKI_DIR . '/assets/js/filter-handler.js';
-	if ( file_exists( $filter_js ) ) {
-		wp_enqueue_script( 'mizuki-filter', MIZUKI_URI . '/assets/js/filter-handler.js', array(), $ver, true );
+	// 标签过滤功能: 仅特色页加载
+	$filter_pages = array(
+		'templates/template-friends.php',
+		'templates/template-projects.php',
+		'templates/template-skills.php',
+		'templates/template-timeline.php',
+	);
+	$need_filter = false;
+	foreach ( $filter_pages as $tpl ) {
+		if ( is_page_template( $tpl ) ) {
+			$need_filter = true;
+			break;
+		}
+	}
+	if ( $need_filter ) {
+		$filter_js = MIZUKI_DIR . '/assets/js/filter-handler.js';
+		if ( file_exists( $filter_js ) ) {
+			wp_enqueue_script( 'mizuki-filter', MIZUKI_URI . '/assets/js/filter-handler.js', array(), $ver, true );
+		}
 	}
 
 	// WordPress 导航菜单 + 布局修正的内联 CSS
