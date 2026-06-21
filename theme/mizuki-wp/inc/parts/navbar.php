@@ -293,7 +293,7 @@ if ( ! function_exists( 'mizuki_render_navbar' ) ) {
 	function mizuki_render_navbar() {
 		$logo = '';
 		if ( has_custom_logo() ) {
-			$cid = get_theme_mod( 'custom_logo' );
+			$cid = mizuki_get_theme_mod( 'custom_logo' );
 			$src = wp_get_attachment_image_url( $cid, 'full' );
 			if ( $src ) {
 				$logo = '<img src="' . esc_url( $src ) . '" alt="" class="h-[1.75rem] w-[1.75rem] mr-2 object-contain" loading="lazy">';
@@ -319,7 +319,7 @@ if ( ! function_exists( 'mizuki_render_navbar' ) ) {
 					<button id="theme-toggle" aria-label="<?php esc_attr_e( '切换明暗', 'mizuki' ); ?>" class="btn-plain scale-animation rounded-lg h-11 w-11 active:scale-90">
 						<svg class="text-[1.25rem]" viewBox="0 0 24 24" width="1em" height="1em"><path fill="currentColor" d="M12 21q-3.75 0-6.375-2.625T3 12t2.625-6.375T12 3q.35 0 .688.025t.662.075q-1.025.725-1.638 1.888T11.1 7.5q0 2.25 1.575 3.825T16.5 12.9q1.35 0 2.512-.612T20.9 10.65q.05.325.075.663T21 12q0 3.75-2.625 6.375T12 21"/></svg>
 					</button>
-					<?php if ( ! get_theme_mod( 'mizuki_hue_fixed', false ) ) : ?>
+					<?php if ( ! mizuki_get_theme_mod( 'mizuki_hue_fixed', false ) ) : ?>
 					<button aria-label="<?php esc_attr_e( 'Display Settings', 'mizuki' ); ?>" class="btn-plain scale-animation rounded-lg h-11 w-11 active:scale-90" id="display-settings-switch">
 						<svg class="text-[1.25rem]" viewBox="0 0 24 24" width="1em" height="1em"><path fill="currentColor" d="M12 22q-2.05 0-3.875-.788t-3.187-2.15t-2.15-3.187T2 12q0-2.075.813-3.9t2.2-3.175T8.25 2.788T12.05 2q2 0 3.788.738t3.125 2.025t2.137 3T21.1 11.4q.275 2.45-1.225 4.025T16 17h-1.85q-.225 0-.312.125t-.088.275q0 .3.375.863t.375 1.287q0 1.05-.725 1.75T12 22m-5.5-9q.65 0 1.075-.425T8 11.5t-.425-1.075T6.5 10t-1.075.425T5 11.5t.425 1.075T6.5 13m3-4q.65 0 1.075-.425T11 7.5t-.425-1.075T9.5 6t-1.075.425T8 7.5t.425 1.075T9.5 9m5 0q.65 0 1.075-.425T16 7.5t-.425-1.075T14.5 6t-1.075.425T13 7.5t.425 1.075T14.5 9m3 4q.65 0 1.075-.425T19 11.5t-.425-1.075T17.5 10t-1.075.425T16 11.5t.425 1.075T17.5 13"/></svg>
 					</button>
@@ -338,11 +338,11 @@ if ( ! function_exists( 'mizuki_render_navbar' ) ) {
 	</div>
 	<!-- 显示设置面板 -->
 	<div id="display-setting" class="float-panel float-panel-closed fixed right-4 top-[5.25rem] px-4 py-4 w-64 z-50">
-		<?php if ( ! get_theme_mod( 'mizuki_hue_fixed', false ) ) : ?>
+		<?php if ( ! mizuki_get_theme_mod( 'mizuki_hue_fixed', false ) ) : ?>
 		<div class="mb-3">
 			<label class="text-50 text-xs font-medium mb-2 block"><?php esc_html_e( '主题色', 'mizuki' ); ?></label>
 			<input type="range" id="panel-hue-slider" min="0" max="360" step="1"
-			       data-default="<?php echo esc_attr( get_theme_mod( 'mizuki_hue', 240 ) ); ?>"
+			       data-default="<?php echo esc_attr( mizuki_get_theme_mod( 'mizuki_hue', 240 ) ); ?>"
 			       class="w-full accent-[var(--primary)]" />
 		</div>
 		<?php endif; ?>
