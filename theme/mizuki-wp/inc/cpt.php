@@ -160,6 +160,12 @@ function mizuki_save_meta_fields( $post_id ) {
 	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
 	if ( ! current_user_can( 'edit_post', $post_id ) ) return;
 
+	// 仅处理 Mizuki CPT 类型，其他 post type 快速返回。
+	$mizuki_cpts = array( 'mizuki_anime', 'mizuki_friend', 'mizuki_diary', 'mizuki_album', 'mizuki_project', 'mizuki_skill' );
+	if ( ! in_array( get_post_type( $post_id ), $mizuki_cpts, true ) ) {
+		return;
+	}
+
 	// Anime
 	if ( isset( $_POST['mizuki_anime_nonce'] ) && wp_verify_nonce( $_POST['mizuki_anime_nonce'], 'mizuki_anime_save' ) ) {
 		$fields = array( 'mizuki_anime_status', 'mizuki_anime_score', 'mizuki_anime_url', 'mizuki_anime_progress' );
@@ -201,9 +207,9 @@ add_action( 'save_post', 'mizuki_save_meta_fields' );
 /**
  * 保存文章时清除相关缓存。
  */
-function mizuki_clear_post_caches( \$post_id ) {
+function mizuki_clear_post_caches( $post_id ) {
 	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
-	if ( 'post' !== get_post_type( \$post_id ) ) return;
+	if ( 'post' !== get_post_type( $post_id ) ) return;
 	// 清除站点统计中的总字数缓存
 	delete_transient( 'mizuki_total_words' );
 	// 清除本地追番数据缓存
