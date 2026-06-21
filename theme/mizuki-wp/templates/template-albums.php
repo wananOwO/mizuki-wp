@@ -15,8 +15,9 @@ $mz_albums = new WP_Query(
 	array(
 		'post_type'      => 'mizuki_album',
 		'post_status'    => 'publish',
-		'posts_per_page' => -1,
-		'no_found_rows'  => true,
+		'posts_per_page'         => 200,
+		'no_found_rows'          => true,
+		'update_post_term_cache' => false,
 	)
 );
 ?>

@@ -18,10 +18,12 @@ get_header();
 
 		<?php
 		$friend_query = new WP_Query( array(
-			'post_type'      => 'mizuki_friend',
-			'posts_per_page' => -1,
-			'orderby'        => 'date',
-			'order'          => 'ASC',
+			'post_type'              => 'mizuki_friend',
+			'posts_per_page'         => 200,
+			'orderby'                => 'date',
+			'order'                  => 'ASC',
+			'no_found_rows'          => true,
+			'update_post_term_cache' => false,
 		) );
 
 		if ( $friend_query->have_posts() ) :
