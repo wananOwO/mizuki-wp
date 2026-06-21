@@ -1,0 +1,28 @@
+/*
+ * Supplementary Tailwind v4 utilities for the WordPress port.
+ *
+ * The original Mizuki compiled CSS (mizuki-main.css) only contains the utility
+ * classes that Tailwind's JIT scanned from the Astro source. The WP PHP
+ * templates use additional utility classes (e.g. w-[28%], md:w-[72%],
+ * rounded-[var(--radius-large)], max-h-[20vh]) that were never compiled.
+ *
+ * This entry regenerates ONLY the utility layer, scanning the WP theme files,
+ * using Mizuki's exact theme config (custom breakpoints + dark variant) so the
+ * generated classes match the original's behaviour. Output is enqueued AFTER
+ * mizuki-main.css so any duplicates are identical and new classes are added.
+ */
+@import "tailwindcss/theme.css" layer(theme) theme(reference);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+	--breakpoint-md: 768px;
+	--breakpoint-lg: 1280px;
+	--breakpoint-xl: 1920px;
+}
+
+/* Scan the WordPress theme for utility classes */
+@source "../../theme/mizuki-wp/**/*.php";
+@source "../../theme/mizuki-wp/assets/js/mizuki-theme.js";
+@source "../../theme/mizuki-wp/assets/js/customizer-preview.js";

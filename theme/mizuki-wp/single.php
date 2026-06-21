@@ -10,7 +10,7 @@ get_header();
 <main id="main" class="post-single onload-animation">
 	<?php while ( have_posts() ) : the_post(); ?>
 	<div <?php post_class( 'flex w-full rounded-[var(--radius-large)] overflow-hidden relative mb-4' ); ?>>
-		<div id="post-container" class="card-base z-10 px-6 md:px-9 pt-6">
+		<div id="post-container" class="card-base z-10 px-6 md:px-9 pt-6 pb-6">
 			<!-- 字数 + 阅读时间 -->
 			<div class="flex flex-row text-black/30 dark:text-white/30 gap-5 mb-3 transition onload-animation">
 				<div class="flex flex-row items-center">
@@ -28,20 +28,28 @@ get_header();
 				</div>
 			</div>
 
-			<!-- 元信息(发布日期、标签、分类) -->
+			<!-- 元信息(发布日期、分类) -->
 			<div class="onload-animation">
-				<div class="flex flex-wrap gap-4 mb-4 text-50 text-sm transition">
-					<div class="flex flex-row items-center">
-						<time datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>"><?php echo esc_html( get_the_date() ); ?></time>
+				<div class="flex flex-wrap text-neutral-500 dark:text-neutral-400 items-center gap-4 mb-4">
+					<div class="flex items-center">
+						<div class="meta-icon transition">
+							<svg class="text-xl" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2m0 16H5V10h14zM9 14H7v-2h2zm4 0h-2v-2h2zm4 0h-2v-2h2zm-8 4H7v-2h2zm4 0h-2v-2h2zm4 0h-2v-2h2z"/></svg>
+						</div>
+						<time class="text-50 text-sm font-medium" datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>"><?php echo esc_html( get_the_date() ); ?></time>
 					</div>
 					<?php
 					$cats = get_the_category();
-					if ( $cats ) {
-						echo '<div class="flex flex-row items-center">';
-						echo '<a href="' . esc_url( get_category_link( $cats[0]->term_id ) ) . '" class="text-50 hover:text-[var(--primary)] transition">' . esc_html( $cats[0]->name ) . '</a>';
-						echo '</div>';
-					}
+					if ( $cats ) :
 					?>
+					<div class="flex items-center">
+						<div class="meta-icon transition">
+							<svg class="text-xl" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2m0 18H6V4h2v8l2.5-1.5L13 12V4h5z"/></svg>
+						</div>
+						<a href="<?php echo esc_url( get_category_link( $cats[0]->term_id ) ); ?>" class="link-lg transition text-50 text-sm font-medium hover:text-[var(--primary)] dark:hover:text-[var(--primary)] whitespace-nowrap">
+							<?php echo esc_html( $cats[0]->name ); ?>
+						</a>
+					</div>
+					<?php endif; ?>
 				</div>
 				<div class="mt-4 border-[var(--line-divider)] border-dashed border-b-[1px] mb-5"></div>
 			</div>
@@ -62,11 +70,21 @@ get_header();
 					'before' => '<div class="page-links">' . esc_html__( 'Pages:', 'mizuki' ),
 					'after'  => '</div>',
 				) );
-			?>
+				?>
 			</div>
 
 			<!-- 标签 -->
-			<?php the_tags( '<div class="flex flex-wrap gap-2 mb-6">', '', '</div>' ); ?>
+			<div class="flex flex-wrap gap-2 mb-6">
+				<?php
+				$tags = get_the_tags();
+				if ( $tags ) {
+					foreach ( $tags as $tag ) {
+						echo '<a href="' . esc_url( get_tag_link( $tag ) ) . '" class="link-lg transition text-50 text-xs font-medium px-2 py-1 rounded-lg hover:text-[var(--primary)] dark:hover:text-[var(--primary)] whitespace-nowrap">';
+						echo '<span class="transition-transform"># ' . esc_html( $tag->name ) . '</span></a>';
+					}
+				}
+				?>
+			</div>
 
 			<!-- 上下篇导航 -->
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
