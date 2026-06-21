@@ -1,0 +1,77 @@
+/**
+ * Filter tabs styling for Mizuki WordPress theme
+ * Used in Friends, Projects, Skills, and Timeline templates
+ */
+
+.filter-tabs {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+}
+
+.filter-tabs-item {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	padding: 0.5rem 1rem;
+	border: 1px solid var(--line-divider);
+	border-radius: var(--radius-large, 0.75rem);
+	background: var(--btn-regular-bg);
+	color: var(--btn-content);
+	font-size: 0.875rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	white-space: nowrap;
+}
+
+.filter-tabs-item svg {
+	flex-shrink: 0;
+	opacity: 0.7;
+	transition: opacity 0.2s ease;
+}
+
+.filter-tabs-item:hover:not(.active) {
+	background: var(--btn-regular-bg-hover);
+	border-color: var(--primary);
+}
+
+.filter-tabs-item:hover:not(.active) svg {
+	opacity: 1;
+}
+
+.filter-tabs-item.active {
+	background: var(--primary);
+	color: #fff;
+	border-color: var(--primary);
+}
+
+.filter-tabs-item.active svg {
+	opacity: 1;
+}
+
+.filter-tabs-count {
+	opacity: 0.6;
+	font-size: 0.8rem;
+}
+
+/* Filtered out items */
+.filtered-out {
+	display: none !important;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+	.filter-tabs {
+		gap: 0.375rem;
+	}
+
+	.filter-tabs-item {
+		padding: 0.4rem 0.8rem;
+		font-size: 0.8rem;
+	}
+
+	.filter-tabs-count {
+		display: none;
+	}
+}

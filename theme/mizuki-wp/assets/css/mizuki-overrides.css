@@ -1,0 +1,131 @@
+/**
+ * Mizuki 主题修正层 —— 必须最后加载(在 mizuki-main.css 之后)。
+ *
+ * 编译后的 mizuki-main.css 中存在一条未限定作用域的
+ *   .card-base{ background:var(--card-bg-transparent)!important; backdrop-filter:blur(8px)!important }
+ * 当 --card-bg-transparent 解析异常或 body 未加 wallpaper-transparent 时,
+ * 会导致首页文章卡片透明、不可见。此层在所有样式之后强制保证:
+ * 非壁纸模式下卡片背景不透明、且不带毛玻璃模糊。
+ */
+
+/* === 卡片可见性兜底(非壁纸透明模式) === */
+html body:not(.wallpaper-transparent) .card-base {
+  background-color: var(--card-bg) !important;
+  background-image: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* 仅当显式开启壁纸透明模式时,卡片才半透明 + 毛玻璃 */
+html body.wallpaper-transparent .card-base {
+  background-color: var(--card-bg-transparent) !important;
+  backdrop-filter: blur(var(--blur-sm, 8px)) !important;
+  -webkit-backdrop-filter: blur(var(--blur-sm, 8px)) !important;
+}
+
+/* === 浮动面板状态兜底(导航"+"菜单 / 显示设置面板) === */
+.float-panel-closed {
+  pointer-events: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  transform: scaleY(0) scaleX(0.8) !important;
+  transition: transform 0.2s ease, opacity 0.15s ease, visibility 0.15s ease !important;
+}
+.float-panel:not(.float-panel-closed) {
+  pointer-events: auto !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: scaleY(1) scaleX(1) !important;
+}
+
+/* 浮动面板基础外观(确保打开时有背景/阴影,内容可读) */
+.float-panel {
+  position: fixed;
+  border-radius: var(--radius-large, 1rem);
+  background-color: var(--float-panel-bg, #fff);
+  box-shadow: var(--shadow-lg, 0 4px 16px rgba(0, 0, 0, 0.1));
+  transform-origin: top right;
+}
+
+/* === 移动端文章列表可见性兜底 ===
+ * 编译后的 mizuki-mobile-fix.css 有 `#post-list-container:not(.js-initialized){opacity:0}`,
+ * 依赖一个原项目里才会加上的 js-initialized 类。WP 端若该类缺失,移动端文章卡片
+ * 会变成 opacity:0(不可见但占位、可点击)。这里强制可见,作为 JS 失效时的兜底。 */
+#post-list-container,
+#post-list-container:not(.js-initialized) {
+  opacity: 1 !important;
+}
+
+/* === 页面背景兜底 === */
+body {
+  background-color: var(--page-bg);
+}
+
+/* === 无 Banner 模式内容区定位兜底 === */
+body.no-banner-mode .absolute.w-full.z-30 {
+  top: 5.5rem;
+}
+
+/* === 移动端(单列)主内容置顶,侧栏(资料/公告/分类/标签)排在文章之后 ===
+ * 与原版 Mizuki 一致:手机端先看文章列表,再看侧栏小工具。 */
+@media (max-width: 767px) {
+  #main-grid.mobile-both-sidebar > #swup-container { order: -1 !important; }
+}
+
+/* === 分类筛选条(category-bar,首页/归档主内容上方)===
+ * 原版为 Astro 组件 scoped 样式,移植时去掉 data-astro-cid 选择器。 */
+.category-bar { margin-bottom: 1rem; }
+.category-divider { width: 1px; align-self: stretch; background: var(--line-divider); }
+.category-scroll { scrollbar-width: none; -ms-overflow-style: none; scroll-behavior: smooth; }
+.category-scroll::-webkit-scrollbar { display: none; }
+.category-pill { border: 1.5px solid var(--line-divider); color: var(--btn-content); background: transparent; }
+.category-pill:hover { border-color: var(--primary); color: var(--primary); background: transparent; }
+.category-pill[data-active] { background: var(--primary); border-color: var(--primary); color: #fff; }
+.category-pill[data-active]:hover { background: var(--primary); border-color: var(--primary); opacity: .9; }
+
+/* 防止主内容网格项被超宽内容(如多分类筛选条)撑开整页(grid item min-width:auto 默认会撑开)。 */
+#main-grid > main,
+#swup-container { min-width: 0; }
+.category-bar-inner { min-width: 0; }
+
+/* === 导航下拉:桌面端仅由"点击"(aria-expanded)控制展开 ===
+ * 原版编译 CSS 用 :hover 和 :focus-within 打开菜单,会导致点击后按钮仍处于
+ * focus / 鼠标仍在悬停 → 第二次点击设了 aria-expanded=false 也不收起。
+ * 这里用更高优先级(带 #id)的规则中和 hover/focus 打开,改为纯点击切换,
+ * 实现用户要求的"点击展开、再次点击收起"。 */
+@media (min-width: 768px) {
+	#navbar-links-container .dropdown-container:hover .dropdown-menu,
+	#navbar-links-container .dropdown-container:focus-within .dropdown-menu {
+		opacity: 0;
+		visibility: hidden;
+		pointer-events: none;
+		translate: var(--tw-translate-x, 0) -8px;
+	}
+	#navbar-links-container .dropdown-trigger[aria-expanded="true"] + .dropdown-menu {
+		opacity: 1;
+		visibility: visible;
+		pointer-events: auto;
+		translate: var(--tw-translate-x, 0) 0;
+	}
+}
+
+/* === 移动端导航分组折叠(details/summary) === */
+#nav-menu-panel { min-width: 11rem; }
+#nav-menu-panel a,
+#nav-menu-panel .mizuki-m-summary {
+	color: color-mix(in oklab, var(--color-black, #000) 75%, transparent);
+	text-decoration: none;
+	font-size: 0.875rem;
+}
+.dark #nav-menu-panel a,
+.dark #nav-menu-panel .mizuki-m-summary {
+	color: color-mix(in oklab, var(--color-white, #fff) 75%, transparent);
+}
+#nav-menu-panel a:hover,
+#nav-menu-panel .mizuki-m-summary:hover {
+	background-color: var(--btn-plain-bg-hover);
+	color: var(--primary);
+}
+#nav-menu-panel .mizuki-m-summary { list-style: none; }
+#nav-menu-panel .mizuki-m-summary::-webkit-details-marker { display: none; }
+#nav-menu-panel .mizuki-m-group[open] > .mizuki-m-summary .mizuki-m-arrow { transform: rotate(180deg); }
