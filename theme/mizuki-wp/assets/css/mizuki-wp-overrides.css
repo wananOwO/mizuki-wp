@@ -1,0 +1,125 @@
+/* WordPress 导航菜单项样式 */
+#navbar-links-container .menu-item {
+	display: inline-flex;
+	align-items: center;
+}
+#navbar-links-container .menu-item a {
+	display: inline-flex;
+	align-items: center;
+	padding: 0.375rem 0.75rem;
+	border-radius: 0.5rem;
+	font-size: 0.875rem;
+	font-weight: 500;
+	color: color-mix(in oklab, var(--color-black, #000) 75%, transparent);
+	transition: color 0.15s, background-color 0.15s;
+	text-decoration: none;
+}
+#navbar-links-container .menu-item a:hover {
+	background-color: var(--btn-plain-bg-hover);
+	color: var(--primary);
+}
+.dark #navbar-links-container .menu-item a {
+	color: color-mix(in oklab, var(--color-white, #fff) 75%, transparent);
+}
+.dark #navbar-links-container .menu-item a:hover {
+	color: var(--primary);
+}
+
+/* 移动端菜单面板菜单项 */
+#nav-menu-panel .menu-item {
+	display: block;
+}
+#nav-menu-panel .menu-item a {
+	display: block;
+	padding: 0.5rem 1rem;
+	border-radius: 0.5rem;
+	font-size: 0.875rem;
+	font-weight: 500;
+	color: color-mix(in oklab, var(--color-black, #000) 75%, transparent);
+	transition: color 0.15s, background-color 0.15s;
+	text-decoration: none;
+}
+#nav-menu-panel .menu-item a:hover {
+	background-color: var(--btn-plain-bg-hover);
+	color: var(--primary);
+}
+.dark #nav-menu-panel .menu-item a {
+	color: color-mix(in oklab, var(--color-white, #fff) 75%, transparent);
+}
+
+/* 桌面端隐藏移动菜单面板子菜单 */
+@media(min-width: 769px) {
+	#nav-menu-panel { display: none !important; }
+}
+
+/* 分页导航 */
+.nav-links {
+	display: flex;
+	gap: 0.5rem;
+	justify-content: center;
+	margin-top: 1.5rem;
+	flex-wrap: wrap;
+}
+.nav-links .page-numbers {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 2.25rem;
+	height: 2.25rem;
+	padding: 0 0.5rem;
+	border-radius: 0.5rem;
+	font-size: 0.875rem;
+	font-weight: 500;
+	transition: all 0.15s;
+	text-decoration: none;
+}
+.nav-links .page-numbers:not(.dots):hover {
+	background-color: var(--btn-plain-bg-hover);
+	color: var(--primary);
+}
+.nav-links .page-numbers.current {
+	background-color: var(--btn-regular-bg);
+	color: var(--btn-content);
+	font-weight: 600;
+}
+
+/* 确保 body 有正确的页面背景 */
+body {
+	background-color: var(--page-bg);
+	transition: background-color 0.15s ease;
+	min-height: 100vh;
+}
+
+/* 搜索表单修正 */
+.search-form {
+	display: flex;
+	gap: 0.5rem;
+}
+.search-form .search-field {
+	flex: 1;
+	padding: 0.5rem 1rem;
+	border-radius: 0.75rem;
+	border: 1px solid var(--line-divider);
+	background: var(--card-bg);
+	color: inherit;
+	font-size: 0.875rem;
+	outline: none;
+	transition: border-color 0.15s;
+}
+.search-form .search-field:focus {
+	border-color: var(--primary);
+}
+.search-form .search-submit {
+	padding: 0.5rem 1rem;
+	border-radius: 0.75rem;
+	background: var(--btn-regular-bg);
+	color: var(--btn-content);
+	font-size: 0.875rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: background-color 0.15s;
+	border: none;
+}
+.search-form .search-submit:hover {
+	background: var(--btn-regular-bg-hover);
+}
