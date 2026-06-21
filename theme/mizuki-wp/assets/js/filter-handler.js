@@ -128,9 +128,9 @@
 			let visibleCount = 0;
 
 			friendCards.forEach(function (card) {
-				const title = (card.dataset.title || '').toLowerCase();
-				const desc = (card.dataset.desc || '').toLowerCase();
-				const tags = card.dataset.tags || '';
+				const title = (card.querySelector('h3') || {}).textContent || '';
+				const desc = (card.querySelector('p') || {}).textContent || '';
+				const tags = card.dataset.tag || '';
 
 				const matchesSearch = !searchTerm ||
 					title.indexOf(searchTerm) >= 0 ||
