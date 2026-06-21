@@ -406,7 +406,8 @@ function mizuki_handle_category_admin_actions() {
 	if ( ! wp_verify_nonce( sanitize_key( wp_unslash( $_POST['mizuki_cat_nonce'] ) ), 'mizuki_cat_manage' ) ) {
 		return $messages;
 	}
-	if ( ! current_user_can( 'manage_options' ) ) {
+	// 与设置页注册时的权限(edit_theme_options)一致,避免有权访问页面却无法保存的静默失败。
+	if ( ! current_user_can( 'edit_theme_options' ) ) {
 		return $messages;
 	}
 
