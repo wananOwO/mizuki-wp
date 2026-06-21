@@ -348,7 +348,202 @@ function mizuki_reorder_submenus() {
 	}
 }
 
+/**
+ * 写入单个分类的显示名映射(theme_mod mizuki_{tax}_labels)。
+ */
+function mizuki_set_category_label( $taxonomy, $slug, $name ) {
+	$map = get_theme_mod( 'mizuki_' . $taxonomy . '_labels', array() );
+	if ( ! is_array( $map ) ) {
+		$map = array();
+	}
+	$map[ $slug ] = $name;
+	set_theme_mod( 'mizuki_' . $taxonomy . '_labels', $map );
+}
+
+/**
+ * 写入/清除单个分类的图标 class 映射(theme_mod mizuki_{tax}_icons)。
+ * 传入空字符串表示清除该 slug 的自定义图标(回退到默认 SVG)。
+ */
+function mizuki_set_category_icon( $taxonomy, $slug, $icon ) {
+	$map = get_theme_mod( 'mizuki_' . $taxonomy . '_icons', array() );
+	if ( ! is_array( $map ) ) {
+		$map = array();
+	}
+	if ( '' === $icon ) {
+		unset( $map[ $slug ] );
+	} else {
+		$map[ $slug ] = $icon;
+	}
+	set_theme_mod( 'mizuki_' . $taxonomy . '_icons', $map );
+}
+
+/**
+ * 删除 term 后清理其 labels / icons 映射,避免脏数据。
+ */
+function mizuki_remove_category_mapping( $taxonomy, $slug ) {
+	foreach ( array( 'labels', 'icons' ) as $kind ) {
+		$key = 'mizuki_' . $taxonomy . '_' . $kind;
+		$map = get_theme_mod( $key, array() );
+		if ( is_array( $map ) && isset( $map[ $slug ] ) ) {
+			unset( $map[ $slug ] );
+			set_theme_mod( $key, $map );
+		}
+	}
+}
+
+/**
+ * 处理「项目分类 / 技能分类」管理表单提交(新增 / 重命名 / 删除)。
+ *
+ * 使用独立 nonce(mizuki_cat_nonce / mizuki_cat_manage),与主设置表单互不干扰。
+ *
+ * @return array 消息列表,每项 array( 'success'|'error', 文本 )。
+ */
+function mizuki_handle_category_admin_actions() {
+	$messages = array();
+	if ( ! isset( $_POST['mizuki_cat_nonce'] ) ) {
+		return $messages;
+	}
+	if ( ! wp_verify_nonce( sanitize_key( wp_unslash( $_POST['mizuki_cat_nonce'] ) ), 'mizuki_cat_manage' ) ) {
+		return $messages;
+	}
+	if ( ! current_user_can( 'manage_options' ) ) {
+		return $messages;
+	}
+
+	foreach ( array( 'project_category', 'skill_category' ) as $tax ) {
+		// ── 新增 ──
+		if ( isset( $_POST[ $tax . '_add' ] ) ) {
+			$slug = isset( $_POST[ $tax . '_new_slug' ] ) ? sanitize_title( wp_unslash( $_POST[ $tax . '_new_slug' ] ) ) : '';
+			$name = isset( $_POST[ $tax . '_new_name' ] ) ? sanitize_text_field( wp_unslash( $_POST[ $tax . '_new_name' ] ) ) : '';
+			$icon = isset( $_POST[ $tax . '_new_icon' ] ) ? sanitize_text_field( wp_unslash( $_POST[ $tax . '_new_icon' ] ) ) : '';
+			if ( '' === $slug || '' === $name ) {
+				$messages[] = array( 'error', __( 'slug 和显示名均不能为空。', 'mizuki' ) );
+			} elseif ( term_exists( $slug, $tax ) ) {
+				/* translators: %s: 分类 slug */
+				$messages[] = array( 'error', sprintf( __( '分类「%s」已存在。', 'mizuki' ), $slug ) );
+			} else {
+				$res = wp_insert_term( $name, $tax, array( 'slug' => $slug ) );
+				if ( is_wp_error( $res ) ) {
+					$messages[] = array( 'error', $res->get_error_message() );
+				} else {
+					mizuki_set_category_label( $tax, $slug, $name );
+					if ( '' !== $icon ) {
+						mizuki_set_category_icon( $tax, $slug, $icon );
+					}
+					/* translators: %s: 分类显示名 */
+					$messages[] = array( 'success', sprintf( __( '已新增分类「%s」。', 'mizuki' ), $name ) );
+				}
+			}
+		}
+
+		// ── 重命名 / 删除(按 term_id 扫描)──
+		$terms = get_terms( array( 'taxonomy' => $tax, 'hide_empty' => false ) );
+		if ( is_wp_error( $terms ) ) {
+			continue;
+		}
+		foreach ( $terms as $term ) {
+			$tid = (int) $term->term_id;
+
+			if ( isset( $_POST[ $tax . '_update_' . $tid ] ) ) {
+				$name = isset( $_POST[ $tax . '_name_' . $tid ] ) ? sanitize_text_field( wp_unslash( $_POST[ $tax . '_name_' . $tid ] ) ) : '';
+				$icon = isset( $_POST[ $tax . '_icon_' . $tid ] ) ? sanitize_text_field( wp_unslash( $_POST[ $tax . '_icon_' . $tid ] ) ) : '';
+				if ( '' !== $name ) {
+					wp_update_term( $tid, $tax, array( 'name' => $name ) );
+					mizuki_set_category_label( $tax, $term->slug, $name );
+				}
+				mizuki_set_category_icon( $tax, $term->slug, $icon ); // 空 = 清除自定义图标
+				/* translators: %s: 分类 slug */
+				$messages[] = array( 'success', sprintf( __( '已更新分类「%s」。', 'mizuki' ), $term->slug ) );
+
+			} elseif ( isset( $_POST[ $tax . '_delete_' . $tid ] ) ) {
+				if ( (int) $term->count > 0 ) {
+					/* translators: 1: 分类 slug, 2: 内容数 */
+					$messages[] = array( 'error', sprintf( __( '分类「%1$s」下仍有 %2$d 篇内容,不能删除。', 'mizuki' ), $term->slug, (int) $term->count ) );
+				} else {
+					wp_delete_term( $tid, $tax );
+					mizuki_remove_category_mapping( $tax, $term->slug );
+					/* translators: %s: 分类 slug */
+					$messages[] = array( 'success', sprintf( __( '已删除分类「%s」。', 'mizuki' ), $term->slug ) );
+				}
+			}
+		}
+	}
+
+	return $messages;
+}
+
+/**
+ * 渲染单个 taxonomy 的分类管理折叠面板(表格 + 新增表单)。
+ */
+function mizuki_render_category_manager( $taxonomy, $title, $hint ) {
+	$terms = get_terms( array( 'taxonomy' => $taxonomy, 'hide_empty' => false, 'orderby' => 'name' ) );
+	if ( is_wp_error( $terms ) ) {
+		$terms = array();
+	}
+	$icons_raw = get_theme_mod( 'mizuki_' . $taxonomy . '_icons', array() );
+	if ( ! is_array( $icons_raw ) ) {
+		$icons_raw = array();
+	}
+	?>
+	<div class="mizuki-accordion-item">
+		<div class="mizuki-accordion-header">
+			<span><?php echo esc_html( $title ); ?></span>
+			<span class="mizuki-accordion-arrow">▼</span>
+		</div>
+		<div class="mizuki-accordion-body">
+			<p class="description"><?php echo esc_html( $hint ); ?></p>
+			<table class="widefat striped" style="margin-bottom:16px;">
+				<thead>
+					<tr>
+						<th style="width:18%;">Slug</th>
+						<th style="width:28%;"><?php esc_html_e( '显示名', 'mizuki' ); ?></th>
+						<th style="width:28%;"><?php esc_html_e( '图标 class(可选)', 'mizuki' ); ?></th>
+						<th style="width:8%;"><?php esc_html_e( '内容数', 'mizuki' ); ?></th>
+						<th style="width:18%;"><?php esc_html_e( '操作', 'mizuki' ); ?></th>
+					</tr>
+				</thead>
+				<tbody>
+				<?php foreach ( $terms as $term ) :
+					$tid      = (int) $term->term_id;
+					$icon_val = isset( $icons_raw[ $term->slug ] ) ? $icons_raw[ $term->slug ] : '';
+				?>
+					<tr>
+						<td><code><?php echo esc_html( $term->slug ); ?></code></td>
+						<td><input type="text" name="<?php echo esc_attr( $taxonomy . '_name_' . $tid ); ?>" value="<?php echo esc_attr( $term->name ); ?>" class="regular-text"></td>
+						<td><input type="text" name="<?php echo esc_attr( $taxonomy . '_icon_' . $tid ); ?>" value="<?php echo esc_attr( $icon_val ); ?>" placeholder="devicon-..." class="regular-text"></td>
+						<td><?php echo (int) $term->count; ?></td>
+						<td>
+							<button type="submit" name="<?php echo esc_attr( $taxonomy . '_update_' . $tid ); ?>" value="1" class="button"><?php esc_html_e( '保存', 'mizuki' ); ?></button>
+							<button type="submit" name="<?php echo esc_attr( $taxonomy . '_delete_' . $tid ); ?>" value="1" class="button button-link-delete" onclick="return confirm('<?php echo esc_js( __( '确定删除该分类?此操作不可撤销。', 'mizuki' ) ); ?>');"<?php disabled( (int) $term->count > 0 ); ?>><?php esc_html_e( '删除', 'mizuki' ); ?></button>
+						</td>
+					</tr>
+				<?php endforeach; ?>
+				<?php if ( empty( $terms ) ) : ?>
+					<tr><td colspan="5"><?php esc_html_e( '暂无分类。', 'mizuki' ); ?></td></tr>
+				<?php endif; ?>
+				</tbody>
+			</table>
+			<h4 style="margin:8px 0;"><?php esc_html_e( '新增分类', 'mizuki' ); ?></h4>
+			<div class="mizuki-field" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+				<input type="text" name="<?php echo esc_attr( $taxonomy . '_new_slug' ); ?>" placeholder="slug(如 embedded)" class="regular-text" style="max-width:200px;">
+				<input type="text" name="<?php echo esc_attr( $taxonomy . '_new_name' ); ?>" placeholder="<?php esc_attr_e( '显示名', 'mizuki' ); ?>" class="regular-text" style="max-width:160px;">
+				<input type="text" name="<?php echo esc_attr( $taxonomy . '_new_icon' ); ?>" placeholder="devicon-...(可选)" class="regular-text" style="max-width:200px;">
+				<button type="submit" name="<?php echo esc_attr( $taxonomy . '_add' ); ?>" value="1" class="button button-primary"><?php esc_html_e( '新增', 'mizuki' ); ?></button>
+			</div>
+			<p class="description"><?php esc_html_e( '图标 class 与「技能信息」里的图标字段一致(如 devicon-html5-plain),留空则使用默认图标。删除仅在该分类下没有内容时可用。', 'mizuki' ); ?></p>
+		</div>
+	</div>
+	<?php
+}
+
 function mizuki_render_admin_page() {
+	// 处理分类管理表单(独立 nonce,先于渲染执行以便表格反映最新状态)
+	$cat_messages = mizuki_handle_category_admin_actions();
+	foreach ( $cat_messages as $msg ) {
+		$class = ( 'error' === $msg[0] ) ? 'notice-error' : 'notice-success';
+		echo '<div class="notice ' . esc_attr( $class ) . ' is-dismissible"><p>' . esc_html( $msg[1] ) . '</p></div>';
+	}
+
 	// 保存逻辑
 	if ( isset( $_POST['mizuki_settings_nonce'] ) && wp_verify_nonce( $_POST['mizuki_settings_nonce'], 'mizuki_save_settings' ) ) {
 		// Banner
@@ -515,6 +710,27 @@ function mizuki_render_admin_page() {
 			</div>
 
 			<?php submit_button( __( '保存所有设置', 'mizuki' ) ); ?>
+		</form>
+
+		<!-- 内容分类管理(项目 / 技能):独立表单,与主设置互不影响 -->
+		<h2 style="margin-top:32px;"><?php esc_html_e( '内容分类管理', 'mizuki' ); ?></h2>
+		<p class="description"><?php esc_html_e( '管理「项目」和「技能」页面的筛选分类(taxonomy term),增删改后前端筛选 Tab 会自动同步。', 'mizuki' ); ?></p>
+		<form method="post" action="">
+			<?php wp_nonce_field( 'mizuki_cat_manage', 'mizuki_cat_nonce' ); ?>
+			<div class="mizuki-accordion">
+				<?php
+				mizuki_render_category_manager(
+					'project_category',
+					__( '项目分类管理', 'mizuki' ),
+					__( '对应「项目」页面的筛选分类(默认:web / mobile / desktop / other)。', 'mizuki' )
+				);
+				mizuki_render_category_manager(
+					'skill_category',
+					__( '技能分类管理', 'mizuki' ),
+					__( '对应「技能」页面的筛选分类(默认:frontend / backend / database / tools / other)。', 'mizuki' )
+				);
+				?>
+			</div>
 		</form>
 	</div>
 
