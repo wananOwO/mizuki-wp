@@ -11,9 +11,9 @@ defined( 'ABSPATH' ) || exit;
 ?><!DOCTYPE html>
 <?php
 // 与 Mizuki 一致的布局 CSS 变量(置于 <html> 内联样式)。
-$mz_hue          = (int) get_theme_mod( 'mizuki_hue', 240 );
-$mz_banner_home  = get_theme_mod( 'mizuki_banner_height_home', '65vh' );
-$mz_banner_inner = get_theme_mod( 'mizuki_banner_height', '35vh' );
+$mz_hue          = (int) mizuki_get_theme_mod( 'mizuki_hue', 240 );
+$mz_banner_home  = mizuki_get_theme_mod( 'mizuki_banner_height_home', '65vh' );
+$mz_banner_inner = mizuki_get_theme_mod( 'mizuki_banner_height', '35vh' );
 ?>
 <html <?php language_attributes(); ?> class="bg-[var(--page-bg)] text-[14px] md:text-[16px]" style="--configHue:<?php echo esc_attr( $mz_hue ); ?>;--page-width:90rem;--bannerOffset:15vh;--banner-height-home:<?php echo esc_attr( $mz_banner_home ); ?>;--banner-height:<?php echo esc_attr( $mz_banner_inner ); ?>;">
 <head>

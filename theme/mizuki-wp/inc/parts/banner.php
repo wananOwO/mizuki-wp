@@ -18,7 +18,7 @@ if ( ! function_exists( 'mizuki_banner_images' ) ) {
 	 * @return array{desktop:string[],mobile:string[]}
 	 */
 	function mizuki_banner_images() {
-		$custom = get_theme_mod( 'mizuki_banner_image', '' );
+		$custom = mizuki_get_theme_mod( 'mizuki_banner_image', '' );
 		$base   = get_template_directory_uri();
 		if ( $custom ) {
 			return array(

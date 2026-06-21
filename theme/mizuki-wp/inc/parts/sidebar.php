@@ -78,9 +78,9 @@ if ( ! function_exists( 'mizuki_profile_card' ) ) {
 	 * 输出资料卡(card-base p-3:头像 + 昵称 + 强调条 + 简介 + 社交 + 统计)。
 	 */
 	function mizuki_profile_card() {
-		$avatar = get_theme_mod( 'mizuki_avatar', '' );
+		$avatar = mizuki_get_theme_mod( 'mizuki_avatar', '' );
 		if ( ! $avatar ) {
-			$cid = get_theme_mod( 'custom_logo' );
+			$cid = mizuki_get_theme_mod( 'custom_logo' );
 			if ( $cid ) {
 				$avatar = wp_get_attachment_image_url( $cid, 'full' );
 			}
@@ -88,11 +88,11 @@ if ( ! function_exists( 'mizuki_profile_card' ) ) {
 		if ( ! $avatar ) {
 			$avatar = get_template_directory_uri() . '/assets/home/default-logo.webp';
 		}
-		$nickname = get_theme_mod( 'mizuki_nickname', '' );
+		$nickname = mizuki_get_theme_mod( 'mizuki_nickname', '' );
 		if ( ! $nickname ) {
 			$nickname = get_bloginfo( 'name' );
 		}
-		$bio        = get_theme_mod( 'mizuki_bio', get_bloginfo( 'description' ) );
+		$bio        = mizuki_get_theme_mod( 'mizuki_bio', get_bloginfo( 'description' ) );
 		$about      = get_page_by_path( 'about' );
 		$avatar_url = $about ? get_permalink( $about ) : home_url( '/' );
 		?>
@@ -116,7 +116,7 @@ if ( ! function_exists( 'mizuki_profile_card' ) ) {
 				// 社交链接(btn-regular 方块按钮)。
 				$socials = array();
 				foreach ( array( 'github', 'twitter', 'email', 'rss' ) as $p ) {
-					$url = get_theme_mod( "mizuki_social_{$p}", '' );
+					$url = mizuki_get_theme_mod( "mizuki_social_{$p}", '' );
 					if ( ! $url ) {
 						continue;
 					}
@@ -158,7 +158,7 @@ if ( ! function_exists( 'mizuki_render_left_sidebar' ) ) {
 			mizuki_profile_card();
 
 			// 公告。
-			$announcement = get_theme_mod( 'mizuki_announcement', __( '欢迎来到我的小站 ✨', 'mizuki' ) );
+			$announcement = mizuki_get_theme_mod( 'mizuki_announcement', __( '欢迎来到我的小站 ✨', 'mizuki' ) );
 			if ( $announcement ) {
 				mizuki_widget_open( __( '公告', 'mizuki' ), 100 );
 				echo '<div class="text-sm text-neutral-700 dark:text-neutral-300 leading-relaxed">' . wp_kses_post( $announcement ) . '</div>';

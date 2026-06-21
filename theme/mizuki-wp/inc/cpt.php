@@ -197,3 +197,16 @@ function mizuki_save_meta_fields( $post_id ) {
 	}
 }
 add_action( 'save_post', 'mizuki_save_meta_fields' );
+
+/**
+ * 保存文章时清除相关缓存。
+ */
+function mizuki_clear_post_caches( \$post_id ) {
+	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
+	if ( 'post' !== get_post_type( \$post_id ) ) return;
+	// 清除站点统计中的总字数缓存
+	delete_transient( 'mizuki_total_words' );
+	// 清除本地追番数据缓存
+	delete_transient( 'mizuki_local_anime_data' );
+}
+add_action( 'save_post', 'mizuki_clear_post_caches' );

@@ -13,28 +13,28 @@ defined( 'ABSPATH' ) || exit;
  * 获取追番数据源模式
  */
 function mizuki_get_anime_mode() {
-	return get_theme_mod( 'mizuki_anime_mode', 'local' );
+	return mizuki_get_theme_mod( 'mizuki_anime_mode', 'local' );
 }
 
 /**
  * 获取 Bangumi 用户 ID
  */
 function mizuki_get_bangumi_user_id() {
-	return get_theme_mod( 'mizuki_bangumi_user_id', '' );
+	return mizuki_get_theme_mod( 'mizuki_bangumi_user_id', '' );
 }
 
 /**
  * 获取 Bilibili VMID
  */
 function mizuki_get_bilibili_vmid() {
-	return get_theme_mod( 'mizuki_bilibili_vmid', '' );
+	return mizuki_get_theme_mod( 'mizuki_bilibili_vmid', '' );
 }
 
 /**
  * 获取缓存时间（小时）
  */
 function mizuki_get_anime_cache_hours() {
-	return absint( get_theme_mod( 'mizuki_anime_cache_hours', 24 ) );
+	return absint( mizuki_get_theme_mod( 'mizuki_anime_cache_hours', 24 ) );
 }
 
 /**
@@ -453,7 +453,7 @@ function mizuki_process_bilibili_data( $items, $status ) {
 			$cover = str_replace( 'http://', 'https://', $cover );
 
 			// 使用 WebP 优化
-			if ( get_theme_mod( 'mizuki_bilibili_use_webp', true ) ) {
+			if ( mizuki_get_theme_mod( 'mizuki_bilibili_use_webp', true ) ) {
 				if ( strpos( $cover, '@' ) === false ) {
 					$cover .= '@220w_280h.webp';
 				}

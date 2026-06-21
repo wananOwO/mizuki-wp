@@ -86,10 +86,10 @@ function mizuki_comment_template( $comment, $args, $depth ) {
  */
 function mizuki_head_boot_script() {
 	$default_theme = 'light';
-	$config_hue    = (int) get_theme_mod( 'mizuki_hue', 240 );
-	$hue_fixed     = get_theme_mod( 'mizuki_hue_fixed', false ) ? 'true' : 'false';
+	$config_hue    = (int) mizuki_get_theme_mod( 'mizuki_hue', 240 );
+	$hue_fixed     = mizuki_get_theme_mod( 'mizuki_hue_fixed', false ) ? 'true' : 'false';
 	// pageScaling: 与 Mizuki 默认一致(桌面端按 targetWidth 缩放)。
-	$scaling_enable = get_theme_mod( 'mizuki_page_scaling', true ) ? 'true' : 'false';
+	$scaling_enable = mizuki_get_theme_mod( 'mizuki_page_scaling', true ) ? 'true' : 'false';
 	$target_width   = 2000;
 	?>
 <script>(function(){const DEFAULT_THEME = "<?php echo esc_js( $default_theme ); ?>";
@@ -142,7 +142,7 @@ const pageScaling = {"enable":<?php echo $scaling_enable; // phpcs:ignore ?>,"ta
  * 运行时 --hue 由 mizuki_head_boot_script() 中的脚本从 localStorage 设定。
  */
 function mizuki_output_hue() {
-	$hue = (int) apply_filters( 'mizuki_theme_hue', (int) get_theme_mod( 'mizuki_hue', 240 ) );
+	$hue = (int) apply_filters( 'mizuki_theme_hue', (int) mizuki_get_theme_mod( 'mizuki_hue', 240 ) );
 	$hue = max( 0, min( 360, $hue ) );
 	printf( "<style id=\"mizuki-hue-fallback\">:root{--hue:%d;}</style>\n", absint( $hue ) );
 }
