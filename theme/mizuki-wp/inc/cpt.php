@@ -380,8 +380,15 @@ add_action( 'save_post', 'mizuki_clear_post_caches' );
  * 主题激活时创建默认分类。
  */
 function mizuki_create_default_taxonomies() {
-	$stored = get_option( 'mizuki_taxonomy_version', '' );
-	if ( '2' === $stored ) {
+	// 检查 taxonomy 是否已注册且分类是否已存在
+	$skill_cats = get_terms( array(
+		'taxonomy'   => 'skill_category',
+		'hide_empty' => false,
+		'number'     => 1,
+	) );
+	if ( ! is_wp_error( $skill_cats ) && count( $skill_cats ) > 0 ) {
+		// 分类已存在，更新版本号并返回
+		update_option( 'mizuki_taxonomy_version', '2' );
 		return;
 	}
 
