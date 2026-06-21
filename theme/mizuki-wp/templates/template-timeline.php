@@ -18,10 +18,11 @@ get_header();
 
 		<?php
 		$timeline_query = new WP_Query( array(
-			'post_type'      => 'post',
-			'posts_per_page' => -1,
-			'orderby'        => 'date',
-			'order'          => 'DESC',
+			'post_type'              => 'post',
+			'posts_per_page'         => 500,
+			'orderby'                => 'date',
+			'order'                  => 'DESC',
+			'no_found_rows'          => true,
 		) );
 
 		if ( $timeline_query->have_posts() ) :

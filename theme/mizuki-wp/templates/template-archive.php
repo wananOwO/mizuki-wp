@@ -14,8 +14,9 @@ $mz_archive = new WP_Query(
 	array(
 		'post_type'      => 'post',
 		'post_status'    => 'publish',
-		'posts_per_page' => -1,
+		'posts_per_page' => 500,
 		'orderby'        => 'date',
+		'no_found_rows'  => true,'
 		'order'          => 'DESC',
 		'no_found_rows'  => true,
 	)

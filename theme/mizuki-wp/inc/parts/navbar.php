@@ -157,13 +157,19 @@ if ( ! class_exists( 'Mizuki_Navbar_Walker' ) ) {
 if ( ! function_exists( 'mizuki_nav_page_url' ) ) {
 	/**
 	 * 按页面 slug 解析 URL,页面不存在时回退到 /slug/。
+		使用静态缓存避免同一请求中重复调用 get_page_by_path()。
 	 *
 	 * @param string $slug 页面别名。
 	 * @return string URL。
 	 */
 	function mizuki_nav_page_url( $slug ) {
+		static $cache = array();
+		if ( isset( $cache[ $slug ] ) ) {
+			return $cache[ $slug ];
+		}
 		$page = get_page_by_path( $slug );
-		return $page ? get_permalink( $page ) : home_url( '/' . $slug . '/' );
+		$cache[ $slug ] = $page ? get_permalink( $page ) : home_url( '/' . $slug . '/' );
+		return $cache[ $slug ];
 	}
 }
 

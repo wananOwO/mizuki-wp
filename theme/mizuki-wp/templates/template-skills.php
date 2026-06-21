@@ -38,10 +38,12 @@ function mizuki_skill_level_text( $level ) {
 
 		<?php
 		$skill_query = new WP_Query( array(
-			'post_type'      => 'mizuki_skill',
-			'posts_per_page' => -1,
-			'orderby'        => 'date',
-			'order'          => 'ASC',
+			'post_type'              => 'mizuki_skill',
+			'posts_per_page'         => 200,
+			'orderby'                => 'date',
+			'order'                  => 'ASC',
+			'no_found_rows'          => true,
+			'update_post_term_cache' => false,
 		) );
 
 		if ( $skill_query->have_posts() ) :
