@@ -887,7 +887,11 @@
     padding-bottom: calc(var(--spacing, 0.25rem) * 6);
   }
   .pl-6 {
-    padding-left: calc(var(--spacing, 0.25rem) * 6);
+    padding-left: 1.5rem;
+  }
+  .pl-9 {
+    padding-left: 2.25rem;
+  }
   }
   .text-center {
     text-align: center;
@@ -1715,7 +1719,6 @@
   }
   .md\:pl-9 {
     @media (width >= 768px) {
-      padding-left: calc(var(--spacing, 0.25rem) * 9);
     }
   }
   .md\:text-4xl {
