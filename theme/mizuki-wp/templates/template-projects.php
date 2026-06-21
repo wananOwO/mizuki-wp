@@ -82,7 +82,11 @@ $total_count = $project_query->post_count;
 				$status = get_post_meta( get_the_ID(), '_mizuki_project_status', true );
 				$tech   = get_post_meta( get_the_ID(), '_mizuki_project_tech', true );
 				$proj_cats = get_the_terms( get_the_ID(), 'project_category' );
-				$cat_slug = ( $proj_cats && ! is_wp_error( $proj_cats ) ) ? $proj_cats[0]->slug : 'other';
+				if ( $proj_cats && ! is_wp_error( $proj_cats ) && ! empty( $proj_cats ) ) {
+					$cat_slug = implode( ',', wp_list_pluck( $proj_cats, 'slug' ) );
+				} else {
+					$cat_slug = '__none__';
+				}
 				$has_cover = has_post_thumbnail();
 			?>
 			<div class="project-card group relative bg-transparent rounded-xl border border-black/10 dark:border-white/10 overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1" data-category="<?php echo esc_attr( $cat_slug ); ?>">
