@@ -36,7 +36,7 @@ function mizuki_word_count( $post_id = null ) {
  * 与原版 Mizuki 首页主内容区上方的 #category-bar 一致。
  */
 function mizuki_category_bar() {
-	$cats = get_categories( array( 'hide_empty' => true ) );
+	$cats = get_categories( array( 'hide_empty' => true, 'number' => 30 ) );
 	if ( ! $cats ) {
 		return;
 	}
