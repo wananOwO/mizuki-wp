@@ -29,7 +29,6 @@ $friend_query = new WP_Query( array(
 $total_count = $friend_query->post_count;
 ?>
 
-<link rel="stylesheet" href="<?php echo esc_url( MIZUKI_URI . '/assets/css/mizuki-filter-tabs.css' ); ?>">
 <script is:inline src="<?php echo esc_url( MIZUKI_URI . '/assets/js/filter-tabs-handler.js' ); ?>"></script>
 
 <main id="main" class="friends-page onload-animation">
@@ -137,62 +136,7 @@ $total_count = $friend_query->post_count;
 	</div>
 </main>
 
-<!-- 友链页面筛选脚本 (同步原项目 friends-page-handler.js 逻辑) -->
-<script is:inline>
-(function() {
-	function initFriendsFilter() {
-		var searchInput = document.getElementById('friend-search');
-		var filterBtns = document.querySelectorAll('.filter-tag');
-		var cards = document.querySelectorAll('.friend-card');
-		var noResults = document.getElementById('no-results');
-		var activeTag = 'all';
-
-		function applyFilters() {
-			var query = searchInput ? searchInput.value.toLowerCase().trim() : '';
-			var visibleCount = 0;
-
-			cards.forEach(function(card) {
-				var title = (card.querySelector('h3') || {}).textContent || '';
-				var desc = (card.querySelector('p') || {}).textContent || '';
-				var cardTags = (card.dataset.tag || '').split(',');
-
-				var matchTag = activeTag === 'all' || cardTags.indexOf(activeTag) !== -1;
-				var matchSearch = !query || title.toLowerCase().indexOf(query) !== -1 || desc.toLowerCase().indexOf(query) !== -1;
-
-				if (matchTag && matchSearch) {
-					card.classList.remove('filtered-out');
-					visibleCount++;
-				} else {
-					card.classList.add('filtered-out');
-				}
-			});
-
-			if (noResults) {
-				noResults.classList.toggle('hidden', visibleCount > 0);
-			}
-		}
-
-		filterBtns.forEach(function(btn) {
-			btn.addEventListener('click', function() {
-				filterBtns.forEach(function(b) { b.classList.remove('active'); });
-				btn.classList.add('active');
-				activeTag = btn.dataset.tag || 'all';
-				applyFilters();
-			});
-		});
-
-		if (searchInput) {
-			searchInput.addEventListener('input', applyFilters);
-		}
-	}
-
-	if (document.readyState === 'loading') {
-		document.addEventListener('DOMContentLoaded', initFriendsFilter);
-	} else {
-		initFriendsFilter();
-	}
-})();
-</script>
+<!-- 友链筛选由 filter-handler.js 统一处理 -->
 
 <style>
 	.friend-card {

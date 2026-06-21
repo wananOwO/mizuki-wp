@@ -3,7 +3,6 @@
  * Template Name: 时间线
  *
  * 时间线页面模板 — 完全同步 Mizuki 原项目 timeline.astro。
- * 使用 timeline_type taxonomy + filter-tabs-handler.js 筛选。
  *
  * @package Mizuki
  */
@@ -44,8 +43,6 @@ $timeline_query = new WP_Query( array(
 $total_count = $timeline_query->post_count;
 ?>
 
-<link rel="stylesheet" href="<?php echo esc_url( MIZUKI_URI . '/assets/css/mizuki-filter-tabs.css' ); ?>">
-<script is:inline src="<?php echo esc_url( MIZUKI_URI . '/assets/js/filter-tabs-handler.js' ); ?>"></script>
 
 <main id="main" class="timeline-page onload-animation">
 	<div class="card-base px-6 md:px-9 py-6">

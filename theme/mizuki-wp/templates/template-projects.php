@@ -3,7 +3,6 @@
  * Template Name: 项目
  *
  * 项目页面模板 — 完全同步 Mizuki 原项目 projects.astro。
- * 使用 project_category taxonomy + filter-tabs-handler.js 筛选。
  *
  * @package Mizuki
  */
@@ -48,8 +47,6 @@ $project_query = new WP_Query( array(
 $total_count = $project_query->post_count;
 ?>
 
-<link rel="stylesheet" href="<?php echo esc_url( MIZUKI_URI . '/assets/css/mizuki-filter-tabs.css' ); ?>">
-<script is:inline src="<?php echo esc_url( MIZUKI_URI . '/assets/js/filter-tabs-handler.js' ); ?>"></script>
 
 <main id="main" class="projects-page onload-animation">
 	<div class="card-base px-6 md:px-9 py-6">

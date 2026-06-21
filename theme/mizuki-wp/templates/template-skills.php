@@ -3,7 +3,6 @@
  * Template Name: 技能
  *
  * 技能页面模板 — 完全同步 Mizuki 原项目 skills.astro。
- * 使用 skill_category taxonomy + filter-tabs-handler.js 筛选。
  *
  * @package Mizuki
  */
@@ -64,8 +63,6 @@ $total_count = $skill_query->post_count;
 ?>
 
 <!-- 加载 filter-tabs CSS 和 JS -->
-<link rel="stylesheet" href="<?php echo esc_url( MIZUKI_URI . '/assets/css/mizuki-filter-tabs.css' ); ?>">
-<script is:inline src="<?php echo esc_url( MIZUKI_URI . '/assets/js/filter-tabs-handler.js' ); ?>"></script>
 
 <main id="main" class="skills-page onload-animation">
 	<div class="card-base px-6 md:px-9 py-6">
