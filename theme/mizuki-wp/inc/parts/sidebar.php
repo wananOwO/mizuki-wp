@@ -272,11 +272,10 @@ if ( ! function_exists( 'mizuki_site_stats_widget' ) ) {
 		// 总字数(缓存 12h)。
 		$total_words = get_transient( 'mizuki_total_words' );
 		if ( false === $total_words ) {
-			$total_words = 0;
-			$ids = get_posts( array( 'numberposts' => 500, 'post_status' => 'publish', 'fields' => 'ids' ) );
-			foreach ( $ids as $pid ) {
-				$total_words += str_word_count( wp_strip_all_tags( get_post_field( 'post_content', $pid ) ) );
-			}
+			global $wpdb;
+			$total_words = (int) $wpdb->get_var(
+				"SELECT SUM(CHAR_LENGTH(post_content)) FROM {$wpdb->posts} WHERE post_status = 'publish' AND post_type = 'post'"
+			);
 			set_transient( 'mizuki_total_words', $total_words, 12 * HOUR_IN_SECONDS );
 		}
 		$words_disp = $total_words >= 1000 ? round( $total_words / 1000, 1 ) . 'k' : (string) $total_words;

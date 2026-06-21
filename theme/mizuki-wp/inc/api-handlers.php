@@ -71,10 +71,12 @@ function mizuki_get_local_anime_data() {
 
 	$anime_query = new WP_Query(
 		array(
-			'post_type'      => 'mizuki_anime',
-			'posts_per_page' => -1,
-			'orderby'        => 'date',
-			'order'          => 'DESC',
+			'post_type'              => 'mizuki_anime',
+			'posts_per_page'        => 200,
+			'orderby'                => 'date',
+			'order'                  => 'DESC',
+			'no_found_rows'         => true,
+			'update_post_term_cache' => false,
 		)
 	);
 
@@ -129,7 +131,7 @@ function mizuki_get_local_anime_data() {
 }
 
 /**
- * 获取 Bangumi 数据
+ * 获取 Bangumi 数据（仅读缓存，缓存未命中时触发异步刷新）
  *
  * @return array
  */
@@ -146,42 +148,12 @@ function mizuki_get_bangumi_data() {
 		return $cached_data;
 	}
 
-	// 获取不同状态的番剧
-	$collections = array(
-		array(
-			'type'   => 3,
-			'status' => 'watching',
-		),
-		array(
-			'type'   => 1,
-			'status' => 'planned',
-		),
-		array(
-			'type'   => 2,
-			'status' => 'completed',
-		),
-		array(
-			'type'   => 4,
-			'status' => 'onhold',
-		),
-		array(
-			'type'   => 5,
-			'status' => 'dropped',
-		),
-	);
-
-	$anime_list = array();
-
-	foreach ( $collections as $collection ) {
-		$items = mizuki_fetch_bangumi_collection( $user_id, $collection['type'], $collection['status'] );
-		$anime_list = array_merge( $anime_list, $items );
+	// 缓存未命中：调度后台异步刷新，前台返回空数组（不阻塞）
+	if ( ! wp_next_scheduled( 'mizuki_cron_refresh_anime' ) ) {
+		wp_schedule_single_event( time(), 'mizuki_cron_refresh_anime' );
 	}
 
-	// 缓存数据
-	$cache_hours = mizuki_get_anime_cache_hours();
-	set_transient( $cache_key, $anime_list, $cache_hours * HOUR_IN_SECONDS );
-
-	return $anime_list;
+	return array();
 }
 
 /**
@@ -230,7 +202,7 @@ function mizuki_fetch_bangumi_collection( $user_id, $type, $status ) {
 		}
 
 		$offset += $limit;
-		sleep( 1 ); // 防止请求过快
+		usleep( 500000 ); // 0.5 秒延迟（非阻塞微延迟，替代 sleep(1)）
 	}
 
 	return mizuki_process_bangumi_data( $all_data, $status );
@@ -298,7 +270,7 @@ function mizuki_process_bangumi_data( $items, $status ) {
 			'progressPercent' => $total_episodes > 0 ? round( ( $progress / $total_episodes ) * 100 ) : 0,
 		);
 
-		sleep( 1 ); // 获取详细信息后延迟
+		usleep( 500000 ); // 0.5 秒延迟（获取详细信息后微延迟）
 	}
 
 	return $results;
@@ -368,7 +340,7 @@ function mizuki_get_studio_from_infobox( $infobox ) {
 }
 
 /**
- * 获取 Bilibili 数据
+ * 获取 Bilibili 数据（仅读缓存，缓存未命中时触发异步刷新）
  *
  * @return array
  */
@@ -385,26 +357,12 @@ function mizuki_get_bilibili_data() {
 		return $cached_data;
 	}
 
-	// 获取三种状态的数据：1=想看, 2=在看, 3=已看
-	$statuses   = array( 1, 2, 3 );
-	$status_map = array(
-		1 => 'planned',
-		2 => 'watching',
-		3 => 'completed',
-	);
-
-	$anime_list = array();
-
-	foreach ( $statuses as $status_num ) {
-		$items      = mizuki_fetch_bilibili_collection( $vmid, $status_num, $status_map[ $status_num ] );
-		$anime_list = array_merge( $anime_list, $items );
+	// 缓存未命中：调度后台异步刷新，前台返回空数组（不阻塞）
+	if ( ! wp_next_scheduled( 'mizuki_cron_refresh_anime' ) ) {
+		wp_schedule_single_event( time(), 'mizuki_cron_refresh_anime' );
 	}
 
-	// 缓存数据
-	$cache_hours = mizuki_get_anime_cache_hours();
-	set_transient( $cache_key, $anime_list, $cache_hours * HOUR_IN_SECONDS );
-
-	return $anime_list;
+	return array();
 }
 
 /**
@@ -471,7 +429,7 @@ function mizuki_fetch_bilibili_collection( $vmid, $status_num, $status ) {
 
 		$all_data = array_merge( $all_data, $data['data']['list'] );
 		++$page;
-		sleep( 1 ); // 防止请求过快
+		usleep( 500000 ); // 0.5 秒延迟（非阻塞微延迟，替代 sleep(1)）
 	}
 
 	return mizuki_process_bilibili_data( $all_data, $status );
@@ -638,3 +596,63 @@ function mizuki_ajax_get_anime_data() {
 }
 add_action( 'wp_ajax_mizuki_get_anime_data', 'mizuki_ajax_get_anime_data' );
 add_action( 'wp_ajax_nopriv_mizuki_get_anime_data', 'mizuki_ajax_get_anime_data' );
+
+/**
+ * WP-Cron 回调：后台异步刷新远程追番数据。
+ *
+ * 将原先在前台请求中阻塞执行的 Bangumi/Bilibili API 调用
+ * 移至 WP-Cron 后台任务，避免因 sleep() / 网络延迟导致 PHP 超时。
+ */
+function mizuki_cron_refresh_anime() {
+	$mode = mizuki_get_anime_mode();
+
+	if ( 'bangumi' === $mode ) {
+		$user_id = mizuki_get_bangumi_user_id();
+		if ( empty( $user_id ) ) {
+			return;
+		}
+
+		// 获取不同状态的番剧
+		$collections = array(
+			array( 'type' => 3, 'status' => 'watching' ),
+			array( 'type' => 1, 'status' => 'planned' ),
+			array( 'type' => 2, 'status' => 'completed' ),
+			array( 'type' => 4, 'status' => 'onhold' ),
+			array( 'type' => 5, 'status' => 'dropped' ),
+		);
+
+		$anime_list = array();
+		foreach ( $collections as $collection ) {
+			$items      = mizuki_fetch_bangumi_collection( $user_id, $collection['type'], $collection['status'] );
+			$anime_list = array_merge( $anime_list, $items );
+		}
+
+		$cache_key  = 'mizuki_bangumi_data_' . $user_id;
+		$cache_hours = mizuki_get_anime_cache_hours();
+		set_transient( $cache_key, $anime_list, $cache_hours * HOUR_IN_SECONDS );
+
+	} elseif ( 'bilibili' === $mode ) {
+		$vmid = mizuki_get_bilibili_vmid();
+		if ( empty( $vmid ) ) {
+			return;
+		}
+
+		$statuses   = array( 1, 2, 3 );
+		$status_map = array(
+			1 => 'planned',
+			2 => 'watching',
+			3 => 'completed',
+		);
+
+		$anime_list = array();
+		foreach ( $statuses as $status_num ) {
+			$items      = mizuki_fetch_bilibili_collection( $vmid, $status_num, $status_map[ $status_num ] );
+			$anime_list = array_merge( $anime_list, $items );
+		}
+
+		$cache_key  = 'mizuki_bilibili_data_' . $vmid;
+		$cache_hours = mizuki_get_anime_cache_hours();
+		set_transient( $cache_key, $anime_list, $cache_hours * HOUR_IN_SECONDS );
+	}
+}
+add_action( 'mizuki_cron_refresh_anime', 'mizuki_cron_refresh_anime' );
