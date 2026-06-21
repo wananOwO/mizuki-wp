@@ -78,7 +78,11 @@ $total_count = $timeline_query->post_count;
 			<?php while ( $timeline_query->have_posts() ) : $timeline_query->the_post();
 				$year = get_the_date( 'Y' );
 				$type_terms = get_the_terms( get_the_ID(), 'timeline_type' );
-				$type_slug = ( $type_terms && ! is_wp_error( $type_terms ) ) ? $type_terms[0]->slug : 'achievement';
+				if ( $type_terms && ! is_wp_error( $type_terms ) && ! empty( $type_terms ) ) {
+					$type_slug = implode( ',', wp_list_pluck( $type_terms, 'slug' ) );
+				} else {
+					$type_slug = '__none__';
+				}
 			?>
 			<?php if ( $year !== $current_year ) :
 				if ( $current_year ) echo '</div>'; // close year group
