@@ -77,7 +77,7 @@ function mizuki_get_local_anime_data() {
 			'order'                  => 'DESC',
 			'no_found_rows'         => true,
 			'update_post_term_cache' => false,
-	'update_post_meta_cache' => true,
+			'update_post_meta_cache' => true,
 		)
 	);
 
@@ -284,6 +284,17 @@ function mizuki_process_bangumi_data( $items, $status ) {
  * @return array
  */
 function mizuki_fetch_bangumi_subject( $subject_id ) {
+	$subject_id = absint( $subject_id );
+	if ( ! $subject_id ) {
+		return array();
+	}
+
+	$cache_key = 'mizuki_bangumi_subject_' . $subject_id;
+	$cached    = get_transient( $cache_key );
+	if ( false !== $cached ) {
+		return $cached;
+	}
+
 	$url      = 'https://api.bgm.tv/v0/subjects/' . $subject_id;
 	$response = wp_remote_get(
 		$url,
@@ -302,7 +313,9 @@ function mizuki_fetch_bangumi_subject( $subject_id ) {
 	}
 
 	$body = wp_remote_retrieve_body( $response );
-	return json_decode( $body, true ) ?: array();
+	$data = json_decode( $body, true ) ?: array();
+	set_transient( $cache_key, $data, 6 * HOUR_IN_SECONDS );
+	return $data;
 }
 
 /**
@@ -550,13 +563,36 @@ function mizuki_process_bilibili_data( $items, $status ) {
 }
 
 /**
+ * 简单的基于 transient 的速率限制。
+ *
+ * @param string $action 动作名。
+ * @param int    $limit  窗口内允许的次数。
+ * @param int    $window 窗口秒数。
+ * @return bool 通过返回 true，超限返回 false。
+ */
+function mizuki_check_rate_limit( $action, $limit = 10, $window = 60 ) {
+	$ip    = isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : 'unknown';
+	$key   = 'mizuki_rl_' . $action . '_' . md5( $ip );
+	$count = (int) get_transient( $key );
+	if ( $count >= $limit ) {
+		return false;
+	}
+	set_transient( $key, $count + 1, $window );
+	return true;
+}
+
+/**
  * AJAX 处理：更新追番数据
  */
 function mizuki_ajax_refresh_anime_data() {
 	check_ajax_referer( 'mizuki_anime_refresh', 'nonce' );
 
+	if ( ! mizuki_check_rate_limit( 'anime_data', 20, 60 ) ) {
+		wp_send_json_error( array( 'message' => esc_html__( '请求过于频繁，请稍后再试。', 'mizuki' ) ), 429 );
+	}
+
 	if ( ! current_user_can( 'manage_options' ) ) {
-		wp_send_json_error( array( 'message' => __( '没有权限', 'mizuki' ) ) );
+		wp_send_json_error( array( 'message' => __( '没有权限', 'mizuki' ) ), 403 );
 	}
 
 	$mode = mizuki_get_anime_mode();
@@ -592,7 +628,22 @@ add_action( 'wp_ajax_mizuki_refresh_anime_data', 'mizuki_ajax_refresh_anime_data
 function mizuki_ajax_get_anime_data() {
 	check_ajax_referer( 'mizuki_anime_nonce', 'nonce' );
 
+	if ( ! mizuki_check_rate_limit( 'anime_data', 20, 60 ) ) {
+		wp_send_json_error( array( 'message' => esc_html__( '请求过于频繁，请稍后再试。', 'mizuki' ) ), 429 );
+	}
+
 	$data = mizuki_get_anime_list();
+
+	if ( ! headers_sent() ) {
+		$etag = md5( wp_json_encode( $data ) );
+		if ( isset( $_SERVER['HTTP_IF_NONE_MATCH'] ) && trim( $_SERVER['HTTP_IF_NONE_MATCH'] ) === $etag ) {
+			status_header( 304 );
+			exit;
+		}
+		header( 'ETag: ' . $etag );
+		header( 'Cache-Control: public, max-age=300' );
+	}
+
 	wp_send_json_success( $data );
 }
 add_action( 'wp_ajax_mizuki_get_anime_data', 'mizuki_ajax_get_anime_data' );

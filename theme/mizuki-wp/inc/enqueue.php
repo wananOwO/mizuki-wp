@@ -146,9 +146,11 @@ function mizuki_enqueue_global_styles() {
 		}
 	}
 
-	// ── 3. 特色页组：筛选组件 CSS ──
+	// ── 3. 特色页组：筛选组件 + 卡片渐入动画 CSS ──
 	if ( mizuki_is_feature_page() ) {
 		mizuki_enqueue_style_if_exists( 'mizuki-filter-tabs', 'mizuki-filter-tabs.css' );
+		// 卡片渐入动画（从模板内联样式提取，避免重复定义）
+		mizuki_enqueue_style_if_exists( 'mizuki-animations', 'mizuki-animations.css' );
 	}
 
 	// ── 4. 相册页：Fancybox 样式 ──

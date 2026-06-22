@@ -126,7 +126,7 @@ get_header();
 		</div>
 		<p class="anime-empty-filter text-50 text-center py-12 hidden"><?php esc_html_e( '没有符合条件的条目。', 'mizuki' ); ?></p>
 		<?php else : ?>
-		<p class="text-50 text-center py-12"><?php esc_html_e( '暂无追番内容。请在外观 → 自定义 → 追番API 中配置数据源。', 'mizuki' ); ?></p>
+		<?php mizuki_empty_state( __( '暂无追番内容。请在外观 → 自定义 → 追番API 中配置数据源。', 'mizuki' ) ); ?>
 		<?php endif; ?>
 	</div>
 

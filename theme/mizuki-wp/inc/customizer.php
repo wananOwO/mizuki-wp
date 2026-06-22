@@ -565,6 +565,22 @@ function mizuki_render_admin_page() {
 		// Live2D
 		set_theme_mod( 'mizuki_live2d_enabled', ! empty( $_POST['mizuki_live2d_enabled'] ) );
 
+		// 追番 API（修复:此前保存其它设置会清空追番配置）
+		$anime_mode = isset( $_POST['mizuki_anime_mode'] ) ? sanitize_text_field( wp_unslash( $_POST['mizuki_anime_mode'] ) ) : 'local';
+		if ( ! in_array( $anime_mode, array( 'local', 'bangumi', 'bilibili' ), true ) ) {
+			$anime_mode = 'local';
+		}
+		set_theme_mod( 'mizuki_anime_mode', $anime_mode );
+		set_theme_mod( 'mizuki_bangumi_user_id', isset( $_POST['mizuki_bangumi_user_id'] ) ? sanitize_text_field( wp_unslash( $_POST['mizuki_bangumi_user_id'] ) ) : '' );
+		set_theme_mod( 'mizuki_bilibili_vmid', isset( $_POST['mizuki_bilibili_vmid'] ) ? sanitize_text_field( wp_unslash( $_POST['mizuki_bilibili_vmid'] ) ) : '' );
+		set_theme_mod( 'mizuki_bilibili_use_webp', ! empty( $_POST['mizuki_bilibili_use_webp'] ) );
+		set_theme_mod( 'mizuki_anime_cache_hours', isset( $_POST['mizuki_anime_cache_hours'] ) ? absint( $_POST['mizuki_anime_cache_hours'] ) : 24 );
+
+		// 追番数据源变更后清除旧缓存
+		delete_transient( 'mizuki_local_anime_data' );
+		delete_transient( 'mizuki_bangumi_data_' . get_theme_mod( 'mizuki_bangumi_user_id', '' ) );
+		delete_transient( 'mizuki_bilibili_data_' . get_theme_mod( 'mizuki_bilibili_vmid', '' ) );
+
 		echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( '设置已保存。', 'mizuki' ) . '</p></div>';
 	}
 
@@ -581,6 +597,13 @@ function mizuki_render_admin_page() {
 	$social_email     = get_theme_mod( 'mizuki_social_email', '' );
 	$social_rss       = get_theme_mod( 'mizuki_social_rss', '' );
 	$live2d_enabled   = get_theme_mod( 'mizuki_live2d_enabled', false );
+
+	// 追番 API 当前值
+	$anime_mode          = get_theme_mod( 'mizuki_anime_mode', 'local' );
+	$bangumi_user_id     = get_theme_mod( 'mizuki_bangumi_user_id', '' );
+	$bilibili_vmid       = get_theme_mod( 'mizuki_bilibili_vmid', '' );
+	$bilibili_use_webp   = get_theme_mod( 'mizuki_bilibili_use_webp', false );
+	$anime_cache_hours   = get_theme_mod( 'mizuki_anime_cache_hours', 24 );
 	?>
 	<div class="wrap">
 		<h1><?php esc_html_e( 'Mizuki 主题设置', 'mizuki' ); ?></h1>
@@ -705,6 +728,39 @@ function mizuki_render_admin_page() {
 					<div class="mizuki-accordion-body">
 						<div class="mizuki-field">
 							<label><input type="checkbox" name="mizuki_live2d_enabled" value="1" <?php checked( $live2d_enabled ); ?>> <?php esc_html_e( '启用 Live2D 看板娘', 'mizuki' ); ?></label>
+						</div>
+					</div>
+				</div>
+
+				<!-- 追番 API -->
+				<div class="mizuki-accordion-item">
+					<div class="mizuki-accordion-header">
+						<span><?php esc_html_e( '追番 API', 'mizuki' ); ?></span>
+						<span class="mizuki-accordion-arrow">▼</span>
+					</div>
+					<div class="mizuki-accordion-body">
+						<div class="mizuki-field">
+							<label for="mizuki_anime_mode"><?php esc_html_e( '追番数据源', 'mizuki' ); ?></label>
+							<select id="mizuki_anime_mode" name="mizuki_anime_mode">
+								<option value="local" <?php selected( $anime_mode, 'local' ); ?>><?php esc_html_e( '本地数据(自定义文章类型)', 'mizuki' ); ?></option>
+								<option value="bangumi" <?php selected( $anime_mode, 'bangumi' ); ?>><?php esc_html_e( 'Bangumi', 'mizuki' ); ?></option>
+								<option value="bilibili" <?php selected( $anime_mode, 'bilibili' ); ?>><?php esc_html_e( '哔哩哔哩', 'mizuki' ); ?></option>
+							</select>
+						</div>
+						<div class="mizuki-field">
+							<label for="mizuki_bangumi_user_id"><?php esc_html_e( 'Bangumi 用户 ID', 'mizuki' ); ?></label>
+							<input type="text" id="mizuki_bangumi_user_id" name="mizuki_bangumi_user_id" value="<?php echo esc_attr( $bangumi_user_id ); ?>" class="regular-text">
+						</div>
+						<div class="mizuki-field">
+							<label for="mizuki_bilibili_vmid"><?php esc_html_e( '哔哩哔哩 UID', 'mizuki' ); ?></label>
+							<input type="text" id="mizuki_bilibili_vmid" name="mizuki_bilibili_vmid" value="<?php echo esc_attr( $bilibili_vmid ); ?>" class="regular-text">
+						</div>
+						<div class="mizuki-field">
+							<label><input type="checkbox" name="mizuki_bilibili_use_webp" value="1" <?php checked( $bilibili_use_webp ); ?>> <?php esc_html_e( '使用 WebP 格式封面(哔哩哔哩,体积更小)', 'mizuki' ); ?></label>
+						</div>
+						<div class="mizuki-field">
+							<label for="mizuki_anime_cache_hours"><?php esc_html_e( '缓存时长(小时)', 'mizuki' ); ?></label>
+							<input type="number" id="mizuki_anime_cache_hours" name="mizuki_anime_cache_hours" value="<?php echo esc_attr( $anime_cache_hours ); ?>" min="1" max="168" class="small-text">
 						</div>
 					</div>
 				</div>

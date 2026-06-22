@@ -10,10 +10,17 @@
 get_header();
 
 // 获取所有时间线类型分类
-$types = get_terms( array(
-	'taxonomy'   => 'timeline_type',
-	'hide_empty' => false,
-) );
+$types_cache_key = 'mizuki_terms_timeline_type';
+$types = get_transient( $types_cache_key );
+if ( false === $types ) {
+	$types = get_terms( array(
+		'taxonomy'   => 'timeline_type',
+		'hide_empty' => false,
+	) );
+	if ( ! is_wp_error( $types ) ) {
+		set_transient( $types_cache_key, $types, 12 * HOUR_IN_SECONDS );
+	}
+}
 
 // 获取类型的显示名和图标映射
 $type_labels = mizuki_get_category_labels( 'timeline_type' );

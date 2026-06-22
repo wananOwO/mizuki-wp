@@ -11,11 +11,18 @@ defined( 'ABSPATH' ) || exit;
 get_header();
 
 // 获取所有友链标签
-$friend_tags = get_terms( array(
-	'taxonomy'   => 'friend_tag',
-	'hide_empty' => true,
-	'orderby'    => 'name',
-) );
+$friend_tags_cache_key = 'mizuki_terms_friend_tag';
+$friend_tags = get_transient( $friend_tags_cache_key );
+if ( false === $friend_tags ) {
+	$friend_tags = get_terms( array(
+		'taxonomy'   => 'friend_tag',
+		'hide_empty' => true,
+		'orderby'    => 'name',
+	) );
+	if ( ! is_wp_error( $friend_tags ) ) {
+		set_transient( $friend_tags_cache_key, $friend_tags, 12 * HOUR_IN_SECONDS );
+	}
+}
 
 $friend_query = new WP_Query( array(
 	'post_type'              => 'mizuki_friend',
@@ -34,11 +41,12 @@ $total_count = $friend_query->post_count;
 
 <main id="main" class="friends-page onload-animation">
 	<div class="card-base px-6 md:px-9 py-6">
-		<h1 class="transition w-full block font-bold mb-2 text-3xl md:text-4xl text-90">
-			<?php esc_html_e( '友链', 'mizuki' ); ?>
-		</h1>
-		<p class="text-black/50 dark:text-white/50 mb-6"><?php esc_html_e( '我的朋友们', 'mizuki' ); ?></p>
-		<div class="mt-4 border-[var(--line-divider)] border-dashed border-b-[1px] mb-6"></div>
+		<?php
+		mizuki_page_header( array(
+			'title'       => __( '友链', 'mizuki' ),
+			'description' => __( '我的朋友们', 'mizuki' ),
+		) );
+		?>
 
 		<!-- 搜索和筛选栏 (同步原项目 friends.astro) -->
 		<div class="mb-6 space-y-3">
@@ -93,7 +101,7 @@ $total_count = $friend_query->post_count;
 				$tag_str = implode( ',', $tag_names );
 			?>
 			<a href="<?php echo esc_url( $furl ?: '#' ); ?>" target="_blank" rel="noopener noreferrer"
-			   class="friend-card group block bg-transparent rounded-xl border border-black/10 dark:border-white/10 overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+			   class="friend-card mizuki-stagger group block bg-transparent rounded-xl border border-black/10 dark:border-white/10 overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
 			   data-tag="<?php echo esc_attr( $tag_str ); ?>">
 				<div class="p-5 flex items-start gap-4">
 					<div class="w-16 h-16 flex-shrink-0 rounded-xl overflow-hidden">
@@ -127,7 +135,7 @@ $total_count = $friend_query->post_count;
 			<?php endwhile; wp_reset_postdata(); ?>
 		</div>
 		<?php else : ?>
-		<p class="text-50 text-center py-12"><?php esc_html_e( '暂无友链。', 'mizuki' ); ?></p>
+		<?php mizuki_empty_state( __( '暂无友链。', 'mizuki' ) ); ?>
 		<?php endif; ?>
 
 		<!-- 无结果提示 -->
@@ -140,20 +148,6 @@ $total_count = $friend_query->post_count;
 <!-- 友链筛选由 filter-handler.js 统一处理 -->
 
 <style>
-	.friend-card {
-		animation: fadeInUp 0.5s ease-out forwards;
-		opacity: 0;
-	}
-	@keyframes fadeInUp {
-		from { opacity: 0; transform: translateY(20px); }
-		to { opacity: 1; transform: translateY(0); }
-	}
-	.friend-card:nth-child(1) { animation-delay: 0.03s; }
-	.friend-card:nth-child(2) { animation-delay: 0.06s; }
-	.friend-card:nth-child(3) { animation-delay: 0.09s; }
-	.friend-card:nth-child(4) { animation-delay: 0.12s; }
-	.friend-card:nth-child(5) { animation-delay: 0.15s; }
-	.friend-card:nth-child(6) { animation-delay: 0.18s; }
 	.line-clamp-2 {
 		display: -webkit-box;
 		-webkit-line-clamp: 2;
