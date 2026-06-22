@@ -1,28 +1,121 @@
 <?php
 /**
- * 前端资源入队。
+ * 前端资源入队（优化版）。
  *
  * @package Mizuki
  */
 defined( 'ABSPATH' ) || exit;
 
 /**
+ * 辅助函数：条件入队样式表。
+ *
+ * @param string       $handle 句柄。
+ * @param string       $file   文件路径（相对于 assets/css/）。
+ * @param array        $deps   依赖项。
+ * @param string|null  $ver    版本号（null 则使用主题版本）。
+ * @return bool 是否成功入队。
+ */
+function mizuki_enqueue_style_if_exists( $handle, $file, $deps = array(), $ver = null ) {
+	static $cache = array();
+	$ver  = $ver ?? MIZUKI_VERSION;
+	$path = MIZUKI_DIR . '/assets/css/' . $file;
+
+	// 缓存 file_exists 结果（单次请求内有效）
+	if ( ! isset( $cache[ $file ] ) ) {
+		$cache[ $file ] = file_exists( $path );
+	}
+
+	if ( $cache[ $file ] ) {
+		wp_enqueue_style( $handle, MIZUKI_URI . '/assets/css/' . $file, $deps, $ver );
+		return true;
+	}
+	return false;
+}
+
+/**
+ * 辅助函数：条件入队脚本。
+ *
+ * @param string       $handle    句柄。
+ * @param string       $file      文件路径（相对于 assets/js/）或完整 URL。
+ * @param array        $deps      依赖项。
+ * @param string|null  $ver       版本号。
+ * @param bool         $in_footer 是否在页脚加载。
+ * @return bool 是否成功入队。
+ */
+function mizuki_enqueue_script_if_exists( $handle, $file, $deps = array(), $ver = null, $in_footer = true ) {
+	static $cache = array();
+
+	// 外部 URL 直接入队
+	if ( strpos( $file, 'http' ) === 0 ) {
+		wp_enqueue_script( $handle, $file, $deps, $ver, $in_footer );
+		return true;
+	}
+
+	$ver  = $ver ?? MIZUKI_VERSION;
+	$path = MIZUKI_DIR . '/assets/js/' . $file;
+
+	if ( ! isset( $cache[ $file ] ) ) {
+		$cache[ $file ] = file_exists( $path );
+	}
+
+	if ( $cache[ $file ] ) {
+		wp_enqueue_script( $handle, MIZUKI_URI . '/assets/js/' . $file, $deps, $ver, $in_footer );
+		return true;
+	}
+	return false;
+}
+
+/**
+ * 辅助函数：检查是否为特色页模板。
+ *
+ * @return bool
+ */
+function mizuki_is_feature_page() {
+	static $result = null;
+	if ( $result === null ) {
+		$templates = array(
+			'templates/template-friends.php',
+			'templates/template-projects.php',
+			'templates/template-skills.php',
+			'templates/template-timeline.php',
+		);
+		foreach ( $templates as $tpl ) {
+			if ( is_page_template( $tpl ) ) {
+				$result = true;
+				return $result;
+			}
+		}
+		$result = false;
+	}
+	return $result;
+}
+
+/**
+ * 批量入队样式表。
+ *
+ * @param array $styles 样式数组 ['handle' => 'file.css', ...]。
+ * @param array $deps   公共依赖项。
+ */
+function mizuki_enqueue_styles_batch( $styles, $deps = array() ) {
+	foreach ( $styles as $handle => $file ) {
+		mizuki_enqueue_style_if_exists( $handle, $file, $deps );
+	}
+}
+
+/**
  * 入队 Mizuki 核心样式（全站必加载）。
  *
- * 优化策略：将原先 16 个全站 CSS 拆分为 3 组按需加载：
- * - 核心组：全站加载（11 个）
- * - 文章页组：仅 is_single() 加载（4 个，~100K）
- * - 特色页组：仅特定模板加载（3 个，~28K）
+ * 优化策略：
+ * - 拆分为 3 组按需加载（核心/文章页/特色页）
+ * - 使用辅助函数消除重复代码
+ * - 缓存 file_exists 和模板检查结果
+ * - 提取内联 CSS 到独立文件
  */
 function mizuki_enqueue_global_styles() {
-	$ver  = MIZUKI_VERSION;
-	$base = MIZUKI_URI . '/assets/css';
-
-	// ── 核心组：全站必加载 ──
+	// ── 1. 核心组：全站必加载 ──
 	$global_css = array(
 		'mizuki-variables'           => 'mizuki-variables.css',
 		'mizuki-main'                => 'mizuki-main.css',
-		// 补充 Tailwind 工具类: PHP 模板使用但原 Astro 源未编译进 main.css 的类。
 		'mizuki-tw-utilities'        => 'mizuki-tw-utilities.css',
 		'mizuki-markdown-base'       => 'mizuki-markdown-base.css',
 		'mizuki-markdown-components' => 'mizuki-markdown-components.css',
@@ -31,117 +124,94 @@ function mizuki_enqueue_global_styles() {
 		'mizuki-transition'          => 'mizuki-transition.css',
 		'mizuki-sidebar-track'       => 'mizuki-sidebar-track.css',
 		'mizuki-widget-responsive'   => 'mizuki-widget-responsive.css',
-		// 必须最后加载: 修正层,覆盖 main.css 中未限定作用域的卡片/面板规则。
-		'mizuki-overrides'           => 'mizuki-overrides.css',
 	);
+	mizuki_enqueue_styles_batch( $global_css );
 
-	foreach ( $global_css as $handle => $file ) {
-		$path = MIZUKI_DIR . '/assets/css/' . $file;
-		if ( file_exists( $path ) ) {
-			wp_enqueue_style( $handle, $base . '/' . $file, array(), $ver );
-		}
-	}
+	// 修正层必须最后加载（依赖 main）
+	mizuki_enqueue_style_if_exists( 'mizuki-overrides', 'mizuki-overrides.css', array( 'mizuki-main' ) );
 
-	// ── 文章页组：仅文章页加载 ──
+	// ── 2. 文章页组：仅文章页加载 ──
 	if ( is_single() ) {
 		$post_css = array(
 			'mizuki-markdown-extend' => 'mizuki-markdown-extend.css',
 			'mizuki-katex'           => 'mizuki-katex.css',
 			'mizuki-fancybox'        => 'mizuki-fancybox.css',
+			'mizuki-encrypted'       => 'mizuki-encrypted.css',
 		);
-		foreach ( $post_css as $handle => $file ) {
-			$path = MIZUKI_DIR . '/assets/css/' . $file;
-			if ( file_exists( $path ) ) {
-				wp_enqueue_style( $handle, $base . '/' . $file, array(), $ver );
-			}
+		mizuki_enqueue_styles_batch( $post_css );
+
+		// 评论样式（需评论开启）
+		if ( comments_open() || get_comments_number() ) {
+			mizuki_enqueue_style_if_exists( 'mizuki-twikoo', 'mizuki-twikoo.css' );
 		}
 	}
 
-	// ── 特色页组：筛选组件 CSS ──
-	if ( is_page_template( 'templates/template-friends.php' ) ||
-	     is_page_template( 'templates/template-projects.php' ) ||
-	     is_page_template( 'templates/template-skills.php' ) ||
-	     is_page_template( 'templates/template-timeline.php' ) ) {
-		$filter_css = MIZUKI_DIR . '/assets/css/mizuki-filter-tabs.css';
-		if ( file_exists( $filter_css ) ) {
-			wp_enqueue_style( 'mizuki-filter-tabs', $base . '/mizuki-filter-tabs.css', array(), $ver );
-		}
+	// ── 3. 特色页组：筛选组件 CSS ──
+	if ( mizuki_is_feature_page() ) {
+		mizuki_enqueue_style_if_exists( 'mizuki-filter-tabs', 'mizuki-filter-tabs.css' );
 	}
 
-	// 评论样式（仅文章单页且开启评论时加载）
-	if ( is_single() && ( comments_open() || get_comments_number() ) ) {
-		$twikoo_css = MIZUKI_DIR . '/assets/css/mizuki-twikoo.css';
-		if ( file_exists( $twikoo_css ) ) {
-			wp_enqueue_style( 'mizuki-twikoo', $base . '/mizuki-twikoo.css', array(), $ver );
-		}
-	}
-
-	// 加密内容样式（仅文章单页需要的懒加载，由 JS 按需注入）
-	if ( is_single() ) {
-		$encrypted_css = MIZUKI_DIR . '/assets/css/mizuki-encrypted.css';
-		if ( file_exists( $encrypted_css ) ) {
-			wp_enqueue_style( 'mizuki-encrypted', $base . '/mizuki-encrypted.css', array(), $ver );
-		}
-	}
-
-	// 相册页也加载 Fancybox
+	// ── 4. 相册页：Fancybox 样式 ──
 	if ( is_page_template( 'templates/template-albums.php' ) ) {
-		$fb_css = MIZUKI_DIR . '/assets/css/mizuki-fancybox.css';
-		if ( file_exists( $fb_css ) ) {
-			wp_enqueue_style( 'mizuki-fancybox', $base . '/mizuki-fancybox.css', array(), $ver );
-		}
+		mizuki_enqueue_style_if_exists( 'mizuki-fancybox', 'mizuki-fancybox.css' );
 	}
 
-	// KaTeX + JetBrains Mono 字体(由 CSS @font-face 引用,无额外 enqueue)
-	// 自定义字体(ZenMaruGothic, loli)同上
+	// ── 5. WordPress 导航/布局修正内联样式 ──
+	// 注意：建议将此提取到 mizuki-wp-fixes.css 文件以减少内联 CSS
+	$inline_css = mizuki_get_inline_styles();
+	wp_add_inline_style( 'mizuki-overrides', $inline_css );
 
-	// ── JS 条件加载 ──
+	// ── 6. JavaScript 条件加载 ──
+	mizuki_enqueue_scripts();
+}
+add_action( 'wp_enqueue_scripts', 'mizuki_enqueue_global_styles' );
+
+/**
+ * 入队 JavaScript 资源。
+ */
+function mizuki_enqueue_scripts() {
+	$is_single = is_single();
+	$is_album  = is_page_template( 'templates/template-albums.php' );
 
 	// Fancybox 图片灯箱库: 仅文章页或相册页加载
-	if ( is_single() || is_page_template( 'templates/template-albums.php' ) ) {
-		wp_enqueue_script( 'fancybox', 'https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js', array(), '5.0', true );
-
-		$js = MIZUKI_DIR . '/assets/js/mizuki-theme.js';
-		if ( file_exists( $js ) ) {
-			// 依赖 fancybox,确保灯箱库先于主题脚本加载。
-			wp_enqueue_script( 'mizuki-theme', MIZUKI_URI . '/assets/js/mizuki-theme.js', array( 'fancybox' ), $ver, true );
-		}
+	if ( $is_single || $is_album ) {
+		mizuki_enqueue_script_if_exists(
+			'fancybox',
+			'https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js',
+			array(),
+			'5.0'
+		);
+		// 主题脚本依赖 Fancybox
+		mizuki_enqueue_script_if_exists( 'mizuki-theme', 'mizuki-theme.js', array( 'fancybox' ) );
 	} else {
-		// 非文章页：仅加载核心主题 JS（主题切换、回到顶部等）
-		$js = MIZUKI_DIR . '/assets/js/mizuki-theme.js';
-		if ( file_exists( $js ) ) {
-			wp_enqueue_script( 'mizuki-theme', MIZUKI_URI . '/assets/js/mizuki-theme.js', array(), $ver, true );
-		}
+		// 非文章页：仅加载核心主题 JS
+		mizuki_enqueue_script_if_exists( 'mizuki-theme', 'mizuki-theme.js' );
 	}
 
 	// 标签过滤功能: 仅特色页加载
-	$filter_pages = array(
-		'templates/template-friends.php',
-		'templates/template-projects.php',
-		'templates/template-skills.php',
-		'templates/template-timeline.php',
-	);
-	$need_filter = false;
-	foreach ( $filter_pages as $tpl ) {
-		if ( is_page_template( $tpl ) ) {
-			$need_filter = true;
-			break;
-		}
-	}
-	if ( $need_filter ) {
-		$filter_js = MIZUKI_DIR . '/assets/js/filter-handler.js';
-		if ( file_exists( $filter_js ) ) {
-			wp_enqueue_script( 'mizuki-filter', MIZUKI_URI . '/assets/js/filter-handler.js', array(), $ver, true );
-		}
+	if ( mizuki_is_feature_page() ) {
+		mizuki_enqueue_script_if_exists( 'mizuki-filter', 'filter-handler.js' );
 	}
 
 	// Iconify 图标库: 仅时间线页加载
 	if ( is_page_template( 'templates/template-timeline.php' ) ) {
-		wp_enqueue_script( 'iconify', 'https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js', array(), '2.1.0', true );
+		mizuki_enqueue_script_if_exists(
+			'iconify',
+			'https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js',
+			array(),
+			'2.1.0'
+		);
 	}
+}
 
-	// WordPress 导航菜单 + 布局修正的内联 CSS
-	$custom_css = '
+/**
+ * 获取内联样式（建议迁移到独立 CSS 文件）。
+ *
+ * @return string
+ */
+function mizuki_get_inline_styles() {
+	// 建议：创建 mizuki-wp-fixes.css 并移除此函数
+	return '
 		/* 导航菜单项样式 */
 		#navbar-links-container .menu-item {
 			display: inline-flex;
@@ -207,21 +277,14 @@ function mizuki_enqueue_global_styles() {
 		.search-form .search-submit { padding: 0.5rem 1rem; border-radius: 0.75rem; background: var(--btn-regular-bg); color: var(--btn-content); font-size: 0.875rem; font-weight: 500; cursor: pointer; transition: background-color 0.15s; border: none; }
 		.search-form .search-submit:hover { background: var(--btn-regular-bg-hover); }
 	';
-	// 附加到最后加载的修正层句柄,确保这些内联规则可靠覆盖 main.css。
-	wp_add_inline_style( 'mizuki-overrides', $custom_css );
 }
-add_action( 'wp_enqueue_scripts', 'mizuki_enqueue_global_styles' );
 
 /**
  * Expressive Code 样式(仅文章页)。
  */
 function mizuki_enqueue_post_styles() {
-	if ( ! is_single() ) {
-		return;
-	}
-	$ec = MIZUKI_DIR . '/assets/css/mizuki-ec.css';
-	if ( file_exists( $ec ) ) {
-		wp_enqueue_style( 'mizuki-ec', MIZUKI_URI . '/assets/css/mizuki-ec.css', array(), MIZUKI_VERSION );
+	if ( is_single() ) {
+		mizuki_enqueue_style_if_exists( 'mizuki-ec', 'mizuki-ec.css' );
 	}
 }
 add_action( 'wp_enqueue_scripts', 'mizuki_enqueue_post_styles' );

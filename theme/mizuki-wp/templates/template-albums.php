@@ -18,6 +18,7 @@ $mz_albums = new WP_Query(
 		'posts_per_page'         => 200,
 		'no_found_rows'          => true,
 		'update_post_term_cache' => false,
+	'update_post_meta_cache' => true,
 	)
 );
 ?>
