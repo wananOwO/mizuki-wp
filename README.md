@@ -161,8 +161,8 @@ git clone https://github.com/YOUR_USERNAME/mizuki-wp.git
 
 ## 📧 支持
 
-- 🐛 报告 Bug: [GitHub Issues](https://github.com/YOUR_USERNAME/mizuki-wp/issues)
-- 💡 功能建议: [GitHub Discussions](https://github.com/YOUR_USERNAME/mizuki-wp/discussions)
+- 🐛 报告 Bug: [GitHub Issues](https://github.com/wananOwO/mizuki-wp/issues)
+- 💡 功能建议: [GitHub Discussions](https://github.com/wananOwO/mizuki-wp/discussions)
 - 📖 原版主题: [Mizuki by LyraVoid](https://github.com/LyraVoid/Mizuki)
 
 ---
