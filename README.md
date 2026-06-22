@@ -4,6 +4,9 @@
 
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE-APACHE)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE-MIT)
+[![GitHub release](https://img.shields.io/github/v/release/wananOwO/mizuki-wp)](https://github.com/wananOwO/mizuki-wp/releases)
+[![GitHub stars](https://img.shields.io/github/stars/wananOwO/mizuki-wp?style=social)](https://github.com/wananOwO/mizuki-wp/stargazers)
+[![GitHub issues](https://img.shields.io/github/issues/wananOwO/mizuki-wp)](https://github.com/wananOwO/mizuki-wp/issues)
 
 ## ✨ 特性
 
