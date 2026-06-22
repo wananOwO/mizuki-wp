@@ -53,6 +53,7 @@ function mizuki_diary_relative_time( $timestamp ) {
 			'order'                  => 'DESC',
 			'no_found_rows'          => true,
 			'update_post_term_cache' => false,
+	'update_post_meta_cache' => true,
 		) );
 
 		if ( $diary_query->have_posts() ) :
