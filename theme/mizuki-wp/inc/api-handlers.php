@@ -77,6 +77,7 @@ function mizuki_get_local_anime_data() {
 			'order'                  => 'DESC',
 			'no_found_rows'         => true,
 			'update_post_term_cache' => false,
+	'update_post_meta_cache' => true,
 		)
 	);
 
@@ -107,11 +108,11 @@ function mizuki_get_local_anime_data() {
 			}
 
 			$anime_list[] = array(
-				'title'           => get_the_title(),
+				'title' => sanitize_text_field( get_the_title() ),
 				'status'          => $status ?: 'planned',
 				'rating'          => $score ? floatval( $score ) : 0,
 				'cover'           => get_the_post_thumbnail_url( $post_id, 'medium_large' ) ?: '',
-				'description'     => get_the_excerpt(),
+				'description' => wp_kses_post( get_the_excerpt() ),
 				'year'            => get_the_date( 'Y' ),
 				'studio'          => '',
 				'genre'           => array(),
@@ -256,11 +257,11 @@ function mizuki_process_bangumi_data( $items, $status ) {
 		}
 
 		$results[] = array(
-			'title'           => isset( $subject['name_cn'] ) ? $subject['name_cn'] : ( isset( $subject['name'] ) ? $subject['name'] : 'Unknown' ),
+			'title'           => sanitize_text_field( isset( $subject['name_cn'] ) ? $subject['name_cn'] : ( isset( $subject['name'] ) ? $subject['name'] : 'Unknown' ) ),
 			'status'          => $status,
 			'rating'          => $rating,
 			'cover'           => $cover,
-			'description'     => trim( $description ),
+			'description'     => wp_kses_post( trim( $description ) ),
 			'year'            => $year,
 			'genre'           => $genre,
 			'studio'          => $studio,
@@ -530,11 +531,11 @@ function mizuki_process_bilibili_data( $items, $status ) {
 		}
 
 		$results[] = array(
-			'title'           => isset( $bangumi['title'] ) ? $bangumi['title'] : 'Unknown',
+			'title'           => sanitize_text_field( isset( $bangumi['title'] ) ? $bangumi['title'] : 'Unknown' ),
 			'status'          => $status,
 			'rating'          => $rating,
 			'cover'           => $cover,
-			'description'     => $description,
+			'description'     => wp_kses_post( $description ),
 			'year'            => $year,
 			'studio'          => $studio,
 			'genre'           => $genre,

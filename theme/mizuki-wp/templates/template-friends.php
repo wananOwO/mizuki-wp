@@ -24,6 +24,7 @@ $friend_query = new WP_Query( array(
 	'order'                  => 'ASC',
 	'no_found_rows'          => true,
 	'update_post_term_cache' => true,
+	'update_post_meta_cache' => true,
 ) );
 
 $total_count = $friend_query->post_count;

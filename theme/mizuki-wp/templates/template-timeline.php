@@ -22,11 +22,13 @@ $type_icons  = mizuki_get_category_icons( 'timeline_type' );
 // 查询所有时间线条目，按开始日期降序
 $timeline_query = new WP_Query( array(
 	'post_type'      => 'mizuki_timeline',
-	'posts_per_page' => -1,
+	'posts_per_page' => 200,
 	'post_status'    => 'publish',
 	'meta_key'       => '_mizuki_timeline_start_date',
 	'orderby'        => 'meta_value',
 	'order'          => 'DESC',
+	'update_post_term_cache' => true,
+	'update_post_meta_cache' => true,
 ) );
 
 // 构建筛选 Tab 数据
