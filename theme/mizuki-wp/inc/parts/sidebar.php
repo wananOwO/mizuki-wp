@@ -113,29 +113,13 @@ if ( ! function_exists( 'mizuki_profile_card' ) ) {
 				<div class="text-center text-neutral-400 mb-2.5 transition"><?php echo esc_html( $bio ); ?></div>
 				<?php endif; ?>
 				<?php
-				// 社交链接(btn-regular 方块按钮)。
-				$socials = array();
-				foreach ( array( 'github', 'twitter', 'email', 'rss' ) as $p ) {
-					$url = mizuki_get_theme_mod( "mizuki_social_{$p}", '' );
-					if ( ! $url ) {
-						continue;
-					}
-					if ( 'email' === $p && false !== strpos( $url, '@' ) && 0 !== strpos( $url, 'mailto:' ) ) {
-						$url = 'mailto:' . $url;
-					}
-					$socials[ $p ] = $url;
-				}
-				if ( $socials ) :
-					$sicons = array(
-						'github'  => '<svg viewBox="0 0 24 24" width="1em" height="1em" class="text-[1.5rem]"><path fill="currentColor" d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5c.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34c-.46-1.16-1.11-1.47-1.11-1.47c-.91-.62.07-.6.07-.6c1 .07 1.53 1.03 1.53 1.03c.87 1.52 2.34 1.07 2.91.83c.09-.65.35-1.09.63-1.34c-2.22-.25-4.55-1.11-4.55-4.92c0-1.11.38-2 1.03-2.71c-.1-.25-.45-1.29.1-2.64c0 0 .84-.27 2.75 1.02c.79-.22 1.65-.33 2.5-.33s1.71.11 2.5.33c1.91-1.29 2.75-1.02 2.75-1.02c.55 1.35.2 2.39.1 2.64c.65.71 1.03 1.6 1.03 2.71c0 3.82-2.34 4.66-4.57 4.91c.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2"/></svg>',
-						'twitter' => '<svg viewBox="0 0 24 24" width="1em" height="1em" class="text-[1.5rem]"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>',
-						'email'   => '<svg viewBox="0 0 24 24" width="1em" height="1em" class="text-[1.5rem]"><path fill="currentColor" d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2m0 4l-8 5-8-5V6l8 5 8-5z"/></svg>',
-						'rss'     => '<svg viewBox="0 0 24 24" width="1em" height="1em" class="text-[1.5rem]"><path fill="currentColor" d="M6.18 17.82a2.18 2.18 0 1 0 0-4.36 2.18 2.18 0 0 0 0 4.36M4 4.44v2.83c7.03 0 12.73 5.7 12.73 12.73h2.83c0-8.59-6.97-15.56-15.56-15.56m0 5.66v2.83c3.9 0 7.07 3.17 7.07 7.07h2.83c0-5.47-4.43-9.9-9.9-9.9"/></svg>',
-					);
+				// 社交/外链按钮(btn-regular 方块):来自后台「社交链接」自定义列表。
+				$clinks = mizuki_get_custom_links();
+				if ( $clinks ) :
 					?>
 				<div class="flex flex-wrap gap-2 justify-center mb-1">
-					<?php foreach ( $socials as $name => $url ) : ?>
-					<a rel="me" aria-label="<?php echo esc_attr( ucfirst( $name ) ); ?>" href="<?php echo esc_url( $url ); ?>" target="_blank" class="btn-regular rounded-lg h-10 w-10 active:scale-90"><?php echo isset( $sicons[ $name ] ) ? $sicons[ $name ] : ''; // phpcs:ignore ?></a>
+					<?php foreach ( $clinks as $cl ) : ?>
+					<a rel="me" aria-label="<?php echo esc_attr( $cl['name'] ); ?>" href="<?php echo esc_url( $cl['url'] ); ?>" target="_blank" class="btn-regular rounded-lg h-10 w-10 active:scale-90 text-[1.5rem]"><?php mizuki_social_icon_svg( $cl['icon'] ); ?></a>
 					<?php endforeach; ?>
 				</div>
 				<?php endif; ?>

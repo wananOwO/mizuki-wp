@@ -7,7 +7,9 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'MIZUKI_VERSION', '0.4.0' );
+// 资源缓存版本:改 CSS/JS 时 +1,使浏览器丢弃旧缓存。本次修复 fancybox CSS/JS,
+// 必须递增,否则用户会用旧缓存的坏 CSS + 新 CDN JS,版本不匹配导致灯箱卡死。
+define( 'MIZUKI_VERSION', '0.4.1' );
 // 内容结构版本:每次新增页面/改菜单结构时 +1,触发升级迁移(即使主题是覆盖升级)。
 define( 'MIZUKI_CONTENT_VERSION', '2' );
 define( 'MIZUKI_DIR', get_template_directory() );

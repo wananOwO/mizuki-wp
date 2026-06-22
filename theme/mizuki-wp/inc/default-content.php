@@ -350,26 +350,9 @@ function mizuki_rebuild_grouped_menu( $page_ids ) {
 		mizuki_add_page_menu_item( $menu_id, $page_ids['archive'], 0 );
 	}
 
-	// 下拉组:链接(外部)— 与原版 navBarConfig 的 Links 组一致(GitHub/Bilibili/Gitee)。
-	$links_parent   = wp_update_nav_menu_item( $menu_id, 0, array(
-		'menu-item-title'  => '链接',
-		'menu-item-url'    => '#',
-		'menu-item-status' => 'publish',
-	) );
-	$external_links = array(
-		array( 'GitHub', 'https://github.com/LyraVoid/Mizuki' ),
-		array( 'Bilibili', 'https://space.bilibili.com/701864046' ),
-		array( 'Gitee', 'https://gitee.com/matsuzakayuki/Mizuki' ),
-	);
-	foreach ( $external_links as $ext ) {
-		wp_update_nav_menu_item( $menu_id, 0, array(
-			'menu-item-title'     => $ext[0],
-			'menu-item-url'       => $ext[1],
-			'menu-item-target'    => '_blank',
-			'menu-item-parent-id' => $links_parent,
-			'menu-item-status'    => 'publish',
-		) );
-	}
+	// 「链接」下拉不再预置开发者外链:导航栏的「链接」组现在完全由后台「社交链接」
+	// 自定义列表(theme_mod 'mizuki_custom_links')驱动,默认为空(不显示该组)。
+	// 用户可在 Mizuki 主题设置里添加自己的任意链接。
 
 	// 下拉组:我的 → 追番 / 说说 / 相册。
 	$my_parent = wp_update_nav_menu_item( $menu_id, 0, array(

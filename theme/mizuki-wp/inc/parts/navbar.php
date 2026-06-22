@@ -184,15 +184,27 @@ if ( ! function_exists( 'mizuki_nav_groups' ) ) {
 		$groups = array(
 			array( 'title' => __( '首页', 'mizuki' ), 'url' => home_url( '/' ), 'icon' => 'home' ),
 			array( 'title' => __( '归档', 'mizuki' ), 'url' => mizuki_nav_page_url( 'archive' ), 'icon' => 'archive' ),
-			array(
+		);
+
+		// 「链接」下拉:来自后台「社交链接」自定义列表;为空则整组隐藏(不再硬编码开发者链接)。
+		$link_children = array();
+		foreach ( mizuki_get_custom_links() as $cl ) {
+			$link_children[] = array(
+				'title'    => $cl['name'],
+				'url'      => $cl['url'],
+				'external' => true,
+				'icon'     => $cl['icon'],
+			);
+		}
+		if ( $link_children ) {
+			$groups[] = array(
 				'title'    => __( '链接', 'mizuki' ),
 				'icon'     => 'link',
-				'children' => array(
-					array( 'title' => 'GitHub', 'url' => 'https://github.com/LyraVoid/Mizuki', 'external' => true, 'icon' => 'github' ),
-					array( 'title' => 'Bilibili', 'url' => 'https://space.bilibili.com/701864046', 'external' => true, 'icon' => 'bilibili' ),
-					array( 'title' => 'Gitee', 'url' => 'https://gitee.com/matsuzakayuki/Mizuki', 'external' => true, 'icon' => 'git' ),
-				),
-			),
+				'children' => $link_children,
+			);
+		}
+
+		$groups = array_merge( $groups, array(
 			array(
 				'title'    => __( '我的', 'mizuki' ),
 				'icon'     => 'person',
@@ -219,7 +231,7 @@ if ( ! function_exists( 'mizuki_nav_groups' ) ) {
 					array( 'title' => __( '时间线', 'mizuki' ), 'url' => mizuki_nav_page_url( 'timeline' ), 'icon' => 'timeline' ),
 				),
 			),
-		);
+		) );
 		return apply_filters( 'mizuki_nav_groups', $groups );
 	}
 }

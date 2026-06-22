@@ -82,22 +82,9 @@ function mizuki_customize_register( $wp_customize ) {
 		$wp_customize->add_control( $id, array( 'label' => $cfg[0], 'section' => 'mizuki_profile', 'type' => $cfg[2] ) );
 	}
 
-	// === 社交链接 ===
-	$wp_customize->add_section( 'mizuki_social', array(
-		'title'    => __( '社交链接', 'mizuki' ),
-		'panel'    => 'mizuki_panel',
-		'priority' => 40,
-	) );
-	foreach ( array( 'github', 'twitter', 'email', 'rss' ) as $p ) {
-		if ( 'email' === $p ) {
-			// 邮箱: 接受纯邮箱地址(渲染时自动加 mailto:),避免 esc_url 丢弃无协议地址。
-			$wp_customize->add_setting( 'mizuki_social_email', array( 'default' => '', 'sanitize_callback' => 'sanitize_text_field' ) );
-			$wp_customize->add_control( 'mizuki_social_email', array( 'label' => __( 'Email(邮箱或 mailto: 链接)', 'mizuki' ), 'section' => 'mizuki_social', 'type' => 'text' ) );
-			continue;
-		}
-		$wp_customize->add_setting( "mizuki_social_{$p}", array( 'default' => '', 'sanitize_callback' => 'esc_url_raw' ) );
-		$wp_customize->add_control( "mizuki_social_{$p}", array( 'label' => ucfirst( $p ) . ' URL', 'section' => 'mizuki_social', 'type' => 'url' ) );
-	}
+	// 社交链接:改由后台「Mizuki 主题设置」中的自定义 repeater 管理(theme_mod 'mizuki_custom_links')。
+	// 旧的固定四项 mizuki_social_{github,twitter,email,rss} 仅作为向后兼容的回退数据源,
+	// 不再在 Customizer 暴露独立控件(避免与新 repeater 冲突/混淆)。
 
 	// === 追番 API ===
 	$wp_customize->add_section( 'mizuki_anime_api', array(
@@ -237,36 +224,16 @@ function mizuki_sidebar_profile_widget() {
 		<p class="text-50 text-sm"><?php echo esc_html( $bio ); ?></p>
 		<?php endif; ?>
 		<?php
-		// 社交链接
-		$socials = array();
-		foreach ( array( 'github', 'twitter', 'email', 'rss' ) as $p ) {
-			$url = get_theme_mod( "mizuki_social_{$p}", '' );
-			if ( ! $url ) {
-				continue;
-			}
-			// 邮箱: 纯地址(含 @ 但无 mailto: 前缀)自动补 mailto:。
-			if ( 'email' === $p && false !== strpos( $url, '@' ) && 0 !== strpos( $url, 'mailto:' ) ) {
-				$url = 'mailto:' . $url;
-			}
-			$socials[ $p ] = $url;
-		}
-		if ( ! empty( $socials ) ) :
+		// 社交/外链:来自后台「社交链接」自定义列表。
+		$clinks = mizuki_get_custom_links();
+		if ( ! empty( $clinks ) ) :
 		?>
 		<div class="flex items-center justify-center gap-3 mt-3">
-			<?php foreach ( $socials as $name => $url ) : ?>
-			<a href="<?php echo esc_url( $url ); ?>" target="_blank" rel="noopener"
-			   class="btn-plain scale-animation rounded-lg w-9 h-9 text-50 hover:text-[var(--primary)] transition"
-			   aria-label="<?php echo esc_attr( ucfirst( $name ) ); ?>">
-				<?php
-				// 简单图标 SVG
-				$icons = array(
-					'github'  => '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>',
-					'twitter' => '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>',
-					'email'   => '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2m0 4l-8 5-8-5V6l8 5 8-5z"/></svg>',
-					'rss'     => '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="6.18" cy="17.82" r="2.18"/><path d="M4 4.44v2.83c7.03 0 12.73 5.7 12.73 12.73h2.83c0-8.59-6.97-15.56-15.56-15.56m0 5.66v2.83c3.9 0 7.07 3.17 7.07 7.07h2.83c0-5.47-4.43-9.9-9.9-9.9"/></svg>',
-				);
-				echo isset( $icons[ $name ] ) ? $icons[ $name ] : '';
-				?>
+			<?php foreach ( $clinks as $cl ) : ?>
+			<a href="<?php echo esc_url( $cl['url'] ); ?>" target="_blank" rel="noopener"
+			   class="btn-plain scale-animation rounded-lg w-9 h-9 text-50 hover:text-[var(--primary)] transition text-[1.1rem]"
+			   aria-label="<?php echo esc_attr( $cl['name'] ); ?>">
+				<?php mizuki_social_icon_svg( $cl['icon'] ); ?>
 			</a>
 			<?php endforeach; ?>
 		</div>
@@ -288,6 +255,125 @@ function mizuki_live2d_script() {
 	<?php
 }
 add_action( 'wp_footer', 'mizuki_live2d_script' );
+
+/**
+ * ========== 自定义社交/外链(替代旧的固定 github/twitter/email/rss 四项) ==========
+ * 旧的「固定四样」改为用户可在后台自由增删的链接列表(theme_mod 'mizuki_custom_links',
+ * JSON 数组,每项 {name,url,icon})。导航栏「链接」下拉与资料卡社交按钮都从这里取。
+ */
+
+if ( ! function_exists( 'mizuki_custom_link_icons' ) ) {
+	/**
+	 * 自定义链接图标 SVG(viewBox 24x24,尺寸由调用方 class 控制)。
+	 *
+	 * @return array<string,string> icon-key => SVG markup。
+	 */
+	function mizuki_custom_link_icons() {
+		return array(
+			'github'    => '<svg viewBox="0 0 24 24" width="1em" height="1em"><path fill="currentColor" d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5c.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34c-.46-1.16-1.11-1.47-1.11-1.47c-.91-.62.07-.6.07-.6c1 .07 1.53 1.03 1.53 1.03c.87 1.52 2.34 1.07 2.91.83c.09-.65.35-1.09.63-1.34c-2.22-.25-4.55-1.11-4.55-4.92c0-1.11.38-2 1.03-2.71c-.1-.25-.45-1.29.1-2.64c0 0 .84-.27 2.75 1.02c.79-.22 1.65-.33 2.5-.33s1.71.11 2.5.33c1.91-1.29 2.75-1.02 2.75-1.02c.55 1.35.2 2.39.1 2.64c.65.71 1.03 1.6 1.03 2.71c0 3.82-2.34 4.66-4.57 4.91c.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2"/></svg>',
+			'bilibili'  => '<svg viewBox="0 0 24 24" width="1em" height="1em"><path fill="currentColor" d="M18.223 3.086a1.25 1.25 0 0 1 0 1.768L17.08 5.996h1.17A3.75 3.75 0 0 1 22 9.747v7.5a3.75 3.75 0 0 1-3.75 3.75H5.75A3.75 3.75 0 0 1 2 17.247v-7.5a3.75 3.75 0 0 1 3.75-3.751h1.166L5.775 4.854a1.25 1.25 0 1 1 1.767-1.768l2.91 2.91h3.090l2.911-2.91a1.25 1.25 0 0 1 1.767 0zM18.25 8.496H5.75a1.25 1.25 0 0 0-1.247 1.157l-.003.094v7.5c0 .659.51 1.198 1.157 1.246l.093.004h12.5a1.25 1.25 0 0 0 1.247-1.157l.003-.093v-7.5c0-.69-.56-1.251-1.25-1.251m-10 2.5c.69 0 1.25.56 1.25 1.25v1.25a1.25 1.25 0 1 1-2.5 0v-1.25c0-.69.56-1.25 1.25-1.25m7.5 0c.69 0 1.25.56 1.25 1.25v1.25a1.25 1.25 0 1 1-2.5 0v-1.25c0-.69.56-1.25 1.25-1.25"/></svg>',
+			'git'       => '<svg viewBox="0 0 24 24" width="1em" height="1em"><path fill="currentColor" d="M2.6 10.59L8.38 4.8l1.69 1.7c-.24.85.15 1.78.93 2.23v5.54c-.6.34-1 .99-1 1.73a2 2 0 0 0 2 2a2 2 0 0 0 2-2c0-.74-.4-1.39-1-1.73V9.41l2.07 2.09c-.07.15-.07.32-.07.5a2 2 0 0 0 2 2a2 2 0 0 0 2-2a2 2 0 0 0-2-2c-.18 0-.35 0-.5.07L13.93 7.5a1.98 1.98 0 0 0-1.15-2.34c-.43-.16-.88-.2-1.28-.09L9.8 3.38l.79-.78c.78-.79 2.04-.79 2.82 0l7.99 7.99c.79.78.79 2.04 0 2.82l-7.99 7.99c-.78.79-2.04.79-2.82 0L2.6 13.41c-.79-.78-.79-2.04 0-2.82"/></svg>',
+			'twitter'   => '<svg viewBox="0 0 24 24" width="1em" height="1em"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>',
+			'email'     => '<svg viewBox="0 0 24 24" width="1em" height="1em"><path fill="currentColor" d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2m0 4l-8 5-8-5V6l8 5 8-5z"/></svg>',
+			'rss'       => '<svg viewBox="0 0 24 24" width="1em" height="1em"><path fill="currentColor" d="M6.18 17.82a2.18 2.18 0 1 0 0-4.36 2.18 2.18 0 0 0 0 4.36M4 4.44v2.83c7.03 0 12.73 5.7 12.73 12.73h2.83c0-8.59-6.97-15.56-15.56-15.56m0 5.66v2.83c3.9 0 7.07 3.17 7.07 7.07h2.83c0-5.47-4.43-9.9-9.9-9.9"/></svg>',
+			'website'   => '<svg viewBox="0 0 24 24" width="1em" height="1em"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m-1 17.93C7.05 19.44 4 16.08 4 12c0-.61.08-1.21.21-1.78L9 15v1c0 1.1.9 2 2 2zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41C17.93 5.78 20 8.65 20 12c0 2.08-.81 3.98-2.1 5.39"/></svg>',
+			'telegram'  => '<svg viewBox="0 0 24 24" width="1em" height="1em"><path fill="currentColor" d="m21.94 4.6l-3.2 15.07c-.24 1.06-.87 1.32-1.76.82l-4.87-3.59l-2.35 2.26c-.26.26-.48.48-.98.48l.35-4.96L17.4 5.3c.4-.35-.09-.55-.62-.2L6.89 11.62l-4.78-1.49c-1.04-.32-1.06-1.04.22-1.54l18.7-7.22c.86-.32 1.62.2 1.34 1.51z"/></svg>',
+			'discord'   => '<svg viewBox="0 0 24 24" width="1em" height="1em"><path fill="currentColor" d="M19.27 5.33A17.4 17.4 0 0 0 15 4l-.2.41a13.2 13.2 0 0 1 3.7 1.2a16.6 16.6 0 0 0-13-.01a13.3 13.3 0 0 1 3.71-1.19L9.04 4a17.4 17.4 0 0 0-4.27 1.33C2.08 9.66 1.35 13.88 1.71 18.04A17.6 17.6 0 0 0 7.06 21l.46-.63a11.7 11.7 0 0 1-1.83-.87l.45-.34a12.5 12.5 0 0 0 9.72 0l.45.35c-.58.34-1.2.64-1.83.86l.46.63a17.5 17.5 0 0 0 5.35-2.95c.43-4.8-.73-8.99-3.06-12.71zM8.52 15.6c-1.05 0-1.92-.97-1.92-2.16c0-1.19.85-2.16 1.92-2.16c1.07 0 1.94.98 1.92 2.16c0 1.19-.85 2.16-1.92 2.16zm7.07 0c-1.05 0-1.92-.97-1.92-2.16c0-1.19.85-2.16 1.92-2.16c1.07 0 1.94.98 1.92 2.16c0 1.19-.85 2.16-1.92 2.16"/></svg>',
+			'qq'        => '<svg viewBox="0 0 24 24" width="1em" height="1em"><path fill="currentColor" d="M12 2c3.3 0 6 2.9 6 6.5c0 1.6-.4 3-1 4.1c.5.3 1.3 1 1.8 2.1c.4 1 .8 2.3.8 2.3l-1.8.8s.6 1.1.6 2.2c0 .7-.4 1.5-1.3 1.5c-.8 0-1.3-.6-1.6-1.2c-.4.8-1.2 1.7-2.5 1.7c-1.4 0-2.2-1-2.6-1.8c-.3.7-.8 1.3-1.6 1.3c-.9 0-1.3-.8-1.3-1.5c0-1.1.6-2.2.6-2.2l-1.8-.8s.4-1.3.8-2.3c.5-1.1 1.3-1.8 1.8-2.1c-.6-1.1-1-2.5-1-4.1C6 4.9 8.7 2 12 2"/></svg>',
+			'wechat'    => '<svg viewBox="0 0 24 24" width="1em" height="1em"><path fill="currentColor" d="M8.69 2C4.7 2 1.5 4.8 1.5 8.27c0 2 1.1 3.77 2.85 4.93L3.7 15.3l2.6-1.3c.74.2 1.5.3 2.3.3c.2 0 .4 0 .6-.02c-.13-.4-.2-.85-.2-1.3c0-2.9 2.7-5.27 6.07-5.27c.23 0 .45.02.67.04C15.96 4.66 12.6 2 8.69 2m-2.6 3.3a1 1 0 0 1 1 1a1 1 0 0 1-1 1a1 1 0 0 1-1-1a1 1 0 0 1 1-1m5.2 0a1 1 0 0 1 1 1a1 1 0 0 1-1 1a1 1 0 0 1-1-1a1 1 0 0 1 1-1M23 13.27c0-2.9-2.82-5.27-6.3-5.27s-6.3 2.36-6.3 5.27s2.82 5.27 6.3 5.27c.67 0 1.3-.08 1.93-.23l2.27 1.14l-.6-1.84C21.9 16.4 23 14.96 23 13.27m-8.4-1.3a.85.85 0 0 1 .85.85a.85.85 0 0 1-.85.85a.85.85 0 0 1-.85-.85a.85.85 0 0 1 .85-.85m4.2 0a.85.85 0 0 1 .85.85a.85.85 0 0 1-.85.85a.85.85 0 0 1-.85-.85a.85.85 0 0 1 .85-.85"/></svg>',
+			'weibo'      => '<svg viewBox="0 0 24 24" width="1em" height="1em"><path fill="currentColor" d="M9.31 8.17c-3.42.69-5.95 3.32-5.95 6.45C3.36 18.35 7.11 21 11.73 21s8.37-2.65 8.37-6.38c0-3.39-3.27-6.16-7.62-6.16c-.49 0-.97.04-1.44.11c.06-.21.1-.43.1-.66c0-1.5 1.21-2.71 2.71-2.71c.45 0 .87.11 1.25.3l.84-1.6A4.7 4.7 0 0 0 14 3.5c-2.6 0-4.71 2.11-4.71 4.71c0 .67.14 1.3.39 1.87zm2.42 4.83c1.74 0 3.15 1.18 3.15 2.63c0 1.46-1.41 2.64-3.15 2.64s-3.16-1.18-3.16-2.64c0-1.45 1.42-2.63 3.16-2.63m6.84-7.06c-.59-.59-1.4-.86-2.19-.75c-.36.05-.61.38-.56.74c.05.36.38.62.74.56c.4-.05.8.07 1.09.36c.29.29.41.69.36 1.09c-.05.36.21.69.56.74h.09c.33 0 .61-.24.66-.57c.11-.8-.16-1.61-.75-2.17"/></svg>',
+			'youtube'   => '<svg viewBox="0 0 24 24" width="1em" height="1em"><path fill="currentColor" d="M23 12s0-3.6-.46-5.33a2.78 2.78 0 0 0-1.94-1.94C18.88 4.27 12 4.27 12 4.27s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 1.94C1 8.4 1 12 1 12s0 3.6.46 5.33a2.78 2.78 0 0 0 1.94 1.94c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-1.94C23 15.6 23 12 23 12M9.75 15.5v-7l6 3.5z"/></svg>',
+			'zhihu'     => '<svg viewBox="0 0 24 24" width="1em" height="1em"><path fill="currentColor" d="M13.7 3h-3v6.6H8.3V3H5.4v14.7h2.8v-5.3h2.4l1.7 5.3h2.9l-2.1-6c1.4-.7 2.2-2 2.2-3.8V6.2c0-2-1.3-3.2-3.6-3.2m6.8 5.9l-1.9.7V18l1.9-.3l2.6.6V8.6zm-9.8 5.6V8.4c0-.8.4-1.2 1.2-1.2h1.4c.8 0 1.2.4 1.2 1.2v3.6c0 .8-.4 1.2-1.2 1.2z"/></svg>',
+			'music'     => '<svg viewBox="0 0 24 24" width="1em" height="1em"><path fill="currentColor" d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3z"/></svg>',
+			'steam'     => '<svg viewBox="0 0 24 24" width="1em" height="1em"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12c0 1.97.57 3.8 1.55 5.35l3.43-1.4a3.5 3.5 0 0 1 2.86-4.5l1.6-3.95a4 4 0 1 1 4.05 4.34l-3.3 2.9a3.5 3.5 0 0 1-3.2 4.65l-1.6 2.1C8.86 21.7 10.4 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2"/></svg>',
+			'link'      => '<svg viewBox="0 0 24 24" width="1em" height="1em"><path fill="currentColor" d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1M8 13h8v-2H8zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5"/></svg>',
+		);
+	}
+}
+
+if ( ! function_exists( 'mizuki_social_icon_svg' ) ) {
+	/**
+	 * 输出某个图标键的 SVG(未知键回退到 link)。
+	 *
+	 * @param string $icon 图标键。
+	 */
+	function mizuki_social_icon_svg( $icon ) {
+		$icons = mizuki_custom_link_icons();
+		$key   = sanitize_key( (string) $icon );
+		if ( ! isset( $icons[ $key ] ) ) {
+			$key = 'link';
+		}
+		echo $icons[ $key ]; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — 静态 SVG。
+	}
+}
+
+if ( ! function_exists( 'mizuki_get_custom_links' ) ) {
+	/**
+	 * 读取自定义链接列表。
+	 *
+	 * 优先解析 theme_mod 'mizuki_custom_links'(JSON 数组,每项 {name,url,icon});
+	 * 若未设置,回退旧的固定四项 mizuki_social_{github,twitter,email,rss}(向后兼容,
+	 * 老用户在升级前填过的社交链接不会丢失)。
+	 *
+	 * @return array<int,array{name:string,url:string,icon:string}>
+	 */
+	function mizuki_get_custom_links() {
+		$raw   = (string) mizuki_get_theme_mod( 'mizuki_custom_links', '' );
+		$links = array();
+
+		if ( '' !== $raw ) {
+			$decoded = json_decode( $raw, true );
+			if ( is_array( $decoded ) ) {
+				foreach ( $decoded as $item ) {
+					if ( ! is_array( $item ) ) {
+						continue;
+					}
+					$url = isset( $item['url'] ) ? trim( (string) $item['url'] ) : '';
+					if ( '' === $url ) {
+						continue;
+					}
+					$name = isset( $item['name'] ) ? trim( (string) $item['name'] ) : '';
+					$links[] = array(
+						'name' => '' !== $name ? $name : $url,
+						'url'  => mizuki_maybe_mailto( $url, isset( $item['icon'] ) ? $item['icon'] : 'link' ),
+						'icon' => isset( $item['icon'] ) ? sanitize_key( $item['icon'] ) : 'link',
+					);
+				}
+				return $links;
+			}
+		}
+
+		// 回退:旧的固定四项(向后兼容)。
+		foreach ( array( 'github', 'twitter', 'email', 'rss' ) as $p ) {
+			$url = mizuki_get_theme_mod( "mizuki_social_{$p}", '' );
+			if ( ! $url ) {
+				continue;
+			}
+			$links[] = array(
+				'name' => ucfirst( $p ),
+				'url'  => mizuki_maybe_mailto( $url, $p ),
+				'icon' => $p,
+			);
+		}
+		return $links;
+	}
+}
+
+if ( ! function_exists( 'mizuki_maybe_mailto' ) ) {
+	/**
+	 * 邮箱类链接(含 @ 且无协议)自动补 mailto:。
+	 *
+	 * @param string $url  原始 URL。
+	 * @param string $icon 图标键(用于判断是否邮箱)。
+	 * @return string
+	 */
+	function mizuki_maybe_mailto( $url, $icon = '' ) {
+		if ( 'email' === $icon && false !== strpos( $url, '@' ) && 0 !== strpos( $url, 'mailto:' ) ) {
+			return 'mailto:' . $url;
+		}
+		return $url;
+	}
+}
 
 /**
  * ========== wp-admin 仪表台设置页面(统一折叠式管理) ==========
@@ -557,11 +643,25 @@ function mizuki_render_admin_page() {
 		set_theme_mod( 'mizuki_avatar', isset( $_POST['mizuki_avatar'] ) ? esc_url_raw( $_POST['mizuki_avatar'] ) : '' );
 		set_theme_mod( 'mizuki_nickname', isset( $_POST['mizuki_nickname'] ) ? sanitize_text_field( $_POST['mizuki_nickname'] ) : '' );
 		set_theme_mod( 'mizuki_bio', isset( $_POST['mizuki_bio'] ) ? sanitize_text_field( $_POST['mizuki_bio'] ) : '' );
-		// 社交链接
-		foreach ( array( 'github', 'twitter', 'email', 'rss' ) as $p ) {
-			$key = "mizuki_social_{$p}";
-			set_theme_mod( $key, isset( $_POST[ $key ] ) ? ( 'email' === $p ? sanitize_text_field( $_POST[ $key ] ) : esc_url_raw( $_POST[ $key ] ) ) : '' );
+		// 社交/外链(自定义 repeater:名称/URL/图标)→ 存为 JSON 'mizuki_custom_links'。
+		$cl_names = isset( $_POST['mizuki_cl_name'] ) ? (array) wp_unslash( $_POST['mizuki_cl_name'] ) : array();
+		$cl_urls  = isset( $_POST['mizuki_cl_url'] ) ? (array) wp_unslash( $_POST['mizuki_cl_url'] ) : array();
+		$cl_icons = isset( $_POST['mizuki_cl_icon'] ) ? (array) wp_unslash( $_POST['mizuki_cl_icon'] ) : array();
+		$saved_links = array();
+		foreach ( $cl_names as $i => $raw_name ) {
+			$url = isset( $cl_urls[ $i ] ) ? trim( (string) $cl_urls[ $i ] ) : '';
+			if ( '' === $url ) {
+				continue;
+			}
+			$name = trim( wp_strip_all_tags( (string) $raw_name ) );
+			$icon = isset( $cl_icons[ $i ] ) ? sanitize_key( (string) $cl_icons[ $i ] ) : 'link';
+			$saved_links[] = array(
+				'name' => '' !== $name ? $name : $url,
+				'url'  => $url,
+				'icon' => '' !== $icon ? $icon : 'link',
+			);
 		}
+		set_theme_mod( 'mizuki_custom_links', wp_json_encode( $saved_links, JSON_UNESCAPED_UNICODE ) );
 		// Live2D
 		set_theme_mod( 'mizuki_live2d_enabled', ! empty( $_POST['mizuki_live2d_enabled'] ) );
 
@@ -592,10 +692,7 @@ function mizuki_render_admin_page() {
 	$avatar           = get_theme_mod( 'mizuki_avatar', '' );
 	$nickname         = get_theme_mod( 'mizuki_nickname', '' );
 	$bio              = get_theme_mod( 'mizuki_bio', '' );
-	$social_github    = get_theme_mod( 'mizuki_social_github', '' );
-	$social_twitter   = get_theme_mod( 'mizuki_social_twitter', '' );
-	$social_email     = get_theme_mod( 'mizuki_social_email', '' );
-	$social_rss       = get_theme_mod( 'mizuki_social_rss', '' );
+	$custom_links     = mizuki_get_custom_links(); // 自定义社交/外链列表。
 	$live2d_enabled   = get_theme_mod( 'mizuki_live2d_enabled', false );
 
 	// 追番 API 当前值
@@ -693,29 +790,68 @@ function mizuki_render_admin_page() {
 					</div>
 				</div>
 
-				<!-- 社交链接 -->
+				<!-- 社交链接(自定义:可增删,不限固定类型) -->
 				<div class="mizuki-accordion-item">
 					<div class="mizuki-accordion-header">
 						<span><?php esc_html_e( '社交链接', 'mizuki' ); ?></span>
 						<span class="mizuki-accordion-arrow">▼</span>
 					</div>
 					<div class="mizuki-accordion-body">
-						<div class="mizuki-field">
-							<label for="mizuki_social_github">GitHub URL</label>
-							<input type="url" id="mizuki_social_github" name="mizuki_social_github" value="<?php echo esc_attr( $social_github ); ?>" class="regular-text">
+						<p class="description" style="margin-bottom:10px"><?php esc_html_e( '添加任意数量的链接(显示在导航栏「链接」下拉和资料卡)。图标可选;邮箱可直接填地址。', 'mizuki' ); ?></p>
+						<style>
+							.mizuki-cl-row{display:flex;gap:6px;align-items:center;margin-bottom:8px;flex-wrap:wrap}
+							.mizuki-cl-row input[type=text],.mizuki-cl-row input[type=url]{flex:1 1 120px;min-width:120px}
+							.mizuki-cl-row select{flex:0 0 110px}
+							.mizuki-cl-row .mizuki-cl-del{flex:0 0 auto}
+						</style>
+						<div id="mizuki-cl-container">
+							<?php
+							$cl_icon_keys = array_keys( mizuki_custom_link_icons() );
+							$cl_rows      = ! empty( $custom_links ) ? $custom_links : array( array( 'name' => '', 'url' => '', 'icon' => 'github' ) );
+							foreach ( $cl_rows as $cl ) :
+								$cl_name = isset( $cl['name'] ) ? $cl['name'] : '';
+								$cl_url  = isset( $cl['url'] ) ? $cl['url'] : '';
+								$cl_icon = isset( $cl['icon'] ) ? $cl['icon'] : 'github';
+								?>
+							<div class="mizuki-cl-row">
+								<input type="text" name="mizuki_cl_name[]" value="<?php echo esc_attr( $cl_name ); ?>" placeholder="<?php esc_attr_e( '名称(如 GitHub)', 'mizuki' ); ?>" class="regular-text">
+								<input type="text" name="mizuki_cl_url[]" value="<?php echo esc_attr( $cl_url ); ?>" placeholder="<?php esc_attr_e( 'URL 或邮箱', 'mizuki' ); ?>" class="regular-text">
+								<select name="mizuki_cl_icon[]">
+									<?php foreach ( $cl_icon_keys as $k ) : ?>
+									<option value="<?php echo esc_attr( $k ); ?>" <?php selected( $cl_icon, $k ); ?>><?php echo esc_html( $k ); ?></option>
+									<?php endforeach; ?>
+								</select>
+								<button type="button" class="button mizuki-cl-del" aria-label="<?php esc_attr_e( '删除该链接', 'mizuki' ); ?>">✕</button>
+							</div>
+							<?php endforeach; ?>
 						</div>
-						<div class="mizuki-field">
-							<label for="mizuki_social_twitter">Twitter/X URL</label>
-							<input type="url" id="mizuki_social_twitter" name="mizuki_social_twitter" value="<?php echo esc_attr( $social_twitter ); ?>" class="regular-text">
-						</div>
-						<div class="mizuki-field">
-							<label for="mizuki_social_email"><?php esc_html_e( 'Email(邮箱或 mailto: 链接)', 'mizuki' ); ?></label>
-							<input type="text" id="mizuki_social_email" name="mizuki_social_email" value="<?php echo esc_attr( $social_email ); ?>" class="regular-text">
-						</div>
-						<div class="mizuki-field">
-							<label for="mizuki_social_rss">RSS URL</label>
-							<input type="url" id="mizuki_social_rss" name="mizuki_social_rss" value="<?php echo esc_attr( $social_rss ); ?>" class="regular-text">
-						</div>
+						<button type="button" class="button" id="mizuki-cl-add">+ <?php esc_html_e( '添加链接', 'mizuki' ); ?></button>
+						<script>
+						(function(){
+							var iconHtml = <?php echo wp_json_encode( '<option>' . implode( '</option><option>', $cl_icon_keys ) . '</option>' ); ?>;
+							document.getElementById('mizuki-cl-add').addEventListener('click', function(){
+								var row = document.createElement('div');
+								row.className = 'mizuki-cl-row';
+								row.innerHTML =
+									'<input type="text" name="mizuki_cl_name[]" placeholder="<?php esc_attr_e( '名称(如 GitHub)', 'mizuki' ); ?>" class="regular-text">' +
+									'<input type="text" name="mizuki_cl_url[]" placeholder="<?php esc_attr_e( 'URL 或邮箱', 'mizuki' ); ?>" class="regular-text">' +
+									'<select name="mizuki_cl_icon[]">' + iconHtml + '</select>' +
+									'<button type="button" class="button mizuki-cl-del" aria-label="<?php esc_attr_e( '删除该链接', 'mizuki' ); ?>">✕</button>';
+								document.getElementById('mizuki-cl-container').appendChild(row);
+							});
+							document.getElementById('mizuki-cl-container').addEventListener('click', function(e){
+								if (e.target && e.target.classList.contains('mizuki-cl-del')) {
+									var rows = this.querySelectorAll('.mizuki-cl-row');
+									if (rows.length > 1) {
+										e.target.closest('.mizuki-cl-row').remove();
+									} else {
+										// 仅剩一行时清空而非删除,保证至少有一个输入行。
+										e.target.closest('.mizuki-cl-row').querySelectorAll('input').forEach(function(i){ i.value=''; });
+									}
+								}
+							});
+						})();
+						</script>
 					</div>
 				</div>
 
