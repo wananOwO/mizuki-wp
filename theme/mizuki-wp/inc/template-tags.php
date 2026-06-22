@@ -272,3 +272,34 @@ function mizuki_get_link_type_icon( $type ) {
 	);
 	return isset( $icons[ $type ] ) ? $icons[ $type ] : $icons['other'];
 }
+
+/**
+ * 渲染页面标题区（标题 + 描述 + 分隔线）。
+ *
+ * @param array $args { title, description, show_divider }.
+ */
+function mizuki_page_header( $args = array() ) {
+	$args = wp_parse_args( $args, array(
+		'title'        => '',
+		'description'  => '',
+		'show_divider' => true,
+	) );
+	if ( $args['title'] ) {
+		echo '<h1 class="transition w-full block font-bold mb-2 text-3xl md:text-4xl text-90">' . esc_html( $args['title'] ) . '</h1>';
+	}
+	if ( $args['description'] ) {
+		echo '<p class="text-black/50 dark:text-white/50 mb-6">' . esc_html( $args['description'] ) . '</p>';
+	}
+	if ( $args['show_divider'] ) {
+		echo '<div class="mt-4 border-[var(--line-divider)] border-dashed border-b-[1px] mb-6"></div>';
+	}
+}
+
+/**
+ * 渲染空状态提示。
+ *
+ * @param string $message 提示文案（已翻译）。
+ */
+function mizuki_empty_state( $message ) {
+	echo '<p class="text-50 text-center py-12">' . esc_html( $message ) . '</p>';
+}

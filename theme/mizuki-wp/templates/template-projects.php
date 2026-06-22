@@ -9,11 +9,18 @@
 defined( 'ABSPATH' ) || exit;
 get_header();
 
-$project_categories = get_terms( array(
-	'taxonomy'   => 'project_category',
-	'hide_empty' => true,
-	'orderby'    => 'name',
-) );
+$project_categories_cache_key = 'mizuki_terms_project_category';
+$project_categories = get_transient( $project_categories_cache_key );
+if ( false === $project_categories ) {
+	$project_categories = get_terms( array(
+		'taxonomy'   => 'project_category',
+		'hide_empty' => true,
+		'orderby'    => 'name',
+	) );
+	if ( ! is_wp_error( $project_categories ) ) {
+		set_transient( $project_categories_cache_key, $project_categories, 12 * HOUR_IN_SECONDS );
+	}
+}
 
 // 显示名 + 图标映射:theme_mod 覆盖叠加在默认值之上(控制台「项目分类管理」可编辑)。
 $category_names = mizuki_get_category_labels( 'project_category' );
@@ -80,7 +87,7 @@ $total_count = $project_query->post_count;
 				}
 				$has_cover = has_post_thumbnail();
 			?>
-			<div class="project-card group relative bg-transparent rounded-xl border border-black/10 dark:border-white/10 overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1" data-category="<?php echo esc_attr( $cat_slug ); ?>">
+			<div class="project-card mizuki-stagger group relative bg-transparent rounded-xl border border-black/10 dark:border-white/10 overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1" data-category="<?php echo esc_attr( $cat_slug ); ?>">
 				<?php if ( $has_cover ) : ?>
 				<div class="aspect-video overflow-hidden">
 					<?php the_post_thumbnail( 'large', array( 'class' => 'w-full h-full object-cover transition-transform duration-500 group-hover:scale-105' ) ); ?>
@@ -123,7 +130,7 @@ $total_count = $project_query->post_count;
 			<?php endwhile; wp_reset_postdata(); ?>
 		</div>
 		<?php else : ?>
-		<p class="text-50 text-center py-12"><?php esc_html_e( '暂无项目。', 'mizuki' ); ?></p>
+		<?php mizuki_empty_state( __( '暂无项目。', 'mizuki' ) ); ?>
 		<?php endif; ?>
 
 		<div id="no-results" class="hidden text-center py-16">
@@ -133,18 +140,6 @@ $total_count = $project_query->post_count;
 </main>
 
 <style>
-	.project-card {
-		animation: fadeInUp 0.5s ease-out forwards;
-		opacity: 0;
-	}
-	@keyframes fadeInUp {
-		from { opacity: 0; transform: translateY(20px); }
-		to { opacity: 1; transform: translateY(0); }
-	}
-	.project-card:nth-child(1) { animation-delay: 0.05s; }
-	.project-card:nth-child(2) { animation-delay: 0.10s; }
-	.project-card:nth-child(3) { animation-delay: 0.15s; }
-	.project-card:nth-child(4) { animation-delay: 0.20s; }
 	.line-clamp-2 {
 		display: -webkit-box;
 		-webkit-line-clamp: 2;
