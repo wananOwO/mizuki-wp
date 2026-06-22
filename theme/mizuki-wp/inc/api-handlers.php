@@ -132,7 +132,11 @@ function mizuki_get_local_anime_data() {
 }
 
 /**
- * 获取 Bangumi 数据（仅读缓存，缓存未命中时触发异步刷新）
+ * 获取 Bangumi 数据
+ *
+ * 缓存未命中时同步拉取收藏列表（已移除逐条详情请求，整套仅需数秒）。
+ * 不再依赖 WP-Cron 触发：部分主机未启用 WP-Cron 会导致追番永远为空，
+ * 同步拉取能保证首次访问即可看到数据，拉取后写入 transient 缓存。
  *
  * @return array
  */
@@ -149,12 +153,11 @@ function mizuki_get_bangumi_data() {
 		return $cached_data;
 	}
 
-	// 缓存未命中：调度后台异步刷新，前台返回空数组（不阻塞）
-	if ( ! wp_next_scheduled( 'mizuki_cron_refresh_anime' ) ) {
-		wp_schedule_single_event( time(), 'mizuki_cron_refresh_anime' );
-	}
+	// 缓存未命中：同步刷新（数秒内完成），随后回读缓存。
+	mizuki_refresh_remote_anime_data();
 
-	return array();
+	$cached_data = get_transient( $cache_key );
+	return false !== $cached_data ? $cached_data : array();
 }
 
 /**
@@ -171,14 +174,17 @@ function mizuki_fetch_bangumi_collection( $user_id, $type, $status ) {
 	$offset   = 0;
 	$limit    = 50;
 
+	// Bangumi 官方 API 规范要求附带可识别来源的 User-Agent，便于统计与限流。
+	$args = array(
+		'timeout' => 15,
+		'headers' => array(
+			'User-Agent' => 'Mizuki-WP/1.0 (https://github.com/wananOwO/Mizuki)',
+		),
+	);
+
 	while ( true ) {
 		$url      = sprintf( '%s/v0/users/%s/collections?subject_type=2&type=%d&limit=%d&offset=%d', $api_base, $user_id, $type, $limit, $offset );
-		$response = wp_remote_get(
-			$url,
-			array(
-				'timeout' => 15,
-			)
-		);
+		$response = wp_remote_get( $url, $args );
 
 		if ( is_wp_error( $response ) ) {
 			break;
@@ -212,6 +218,11 @@ function mizuki_fetch_bangumi_collection( $user_id, $type, $status ) {
 /**
  * 处理 Bangumi 数据
  *
+ * 仅使用收藏列表接口返回的字段，不再逐条请求条目详情。
+ * 原先的 N+1 详情请求会导致刷新过程在 WP-Cron（30s 超时）中无法完成，
+ * 进而缓存永远写不进去、前台永远为空。收藏接口本身已包含标题、封面、
+ * 评分、简介、年份、标签、集数等渲染所需字段，逐条详情并非必需。
+ *
  * @param array  $items  原始数据
  * @param string $status 状态
  * @return array
@@ -221,29 +232,15 @@ function mizuki_process_bangumi_data( $items, $status ) {
 
 	foreach ( $items as $item ) {
 		$subject        = isset( $item['subject'] ) ? $item['subject'] : array();
+		$subject_id     = isset( $subject['id'] ) ? intval( $subject['id'] ) : 0;
 		$year           = isset( $subject['date'] ) ? substr( $subject['date'], 0, 4 ) : '';
 		$rating         = isset( $item['rate'] ) ? floatval( $item['rate'] ) : ( isset( $subject['score'] ) ? floatval( $subject['score'] ) : 0 );
 		$progress       = isset( $item['ep_status'] ) ? intval( $item['ep_status'] ) : 0;
 		$total_episodes = isset( $subject['eps'] ) ? intval( $subject['eps'] ) : $progress;
 		$cover          = isset( $subject['images']['medium'] ) ? $subject['images']['medium'] : '';
-		$description    = isset( $subject['short_summary'] ) ? $subject['short_summary'] : ( isset( $subject['name_cn'] ) ? $subject['name_cn'] : '' );
+		$description    = isset( $subject['short_summary'] ) ? $subject['short_summary'] : '';
 
-		// 获取详细信息（包括制作公司）
-		$subject_id     = isset( $subject['id'] ) ? $subject['id'] : 0;
-		$subject_detail = array();
-		if ( $subject_id ) {
-			$subject_detail = mizuki_fetch_bangumi_subject( $subject_id );
-		}
-
-		$studio = 'Unknown';
-		if ( ! empty( $subject_detail['infobox'] ) ) {
-			$studio = mizuki_get_studio_from_infobox( $subject_detail['infobox'] );
-		}
-
-		if ( ! empty( $subject_detail['summary'] ) ) {
-			$description = $subject_detail['summary'];
-		}
-
+		// 类型/标签（收藏接口已提供，无需逐条请求详情）
 		$genre = array();
 		if ( isset( $subject['tags'] ) && is_array( $subject['tags'] ) ) {
 			foreach ( array_slice( $subject['tags'], 0, 3 ) as $tag ) {
@@ -264,97 +261,21 @@ function mizuki_process_bangumi_data( $items, $status ) {
 			'description'     => wp_kses_post( trim( $description ) ),
 			'year'            => $year,
 			'genre'           => $genre,
-			'studio'          => $studio,
+			'studio'          => 'Unknown',
 			'link'            => $subject_id ? 'https://bgm.tv/subject/' . $subject_id : '#',
 			'progress'        => $progress,
 			'totalEpisodes'   => $total_episodes,
 			'progressPercent' => $total_episodes > 0 ? round( ( $progress / $total_episodes ) * 100 ) : 0,
 		);
-
-		usleep( 500000 ); // 0.5 秒延迟（获取详细信息后微延迟）
 	}
 
 	return $results;
 }
 
 /**
- * 获取 Bangumi 条目详细信息
+ * 获取 Bilibili 数据
  *
- * @param int $subject_id 条目 ID
- * @return array
- */
-function mizuki_fetch_bangumi_subject( $subject_id ) {
-	$subject_id = absint( $subject_id );
-	if ( ! $subject_id ) {
-		return array();
-	}
-
-	$cache_key = 'mizuki_bangumi_subject_' . $subject_id;
-	$cached    = get_transient( $cache_key );
-	if ( false !== $cached ) {
-		return $cached;
-	}
-
-	$url      = 'https://api.bgm.tv/v0/subjects/' . $subject_id;
-	$response = wp_remote_get(
-		$url,
-		array(
-			'timeout' => 15,
-		)
-	);
-
-	if ( is_wp_error( $response ) ) {
-		return array();
-	}
-
-	$code = wp_remote_retrieve_response_code( $response );
-	if ( 200 !== $code ) {
-		return array();
-	}
-
-	$body = wp_remote_retrieve_body( $response );
-	$data = json_decode( $body, true ) ?: array();
-	set_transient( $cache_key, $data, 6 * HOUR_IN_SECONDS );
-	return $data;
-}
-
-/**
- * 从 infobox 中提取制作公司
- *
- * @param array $infobox
- * @return string
- */
-function mizuki_get_studio_from_infobox( $infobox ) {
-	if ( ! is_array( $infobox ) ) {
-		return 'Unknown';
-	}
-
-	$target_keys = array( '动画制作', '制作', '製作', '开发' );
-
-	foreach ( $target_keys as $key ) {
-		foreach ( $infobox as $item ) {
-			if ( isset( $item['key'] ) && $item['key'] === $key ) {
-				if ( isset( $item['value'] ) ) {
-					if ( is_string( $item['value'] ) ) {
-						return $item['value'];
-					}
-					if ( is_array( $item['value'] ) ) {
-						foreach ( $item['value'] as $v ) {
-							if ( isset( $v['v'] ) ) {
-								return $v['v'];
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return 'Unknown';
-}
-
-/**
- * 获取 Bilibili 数据（仅读缓存，缓存未命中时触发异步刷新）
+ * 缓存未命中时同步拉取，随后回读缓存（Bilibili 无逐条详情请求，速度很快）。
  *
  * @return array
  */
@@ -371,12 +292,11 @@ function mizuki_get_bilibili_data() {
 		return $cached_data;
 	}
 
-	// 缓存未命中：调度后台异步刷新，前台返回空数组（不阻塞）
-	if ( ! wp_next_scheduled( 'mizuki_cron_refresh_anime' ) ) {
-		wp_schedule_single_event( time(), 'mizuki_cron_refresh_anime' );
-	}
+	// 缓存未命中：同步刷新，随后回读缓存。
+	mizuki_refresh_remote_anime_data();
 
-	return array();
+	$cached_data = get_transient( $cache_key );
+	return false !== $cached_data ? $cached_data : array();
 }
 
 /**
@@ -650,12 +570,14 @@ add_action( 'wp_ajax_mizuki_get_anime_data', 'mizuki_ajax_get_anime_data' );
 add_action( 'wp_ajax_nopriv_mizuki_get_anime_data', 'mizuki_ajax_get_anime_data' );
 
 /**
- * WP-Cron 回调：后台异步刷新远程追番数据。
+ * 刷新远程追番数据并写入缓存。
  *
- * 将原先在前台请求中阻塞执行的 Bangumi/Bilibili API 调用
- * 移至 WP-Cron 后台任务，避免因 sleep() / 网络延迟导致 PHP 超时。
+ * 缓存未命中时由前台同步调用（mizuki_get_bangumi_data /
+ * mizuki_get_bilibili_data），也可由 WP-Cron / AJAX 刷新触发。
+ * Bangumi 已改为收藏列表单次拉取（无逐条详情），整套耗时数秒，
+ * 远低于 PHP / WP-Cron 的 30s 超时，因此可安全同步执行。
  */
-function mizuki_cron_refresh_anime() {
+function mizuki_refresh_remote_anime_data() {
 	$mode = mizuki_get_anime_mode();
 
 	if ( 'bangumi' === $mode ) {
@@ -679,9 +601,12 @@ function mizuki_cron_refresh_anime() {
 			$anime_list = array_merge( $anime_list, $items );
 		}
 
-		$cache_key  = 'mizuki_bangumi_data_' . $user_id;
-		$cache_hours = mizuki_get_anime_cache_hours();
-		set_transient( $cache_key, $anime_list, $cache_hours * HOUR_IN_SECONDS );
+		// 仅在拿到数据时写缓存，避免把一次性失败（空数组）缓存住。
+		if ( ! empty( $anime_list ) ) {
+			$cache_key   = 'mizuki_bangumi_data_' . $user_id;
+			$cache_hours = mizuki_get_anime_cache_hours();
+			set_transient( $cache_key, $anime_list, $cache_hours * HOUR_IN_SECONDS );
+		}
 
 	} elseif ( 'bilibili' === $mode ) {
 		$vmid = mizuki_get_bilibili_vmid();
@@ -702,9 +627,21 @@ function mizuki_cron_refresh_anime() {
 			$anime_list = array_merge( $anime_list, $items );
 		}
 
-		$cache_key  = 'mizuki_bilibili_data_' . $vmid;
-		$cache_hours = mizuki_get_anime_cache_hours();
-		set_transient( $cache_key, $anime_list, $cache_hours * HOUR_IN_SECONDS );
+		if ( ! empty( $anime_list ) ) {
+			$cache_key   = 'mizuki_bilibili_data_' . $vmid;
+			$cache_hours = mizuki_get_anime_cache_hours();
+			set_transient( $cache_key, $anime_list, $cache_hours * HOUR_IN_SECONDS );
+		}
 	}
+}
+
+/**
+ * WP-Cron 回调：后台刷新远程追番数据。
+ *
+ * 供配置了服务器端真实 Cron 调用 wp-cron.php 的主机定期刷新使用；
+ * 前台缓存未命中时也会同步走同一套逻辑，不再单方面依赖此 Cron。
+ */
+function mizuki_cron_refresh_anime() {
+	mizuki_refresh_remote_anime_data();
 }
 add_action( 'mizuki_cron_refresh_anime', 'mizuki_cron_refresh_anime' );
