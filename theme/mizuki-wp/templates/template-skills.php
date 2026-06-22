@@ -10,11 +10,18 @@ defined( 'ABSPATH' ) || exit;
 get_header();
 
 // 获取所有技能分类
-$skill_categories = get_terms( array(
-	'taxonomy'   => 'skill_category',
-	'hide_empty' => true,
-	'orderby'    => 'name',
-) );
+$skill_categories_cache_key = 'mizuki_terms_skill_category';
+$skill_categories = get_transient( $skill_categories_cache_key );
+if ( false === $skill_categories ) {
+	$skill_categories = get_terms( array(
+		'taxonomy'   => 'skill_category',
+		'hide_empty' => true,
+		'orderby'    => 'name',
+	) );
+	if ( ! is_wp_error( $skill_categories ) ) {
+		set_transient( $skill_categories_cache_key, $skill_categories, 12 * HOUR_IN_SECONDS );
+	}
+}
 
 // 显示名 + 图标映射:theme_mod 覆盖叠加在默认值之上(控制台「技能分类管理」可编辑)。
 $category_names = mizuki_get_category_labels( 'skill_category' );
@@ -93,7 +100,7 @@ $total_count = $skill_query->post_count;
 					$cat_slug = '__none__';
 				}
 			?>
-			<div class="skill-card group relative bg-transparent rounded-xl border border-black/10 dark:border-white/10 overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1" data-category="<?php echo esc_attr( $cat_slug ); ?>">
+			<div class="skill-card mizuki-stagger group relative bg-transparent rounded-xl border border-black/10 dark:border-white/10 overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1" data-category="<?php echo esc_attr( $cat_slug ); ?>">
 				<div class="p-5">
 					<div class="flex items-start gap-4 mb-3">
 						<div class="w-12 h-12 flex-shrink-0 rounded-lg flex items-center justify-center bg-[var(--primary)]/10">
@@ -129,7 +136,7 @@ $total_count = $skill_query->post_count;
 			<?php endwhile; wp_reset_postdata(); ?>
 		</div>
 		<?php else : ?>
-		<p class="text-50 text-center py-12"><?php esc_html_e( '暂无技能。', 'mizuki' ); ?></p>
+		<?php mizuki_empty_state( __( '暂无技能。', 'mizuki' ) ); ?>
 		<?php endif; ?>
 
 		<!-- 无结果提示 -->
@@ -140,26 +147,6 @@ $total_count = $skill_query->post_count;
 </main>
 
 <style>
-	.skill-card {
-		animation: fadeInUp 0.5s ease-out forwards;
-		opacity: 0;
-	}
-	@keyframes fadeInUp {
-		from { opacity: 0; transform: translateY(20px); }
-		to { opacity: 1; transform: translateY(0); }
-	}
-	.skill-card:nth-child(1) { animation-delay: 0.03s; }
-	.skill-card:nth-child(2) { animation-delay: 0.06s; }
-	.skill-card:nth-child(3) { animation-delay: 0.09s; }
-	.skill-card:nth-child(4) { animation-delay: 0.12s; }
-	.skill-card:nth-child(5) { animation-delay: 0.15s; }
-	.skill-card:nth-child(6) { animation-delay: 0.18s; }
-	.skill-card:nth-child(7) { animation-delay: 0.21s; }
-	.skill-card:nth-child(8) { animation-delay: 0.24s; }
-	.skill-card:nth-child(9) { animation-delay: 0.27s; }
-	.skill-card:nth-child(10) { animation-delay: 0.3s; }
-	.skill-card:nth-child(11) { animation-delay: 0.33s; }
-	.skill-card:nth-child(12) { animation-delay: 0.36s; }
 	.line-clamp-2 {
 		display: -webkit-box;
 		-webkit-line-clamp: 2;

@@ -114,7 +114,7 @@ function mizuki_diary_relative_time( $timestamp ) {
 			<?php endwhile; wp_reset_postdata(); ?>
 		</div>
 		<?php else : ?>
-		<p class="text-50 text-center py-12"><?php esc_html_e( '暂无日记内容。', 'mizuki' ); ?></p>
+		<?php mizuki_empty_state( __( '暂无日记内容。', 'mizuki' ) ); ?>
 		<?php endif; ?>
 	</div>
 </main>
