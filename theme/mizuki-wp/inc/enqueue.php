@@ -177,11 +177,14 @@ function mizuki_enqueue_scripts() {
 
 	// Fancybox 图片灯箱库: 仅文章页或相册页加载
 	if ( $is_single || $is_album ) {
+		// 版本必须与本地 assets/css/mizuki-fancybox.css 完全一致(此处 5.0.36),
+		// 否则 JS 状态机类(is-opening/is-animated)与旧版 CSS(is-ready)不匹配,
+		// 会导致灯箱 visibility:hidden、页面卡死无法滚动。
 		mizuki_enqueue_script_if_exists(
 			'fancybox',
-			'https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js',
+			'https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.36/dist/fancybox/fancybox.umd.js',
 			array(),
-			'5.0'
+			'5.0.36'
 		);
 		// 主题脚本依赖 Fancybox
 		mizuki_enqueue_script_if_exists( 'mizuki-theme', 'mizuki-theme.js', array( 'fancybox' ) );
