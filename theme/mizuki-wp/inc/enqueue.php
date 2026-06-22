@@ -135,6 +135,11 @@ function mizuki_enqueue_global_styles() {
 		}
 	}
 
+	// Iconify 图标库: 仅时间线页加载
+	if ( is_page_template( 'templates/template-timeline.php' ) ) {
+		wp_enqueue_script( 'iconify', 'https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js', array(), '2.1.0', true );
+	}
+
 	// WordPress 导航菜单 + 布局修正的内联 CSS
 	$custom_css = '
 		/* 导航菜单项样式 */

@@ -15,3 +15,29 @@ node_modules/
 # 系统
 .DS_Store
 *.log
+
+# 开发文件
+/.superpowers/
+*.zip
+*.tmp
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 备份文件
+*-legacy.php
+*-backup.*
+*.bak
+
+# 测试文件
+/docs/test-*.html
+/tmp/
+.phpunit.result.cache
+phpunit.xml
+
+# OS 文件
+Thumbs.db
+Desktop.ini
+

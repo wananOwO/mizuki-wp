@@ -32,11 +32,11 @@ function mizuki_word_count( $post_id = null ) {
 }
 
 /**
- * 分类筛选标签(project_category / skill_category)的默认显示名映射。
+ * 分类筛选标签(project_category / skill_category / timeline_type)的默认显示名映射。
  *
  * 这些是各模板原先硬编码的默认值,迁出来集中维护,作为 theme_mod 覆盖的回退基线。
  *
- * @param string $taxonomy 'project_category' 或 'skill_category'。
+ * @param string $taxonomy 'project_category', 'skill_category' 或 'timeline_type'。
  * @return array slug => 显示名。
  */
 function mizuki_default_category_labels( $taxonomy ) {
@@ -54,6 +54,12 @@ function mizuki_default_category_labels( $taxonomy ) {
 			'tools'    => '工具',
 			'other'    => '其他',
 		),
+		'timeline_type'    => array(
+			'education'   => '教育',
+			'work'        => '工作',
+			'project'     => '项目',
+			'achievement' => '成就',
+		),
 	);
 	return isset( $defaults[ $taxonomy ] ) ? $defaults[ $taxonomy ] : array();
 }
@@ -61,7 +67,7 @@ function mizuki_default_category_labels( $taxonomy ) {
 /**
  * 分类筛选标签的默认图标映射(内联 SVG 字符串,直接 echo 到筛选 Tab)。
  *
- * @param string $taxonomy 'project_category' 或 'skill_category'。
+ * @param string $taxonomy 'project_category', 'skill_category' 或 'timeline_type'。
  * @return array slug => 内联 SVG 字符串。键 'other' 必定存在,作为未知 slug 的回退。
  */
 function mizuki_default_category_icons( $taxonomy ) {
@@ -79,6 +85,12 @@ function mizuki_default_category_icons( $taxonomy ) {
 			'database' => '<svg viewBox="0 0 24 24" width="1em" height="1em" class="text-base w-4 h-4"><path fill="currentColor" d="M2 20h20v-4H2v4zm2-3h2v2H4v-2zM2 4v4h20V4H2zm4 3H4V5h2v2zm-4 7h20v-4H2v4zm2-3h2v2H4v-2z"/></svg>',
 			'tools'    => '<svg viewBox="0 0 24 24" width="1em" height="1em" class="text-base w-4 h-4"><path fill="currentColor" d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/></svg>',
 			'other'    => $svg_other,
+		),
+		'timeline_type'    => array(
+			'education'   => '<svg viewBox="0 0 24 24" width="1em" height="1em" class="text-base w-4 h-4"><path fill="currentColor" d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/></svg>',
+			'work'        => '<svg viewBox="0 0 24 24" width="1em" height="1em" class="text-base w-4 h-4"><path fill="currentColor" d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"/></svg>',
+			'project'     => '<svg viewBox="0 0 24 24" width="1em" height="1em" class="text-base w-4 h-4"><path fill="currentColor" d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>',
+			'achievement' => '<svg viewBox="0 0 24 24" width="1em" height="1em" class="text-base w-4 h-4"><path fill="currentColor" d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"/></svg>',
 		),
 	);
 	return isset( $defaults[ $taxonomy ] ) ? $defaults[ $taxonomy ] : array( 'other' => $svg_other );
@@ -158,4 +170,105 @@ function mizuki_category_bar() {
 		</div>
 	</div>
 	<?php
+}
+
+/**
+ * 时间线辅助函数
+ */
+
+/**
+ * 获取时间线类型的默认图标（SVG HTML）
+ */
+function mizuki_get_default_type_icon( $type_slug ) {
+	$icons = array(
+		'education'   => '<svg viewBox="0 0 24 24" width="1em" height="1em" class="text-base w-4 h-4"><path fill="currentColor" d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/></svg>',
+		'work'        => '<svg viewBox="0 0 24 24" width="1em" height="1em" class="text-base w-4 h-4"><path fill="currentColor" d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"/></svg>',
+		'project'     => '<svg viewBox="0 0 24 24" width="1em" height="1em" class="text-base w-4 h-4"><path fill="currentColor" d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>',
+		'achievement' => '<svg viewBox="0 0 24 24" width="1em" height="1em" class="text-base w-4 h-4"><path fill="currentColor" d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"/></svg>',
+	);
+	return isset( $icons[ $type_slug ] ) ? $icons[ $type_slug ] : $icons['achievement'];
+}
+
+/**
+ * 获取时间线类型的默认图标 class（用于 Iconify）
+ */
+function mizuki_get_default_type_icon_class( $type_slug ) {
+	$icons = array(
+		'education'   => 'material-symbols:school',
+		'work'        => 'material-symbols:work',
+		'project'     => 'material-symbols:code',
+		'achievement' => 'material-symbols:emoji-events',
+	);
+	return isset( $icons[ $type_slug ] ) ? $icons[ $type_slug ] : 'material-symbols:emoji-events';
+}
+
+/**
+ * 获取时间线类型的默认颜色
+ */
+function mizuki_get_default_type_color( $type_slug ) {
+	$colors = array(
+		'education'   => '#2563EB', // 蓝色
+		'work'        => '#DC2626', // 红色
+		'project'     => '#7C3AED', // 紫色
+		'achievement' => '#059669', // 绿色
+	);
+	return isset( $colors[ $type_slug ] ) ? $colors[ $type_slug ] : '#7C3AED';
+}
+
+/**
+ * 格式化日期范围
+ */
+function mizuki_format_date_range( $start_date, $end_date = '' ) {
+	if ( empty( $start_date ) ) {
+		return '';
+	}
+
+	$start = date_i18n( 'Y年n月', strtotime( $start_date ) );
+	if ( empty( $end_date ) ) {
+		return $start . ' - 至今';
+	}
+
+	$end = date_i18n( 'Y年n月', strtotime( $end_date ) );
+	return $start . ' - ' . $end;
+}
+
+/**
+ * 计算时长（月数/年数）
+ */
+function mizuki_calculate_duration( $start_date, $end_date = '' ) {
+	if ( empty( $start_date ) ) {
+		return '';
+	}
+
+	$start = new DateTime( $start_date );
+	$end   = empty( $end_date ) ? new DateTime() : new DateTime( $end_date );
+
+	$interval = $start->diff( $end );
+	$months   = $interval->y * 12 + $interval->m;
+
+	if ( $months < 12 ) {
+		return $months . ' 个月';
+	}
+
+	$years        = floor( $months / 12 );
+	$remain_months = $months % 12;
+
+	if ( $remain_months === 0 ) {
+		return $years . ' 年';
+	}
+
+	return $years . ' 年 ' . $remain_months . ' 个月';
+}
+
+/**
+ * 获取链接类型图标
+ */
+function mizuki_get_link_type_icon( $type ) {
+	$icons = array(
+		'certificate' => '<svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>',
+		'project'     => '<svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>',
+		'website'     => '<svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>',
+		'other'       => '<svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>',
+	);
+	return isset( $icons[ $type ] ) ? $icons[ $type ] : $icons['other'];
 }

@@ -110,7 +110,7 @@ function mizuki_register_taxonomies() {
 	) );
 
 	// ── 通用文章标签 (用于 post 类型的时间线) ──
-	register_taxonomy( 'timeline_type', 'post', array(
+	register_taxonomy( 'timeline_type', 'mizuki_timeline', array(
 		'labels'            => array(
 			'name'          => '时间线类型',
 			'singular_name' => '时间线类型',
@@ -170,6 +170,12 @@ function mizuki_register_cpts() {
 			'icon'     => 'dashicons-awards',
 			'supports' => array( 'title', 'thumbnail' ),
 		),
+		'mizuki_timeline' => array(
+			'label'    => '时间线',
+			'singular' => '时间线条目',
+			'icon'     => 'dashicons-clock',
+			'supports' => array( 'title' ),
+		),
 	);
 
 	foreach ( $cpts as $slug => $cfg ) {
@@ -183,6 +189,8 @@ function mizuki_register_cpts() {
 			$taxonomies = array( 'friend_tag' );
 		} elseif ( 'mizuki_anime' === $slug ) {
 			$taxonomies = array( 'anime_status' );
+		} elseif ( 'mizuki_timeline' === $slug ) {
+			$taxonomies = array( 'timeline_type' );
 		}
 
 		register_post_type( $slug, array(
@@ -226,6 +234,8 @@ function mizuki_add_meta_boxes() {
 	add_meta_box( 'mizuki_project_fields', '项目信息', 'mizuki_project_fields_cb', 'mizuki_project', 'normal', 'high' );
 	// Skill meta box
 	add_meta_box( 'mizuki_skill_fields', '技能信息', 'mizuki_skill_fields_cb', 'mizuki_skill', 'normal', 'high' );
+	// Timeline meta box
+	add_meta_box( 'mizuki_timeline_fields', '时间线条目信息', 'mizuki_timeline_fields_cb', 'mizuki_timeline', 'normal', 'high' );
 }
 add_action( 'add_meta_boxes', 'mizuki_add_meta_boxes' );
 
@@ -315,6 +325,160 @@ function mizuki_skill_fields_cb( $post ) {
 	<?php
 }
 
+function mizuki_timeline_fields_cb( $post ) {
+	wp_nonce_field( 'mizuki_timeline_save', 'mizuki_timeline_nonce' );
+
+	// 获取所有 meta 值
+	$description   = get_post_meta( $post->ID, '_mizuki_timeline_description', true );
+	$start_date    = get_post_meta( $post->ID, '_mizuki_timeline_start_date', true );
+	$end_date      = get_post_meta( $post->ID, '_mizuki_timeline_end_date', true );
+	$location      = get_post_meta( $post->ID, '_mizuki_timeline_location', true );
+	$organization  = get_post_meta( $post->ID, '_mizuki_timeline_organization', true );
+	$position      = get_post_meta( $post->ID, '_mizuki_timeline_position', true );
+	$skills        = get_post_meta( $post->ID, '_mizuki_timeline_skills', true );
+	$achievements  = get_post_meta( $post->ID, '_mizuki_timeline_achievements', true );
+	$links_json    = get_post_meta( $post->ID, '_mizuki_timeline_links', true );
+	$icon          = get_post_meta( $post->ID, '_mizuki_timeline_icon', true );
+	$color         = get_post_meta( $post->ID, '_mizuki_timeline_color', true );
+	$featured      = get_post_meta( $post->ID, '_mizuki_timeline_featured', true );
+
+	// 解析 links JSON
+	$links = array();
+	if ( ! empty( $links_json ) ) {
+		$links = json_decode( $links_json, true );
+		if ( ! is_array( $links ) ) {
+			$links = array();
+		}
+	}
+
+	// 确保至少有一个空链接输入框
+	if ( empty( $links ) ) {
+		$links = array( array( 'name' => '', 'url' => '', 'type' => 'website' ) );
+	}
+	?>
+	<style>
+	.mizuki-timeline-links { margin-top: 10px; }
+	.mizuki-timeline-link-row { margin-bottom: 10px; padding: 10px; background: #f5f5f5; border-radius: 4px; }
+	.mizuki-timeline-link-row input, .mizuki-timeline-link-row select { margin-right: 10px; }
+	.mizuki-add-link-btn { margin-top: 10px; }
+	</style>
+
+	<table class="form-table">
+	<tr>
+		<th><label for="mizuki_timeline_description">描述 <span style="color:red;">*</span></label></th>
+		<td><textarea id="mizuki_timeline_description" name="mizuki_timeline_description" rows="4" class="large-text" required><?php echo esc_textarea( $description ); ?></textarea></td>
+	</tr>
+	<tr>
+		<th><label for="mizuki_timeline_start_date">开始日期 <span style="color:red;">*</span></label></th>
+		<td><input type="date" id="mizuki_timeline_start_date" name="mizuki_timeline_start_date" value="<?php echo esc_attr( $start_date ); ?>" class="regular-text" required></td>
+	</tr>
+	<tr>
+		<th><label for="mizuki_timeline_end_date">结束日期</label></th>
+		<td>
+			<input type="date" id="mizuki_timeline_end_date" name="mizuki_timeline_end_date" value="<?php echo esc_attr( $end_date ); ?>" class="regular-text">
+			<p class="description">留空表示进行中</p>
+		</td>
+	</tr>
+	<tr>
+		<th><label for="mizuki_timeline_location">地点</label></th>
+		<td><input type="text" id="mizuki_timeline_location" name="mizuki_timeline_location" value="<?php echo esc_attr( $location ); ?>" class="regular-text"></td>
+	</tr>
+	<tr>
+		<th><label for="mizuki_timeline_organization">组织/公司/学校</label></th>
+		<td><input type="text" id="mizuki_timeline_organization" name="mizuki_timeline_organization" value="<?php echo esc_attr( $organization ); ?>" class="regular-text"></td>
+	</tr>
+	<tr>
+		<th><label for="mizuki_timeline_position">职位/角色</label></th>
+		<td><input type="text" id="mizuki_timeline_position" name="mizuki_timeline_position" value="<?php echo esc_attr( $position ); ?>" class="regular-text"></td>
+	</tr>
+	<tr>
+		<th><label for="mizuki_timeline_skills">技能标签</label></th>
+		<td>
+			<input type="text" id="mizuki_timeline_skills" name="mizuki_timeline_skills" value="<?php echo esc_attr( $skills ); ?>" class="large-text">
+			<p class="description">多个技能用逗号分隔，如: React, TypeScript, Node.js</p>
+		</td>
+	</tr>
+	<tr>
+		<th><label for="mizuki_timeline_achievements">成就列表</label></th>
+		<td>
+			<textarea id="mizuki_timeline_achievements" name="mizuki_timeline_achievements" rows="5" class="large-text"><?php echo esc_textarea( $achievements ); ?></textarea>
+			<p class="description">每行一条成就</p>
+		</td>
+	</tr>
+	<tr>
+		<th><label>相关链接</label></th>
+		<td>
+			<div class="mizuki-timeline-links" id="mizuki-timeline-links-container">
+				<?php foreach ( $links as $idx => $link ) : ?>
+				<div class="mizuki-timeline-link-row">
+					<input type="text" name="mizuki_timeline_link_name[]" value="<?php echo esc_attr( $link['name'] ?? '' ); ?>" placeholder="链接名称" style="width: 200px;">
+					<input type="url" name="mizuki_timeline_link_url[]" value="<?php echo esc_url( $link['url'] ?? '' ); ?>" placeholder="URL" style="width: 300px;">
+					<select name="mizuki_timeline_link_type[]" style="width: 120px;">
+						<option value="website" <?php selected( $link['type'] ?? 'website', 'website' ); ?>>网站</option>
+						<option value="certificate" <?php selected( $link['type'] ?? 'website', 'certificate' ); ?>>证书</option>
+						<option value="project" <?php selected( $link['type'] ?? 'website', 'project' ); ?>>项目</option>
+						<option value="other" <?php selected( $link['type'] ?? 'website', 'other' ); ?>>其他</option>
+					</select>
+					<button type="button" class="button mizuki-remove-link-btn">删除</button>
+				</div>
+				<?php endforeach; ?>
+			</div>
+			<button type="button" class="button mizuki-add-link-btn">+ 添加链接</button>
+		</td>
+	</tr>
+	<tr>
+		<th><label for="mizuki_timeline_icon">图标</label></th>
+		<td>
+			<input type="text" id="mizuki_timeline_icon" name="mizuki_timeline_icon" value="<?php echo esc_attr( $icon ); ?>" class="regular-text" placeholder="如: material-symbols:school">
+			<p class="description">使用 Iconify 图标 class，留空则根据类型自动选择</p>
+		</td>
+	</tr>
+	<tr>
+		<th><label for="mizuki_timeline_color">节点颜色</label></th>
+		<td>
+			<input type="text" id="mizuki_timeline_color" name="mizuki_timeline_color" value="<?php echo esc_attr( $color ); ?>" class="mizuki-color-field" placeholder="#7C3AED">
+			<p class="description">留空使用默认主题色</p>
+		</td>
+	</tr>
+	<tr>
+		<th><label for="mizuki_timeline_featured">标星显示</label></th>
+		<td><label><input type="checkbox" id="mizuki_timeline_featured" name="mizuki_timeline_featured" value="1" <?php checked( $featured, '1' ); ?>> 在前端显示星标</label></td>
+	</tr>
+	</table>
+	<p class="description"><strong>提示：</strong>类型请使用右侧「类型」面板设置（教育/工作/项目/成就）。</p>
+
+	<script>
+	jQuery(document).ready(function($) {
+		// 添加链接
+		$('.mizuki-add-link-btn').on('click', function() {
+			var html = '<div class="mizuki-timeline-link-row">' +
+				'<input type="text" name="mizuki_timeline_link_name[]" placeholder="链接名称" style="width: 200px;">' +
+				'<input type="url" name="mizuki_timeline_link_url[]" placeholder="URL" style="width: 300px;">' +
+				'<select name="mizuki_timeline_link_type[]" style="width: 120px;">' +
+				'<option value="website">网站</option>' +
+				'<option value="certificate">证书</option>' +
+				'<option value="project">项目</option>' +
+				'<option value="other">其他</option>' +
+				'</select>' +
+				'<button type="button" class="button mizuki-remove-link-btn">删除</button>' +
+				'</div>';
+			$('#mizuki-timeline-links-container').append(html);
+		});
+
+		// 删除链接
+		$(document).on('click', '.mizuki-remove-link-btn', function() {
+			$(this).closest('.mizuki-timeline-link-row').remove();
+		});
+
+		// 颜色选择器
+		if ($.fn.wpColorPicker) {
+			$('.mizuki-color-field').wpColorPicker();
+		}
+	});
+	</script>
+	<?php
+}
+
 /**
  * 保存元字段。
  */
@@ -322,7 +486,7 @@ function mizuki_save_meta_fields( $post_id ) {
 	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
 	if ( ! current_user_can( 'edit_post', $post_id ) ) return;
 
-	$mizuki_cpts = array( 'mizuki_anime', 'mizuki_friend', 'mizuki_diary', 'mizuki_album', 'mizuki_project', 'mizuki_skill' );
+	$mizuki_cpts = array( 'mizuki_anime', 'mizuki_friend', 'mizuki_diary', 'mizuki_album', 'mizuki_project', 'mizuki_skill', 'mizuki_timeline' );
 	if ( ! in_array( get_post_type( $post_id ), $mizuki_cpts, true ) ) {
 		return;
 	}
@@ -361,6 +525,95 @@ function mizuki_save_meta_fields( $post_id ) {
 	if ( isset( $_POST['mizuki_skill_nonce'] ) && wp_verify_nonce( $_POST['mizuki_skill_nonce'], 'mizuki_skill_save' ) ) {
 		if ( isset( $_POST['mizuki_skill_level'] ) ) update_post_meta( $post_id, '_mizuki_skill_level', absint( $_POST['mizuki_skill_level'] ) );
 		if ( isset( $_POST['mizuki_skill_icon'] ) ) update_post_meta( $post_id, '_mizuki_skill_icon', sanitize_text_field( wp_unslash( $_POST['mizuki_skill_icon'] ) ) );
+	}
+
+	// Timeline
+	if ( isset( $_POST['mizuki_timeline_nonce'] ) && wp_verify_nonce( $_POST['mizuki_timeline_nonce'], 'mizuki_timeline_save' ) ) {
+		// 描述（必填）
+		if ( isset( $_POST['mizuki_timeline_description'] ) ) {
+			update_post_meta( $post_id, '_mizuki_timeline_description', sanitize_textarea_field( wp_unslash( $_POST['mizuki_timeline_description'] ) ) );
+		}
+
+		// 开始日期（必填，验证格式）
+		if ( isset( $_POST['mizuki_timeline_start_date'] ) ) {
+			$start_date = sanitize_text_field( wp_unslash( $_POST['mizuki_timeline_start_date'] ) );
+			if ( preg_match( '/^\d{4}-\d{2}-\d{2}$/', $start_date ) ) {
+				update_post_meta( $post_id, '_mizuki_timeline_start_date', $start_date );
+			}
+		}
+
+		// 结束日期（可选，验证格式）
+		if ( isset( $_POST['mizuki_timeline_end_date'] ) ) {
+			$end_date = sanitize_text_field( wp_unslash( $_POST['mizuki_timeline_end_date'] ) );
+			if ( empty( $end_date ) || preg_match( '/^\d{4}-\d{2}-\d{2}$/', $end_date ) ) {
+				update_post_meta( $post_id, '_mizuki_timeline_end_date', $end_date );
+			}
+		}
+
+		// 地点
+		if ( isset( $_POST['mizuki_timeline_location'] ) ) {
+			update_post_meta( $post_id, '_mizuki_timeline_location', sanitize_text_field( wp_unslash( $_POST['mizuki_timeline_location'] ) ) );
+		}
+
+		// 组织
+		if ( isset( $_POST['mizuki_timeline_organization'] ) ) {
+			update_post_meta( $post_id, '_mizuki_timeline_organization', sanitize_text_field( wp_unslash( $_POST['mizuki_timeline_organization'] ) ) );
+		}
+
+		// 职位
+		if ( isset( $_POST['mizuki_timeline_position'] ) ) {
+			update_post_meta( $post_id, '_mizuki_timeline_position', sanitize_text_field( wp_unslash( $_POST['mizuki_timeline_position'] ) ) );
+		}
+
+		// 技能标签
+		if ( isset( $_POST['mizuki_timeline_skills'] ) ) {
+			update_post_meta( $post_id, '_mizuki_timeline_skills', sanitize_text_field( wp_unslash( $_POST['mizuki_timeline_skills'] ) ) );
+		}
+
+		// 成就列表
+		if ( isset( $_POST['mizuki_timeline_achievements'] ) ) {
+			update_post_meta( $post_id, '_mizuki_timeline_achievements', sanitize_textarea_field( wp_unslash( $_POST['mizuki_timeline_achievements'] ) ) );
+		}
+
+		// 链接（构建 JSON）
+		$links = array();
+		if ( isset( $_POST['mizuki_timeline_link_name'] ) && is_array( $_POST['mizuki_timeline_link_name'] ) ) {
+			$names = array_map( 'sanitize_text_field', wp_unslash( $_POST['mizuki_timeline_link_name'] ) );
+			$urls  = isset( $_POST['mizuki_timeline_link_url'] ) ? array_map( 'esc_url_raw', wp_unslash( $_POST['mizuki_timeline_link_url'] ) ) : array();
+			$types = isset( $_POST['mizuki_timeline_link_type'] ) ? array_map( 'sanitize_text_field', wp_unslash( $_POST['mizuki_timeline_link_type'] ) ) : array();
+
+			foreach ( $names as $idx => $name ) {
+				if ( ! empty( $name ) && ! empty( $urls[ $idx ] ) ) {
+					$links[] = array(
+						'name' => $name,
+						'url'  => $urls[ $idx ],
+						'type' => isset( $types[ $idx ] ) ? $types[ $idx ] : 'website',
+					);
+				}
+			}
+		}
+		update_post_meta( $post_id, '_mizuki_timeline_links', wp_json_encode( $links, JSON_UNESCAPED_UNICODE ) );
+
+		// 图标
+		if ( isset( $_POST['mizuki_timeline_icon'] ) ) {
+			update_post_meta( $post_id, '_mizuki_timeline_icon', sanitize_text_field( wp_unslash( $_POST['mizuki_timeline_icon'] ) ) );
+		}
+
+		// 节点颜色
+		if ( isset( $_POST['mizuki_timeline_color'] ) ) {
+			$color = sanitize_text_field( wp_unslash( $_POST['mizuki_timeline_color'] ) );
+			// 验证 hex 颜色格式
+			if ( empty( $color ) || preg_match( '/^#[0-9A-Fa-f]{6}$/', $color ) ) {
+				update_post_meta( $post_id, '_mizuki_timeline_color', $color );
+			}
+		}
+
+		// 标星
+		if ( isset( $_POST['mizuki_timeline_featured'] ) ) {
+			update_post_meta( $post_id, '_mizuki_timeline_featured', '1' );
+		} else {
+			delete_post_meta( $post_id, '_mizuki_timeline_featured' );
+		}
 	}
 }
 add_action( 'save_post', 'mizuki_save_meta_fields' );
@@ -458,3 +711,24 @@ function mizuki_create_default_taxonomies() {
 }
 add_action( 'after_switch_theme', 'mizuki_create_default_taxonomies' );
 add_action( 'admin_init', 'mizuki_create_default_taxonomies' );
+
+/**
+ * 后台加载颜色选择器（用于时间线）
+ */
+function mizuki_enqueue_admin_scripts( $hook ) {
+	// 只在编辑时间线页面加载
+	if ( 'post.php' !== $hook && 'post-new.php' !== $hook ) {
+		return;
+	}
+
+	$screen = get_current_screen();
+	if ( ! $screen || 'mizuki_timeline' !== $screen->post_type ) {
+		return;
+	}
+
+	// 加载 WordPress 颜色选择器
+	wp_enqueue_style( 'wp-color-picker' );
+	wp_enqueue_script( 'wp-color-picker' );
+}
+add_action( 'admin_enqueue_scripts', 'mizuki_enqueue_admin_scripts' );
+
