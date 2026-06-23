@@ -66,6 +66,20 @@ body.no-banner-mode .absolute.w-full.z-30 {
   top: 5.5rem;
 }
 
+/* === 文章页右侧 TOC:修正"顶到导航栏下面"===
+ * #navbar-wrapper 在 WP 始终 sticky top-0,#navbar 高 h-[4.5rem](=72px)。
+ * 原版只在 body.no-banner-mode 下把 #toc-inner-wrapper 调到 top:5.5rem,但 WP 在
+ * inc/setup.php 无条件给 body 加 enable-banner,no-banner-mode 永不命中,于是 TOC
+ * 回退到内联 top-14(=3.5rem=56px),顶部 16px 被始终吸顶的导航栏遮挡。
+ * 这里补一条全局规则,把 TOC 落到导航栏下方(4.5rem+1rem 间距=5.5rem);height 同步
+ * 收窄 2rem 以保持底部留白。height 不加 !important,让 mizuki-banner.css 里
+ * @media(max-height:860px) 的短屏高度规则继续生效。 */
+#toc-inner-wrapper {
+  top: 5.5rem !important;
+  height: calc(100vh - 8rem);
+  max-height: calc(100vh - 8rem);
+}
+
 /* === 移动端(单列)主内容置顶,侧栏(资料/公告/分类/标签)排在文章之后 ===
  * 与原版 Mizuki 一致:手机端先看文章列表,再看侧栏小工具。 */
 @media (max-width: 767px) {
