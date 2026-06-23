@@ -143,3 +143,11 @@ body.no-banner-mode .absolute.w-full.z-30 {
 #nav-menu-panel .mizuki-m-summary { list-style: none; }
 #nav-menu-panel .mizuki-m-summary::-webkit-details-marker { display: none; }
 #nav-menu-panel .mizuki-m-group[open] > .mizuki-m-summary .mizuki-m-arrow { transform: rotate(180deg); }
+
+/* === 右侧边栏容器:退化为 contents,使外层不占网格格、内部 #right-sidebar 落到指定列 ===
+   对照上游 MainGridLayout.B8XpZmO3.css 的 .right-sidebar-container[data-astro-cid-haiuh7kc]{display:contents}。
+   上游用 data-astro 属性选择器(构建期注入),WP 移植无该属性,故用类选择器等价覆盖。
+   这是修复 768-1279px(2 列网格)右栏塌掉的关键:外层 display:contents + 内层不带显隐类。 */
+.right-sidebar-container { display: contents; }
+.right-sidebar-container.hidden-in-grid-mode { display: none !important; }
+.right-sidebar-container > #right-sidebar { height: fit-content; }
