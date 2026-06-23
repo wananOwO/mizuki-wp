@@ -124,6 +124,7 @@ function mizuki_enqueue_global_styles() {
 		'mizuki-transition'          => 'mizuki-transition.css',
 		'mizuki-sidebar-track'       => 'mizuki-sidebar-track.css',
 		'mizuki-widget-responsive'   => 'mizuki-widget-responsive.css',
+		'mizuki-search'              => 'mizuki-search.css',
 	);
 	mizuki_enqueue_styles_batch( $global_css );
 

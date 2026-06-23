@@ -1,0 +1,67 @@
+/**
+ * 顶部导航搜索入口。
+ *
+ * 桌面端:搜索条默认收起(仅图标),悬停或输入聚焦时展开输入框,
+ * 回车原生提交到 /?s= 走 search.php 结果页。
+ * 移动/平板端:点击 #search-switch 弹出 #search-panel(逻辑见 mizuki-theme.js)。
+ */
+
+/* === 桌面端搜索条 === */
+.search-bar {
+	border: 0;
+	background: transparent;
+	cursor: text;
+	width: 2.75rem; /* w-11, 收起态 */
+	transition: width 0.2s ease, background-color 0.2s ease;
+}
+.search-bar:hover,
+.search-bar:focus-within {
+	width: 12rem; /* w-48, 展开态 */
+	background: rgba(0, 0, 0, 0.04);
+}
+.dark .search-bar:hover,
+.dark .search-bar:focus-within {
+	background: rgba(255, 255, 255, 0.05);
+}
+
+.search-bar-icon {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	font-size: 1.25rem;
+	color: currentColor;
+	pointer-events: none;
+	transition: left 0.2s ease, transform 0.2s ease;
+}
+.search-bar:hover .search-bar-icon,
+.search-bar:focus-within .search-bar-icon {
+	left: 0.75rem; /* left-3 */
+	transform: translateY(-50%);
+}
+
+.search-bar-input {
+	width: 0;
+	height: 100%;
+	padding-left: 2.5rem; /* pl-10, 为图标留位 */
+	font-size: 0.875rem;
+	background: transparent;
+	border: 0;
+	outline: 0;
+	color: inherit;
+	transition: width 0.2s ease;
+}
+.search-bar:hover .search-bar-input,
+.search-bar:focus-within .search-bar-input {
+	width: 9rem; /* w-36 */
+}
+/* 隐藏 type=search 的浏览器原生清除按钮 */
+.search-bar-input::-webkit-search-cancel-button {
+	-webkit-appearance: none;
+}
+
+/* === 搜索面板(移动/平板端) === */
+#search-panel {
+	max-height: calc(100vh - 100px);
+	overflow-y: auto;
+}
