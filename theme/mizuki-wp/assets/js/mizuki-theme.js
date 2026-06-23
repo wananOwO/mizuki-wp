@@ -81,7 +81,7 @@
 
     // === 通用面板切换函数 ===
     function closeAllPanels(exceptId) {
-      var panels = ['display-setting', 'nav-menu-panel'];
+      var panels = ['display-setting', 'nav-menu-panel', 'search-panel'];
       for (var i = 0; i < panels.length; i++) {
         if (panels[i] === exceptId) continue;
         var el = document.getElementById(panels[i]);
@@ -128,11 +128,30 @@
       });
     }
 
+    // === 移动端搜索面板切换 ===
+    var searchBtn = document.getElementById('search-switch');
+    var searchPanel = document.getElementById('search-panel');
+    if (searchBtn && searchPanel) {
+      searchBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        e.preventDefault();
+        var isOpen = !searchPanel.classList.contains('float-panel-closed');
+        if (isOpen) {
+          searchPanel.classList.add('float-panel-closed');
+        } else {
+          closeAllPanels('search-panel');
+          searchPanel.classList.remove('float-panel-closed');
+          var input = searchPanel.querySelector('input');
+          if (input) input.focus();
+        }
+      });
+    }
+
     // 点击面板外关闭所有面板
     document.addEventListener('click', function (event) {
       var isInsidePanel = false;
-      var panels = [settingPanel, menuPanel];
-      var buttons = [settingBtn, menuBtn];
+      var panels = [settingPanel, menuPanel, searchPanel];
+      var buttons = [settingBtn, menuBtn, searchBtn];
       for (var i = 0; i < panels.length; i++) {
         if (panels[i] && panels[i].contains(event.target)) isInsidePanel = true;
         if (buttons[i] && buttons[i].contains(event.target)) isInsidePanel = true;

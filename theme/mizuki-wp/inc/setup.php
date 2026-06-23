@@ -38,22 +38,13 @@ function mizuki_register_menus() {
 add_action( 'after_setup_theme', 'mizuki_register_menus' );
 
 /**
- * 注册侧边栏小工具区域。
+ * 侧边栏小工具区域已移除。
+ *
+ * 原左侧栏的搜索/最近文章/最近评论等 WP 默认小工具过于简陋,影响美观,
+ * 已与上游对齐:左栏仅保留资料卡/公告/标签,搜索入口移至顶部导航栏。
+ * 如需恢复后台小工具区,可在此重新 register_sidebar('sidebar-1') 并在
+ * inc/parts/sidebar.php 的 mizuki_render_left_sidebar() 内调用 dynamic_sidebar()。
  */
-function mizuki_register_sidebars() {
-	register_sidebar(
-		array(
-			'name'          => esc_html__( '左侧边栏', 'mizuki' ),
-			'id'            => 'sidebar-1',
-			'description'   => esc_html__( '左侧边栏小工具区域(档案、分类、标签等)。', 'mizuki' ),
-			'before_widget' => '<div id="%1$s" class="widget %2$s mb-4">',
-			'after_widget'  => '</div>',
-			'before_title'  => '<h3 class="widget-title font-bold text-lg mb-2">',
-			'after_title'   => '</h3>',
-		)
-	);
-}
-add_action( 'widgets_init', 'mizuki_register_sidebars' );
 
 /**
  * 自定义评论输出(套用 Mizuki 样式 class)。

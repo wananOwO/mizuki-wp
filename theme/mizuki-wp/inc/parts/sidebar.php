@@ -34,9 +34,10 @@ if ( ! function_exists( 'mizuki_widget_open' ) ) {
 	 * @param string $title 标题。
 	 * @param int    $delay 动画延迟 ms。
 	 */
-	function mizuki_widget_open( $title, $delay = 0 ) {
+	function mizuki_widget_open( $title, $delay = 0, $class = '' ) {
 		printf(
-			'<div class="pb-4 card-base onload-animation" style="animation-delay:%dms">',
+			'<div class="pb-4 card-base onload-animation %s" style="animation-delay:%dms">',
+			esc_attr( $class ),
 			(int) $delay
 		);
 		echo '<div class="font-bold transition text-lg text-neutral-900 dark:text-neutral-100 relative ml-8 mt-4 mb-2 flex items-center before:w-1 before:h-4 before:rounded-md before:bg-[var(--primary)] before:absolute before:left-[-16px] before:top-[5.5px]">' . esc_html( $title ) . '</div>';
@@ -149,16 +150,11 @@ if ( ! function_exists( 'mizuki_render_left_sidebar' ) ) {
 				mizuki_widget_close();
 			}
 
-			// 分类。
-			mizuki_left_categories_widget();
+			// 分类(桌面端由右侧栏显示,此处仅移动/平板可见)。
+			mizuki_categories_widget( 'lg:hidden' );
 
 			// 标签。
 			mizuki_left_tags_widget();
-
-			// WordPress 小工具区(如有)。
-			if ( is_active_sidebar( 'sidebar-1' ) ) {
-				dynamic_sidebar( 'sidebar-1' );
-			}
 			?>
 		</div>
 	</div>
@@ -167,16 +163,18 @@ if ( ! function_exists( 'mizuki_render_left_sidebar' ) ) {
 	}
 }
 
-if ( ! function_exists( 'mizuki_left_categories_widget' ) ) {
+if ( ! function_exists( 'mizuki_categories_widget' ) ) {
 	/**
 	 * 分类卡片(链接 + 计数)。
+	 *
+	 * @param string $class 附加到卡片根容器的额外类(如 'lg:hidden' 控制显隐)。
 	 */
-	function mizuki_left_categories_widget() {
+	function mizuki_categories_widget( $class = '' ) {
 		$cats = get_categories( array( 'hide_empty' => true ) );
 		if ( ! $cats ) {
 			return;
 		}
-		mizuki_widget_open( __( '分类', 'mizuki' ), 150 );
+		mizuki_widget_open( __( '分类', 'mizuki' ), 150, $class );
 		echo '<div class="flex flex-col gap-1">';
 		foreach ( $cats as $cat ) {
 			printf(
@@ -225,6 +223,7 @@ if ( ! function_exists( 'mizuki_render_right_sidebar' ) ) {
 		<?php
 		mizuki_site_stats_widget();
 		mizuki_calendar_widget();
+		mizuki_categories_widget();
 		?>
 	</div>
 </div>

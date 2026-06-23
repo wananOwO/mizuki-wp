@@ -328,6 +328,14 @@ if ( ! function_exists( 'mizuki_render_navbar' ) ) {
 					<?php mizuki_render_nav_links(); // 配置驱动的分组下拉(与原版一致,始终分组)。 ?>
 				</div>
 				<div class="flex items-center gap-1">
+					<?php // 搜索入口(桌面端悬停展开搜索条,移动端点击弹出面板)。 ?>
+					<form id="search-bar" class="search-bar hidden lg:flex items-center relative h-11 rounded-lg shrink-0" role="search" action="<?php echo esc_url( home_url( '/' ) ); ?>" method="get" aria-label="<?php esc_attr_e( '搜索', 'mizuki' ); ?>">
+						<svg class="search-bar-icon" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+						<input type="search" name="s" class="search-bar-input" placeholder="<?php esc_attr_e( '搜索…', 'mizuki' ); ?>" aria-label="<?php esc_attr_e( '搜索', 'mizuki' ); ?>" />
+					</form>
+					<button id="search-switch" aria-label="<?php esc_attr_e( '搜索', 'mizuki' ); ?>" class="btn-plain scale-animation rounded-lg w-11 h-11 active:scale-90 lg:!hidden">
+						<svg class="text-[1.25rem]" viewBox="0 0 24 24" width="1em" height="1em"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+					</button>
 					<button id="theme-toggle" aria-label="<?php esc_attr_e( '切换明暗', 'mizuki' ); ?>" class="btn-plain scale-animation rounded-lg h-11 w-11 active:scale-90">
 						<svg class="text-[1.25rem]" viewBox="0 0 24 24" width="1em" height="1em"><path fill="currentColor" d="M12 21q-3.75 0-6.375-2.625T3 12t2.625-6.375T12 3q.35 0 .688.025t.662.075q-1.025.725-1.638 1.888T11.1 7.5q0 2.25 1.575 3.825T16.5 12.9q1.35 0 2.512-.612T20.9 10.65q.05.325.075.663T21 12q0 3.75-2.625 6.375T12 21"/></svg>
 					</button>
@@ -358,6 +366,13 @@ if ( ! function_exists( 'mizuki_render_navbar' ) ) {
 			       class="w-full accent-[var(--primary)]" />
 		</div>
 		<?php endif; ?>
+	</div>
+	<!-- 搜索面板(移动/平板端,点击 #search-switch 弹出) -->
+	<div id="search-panel" class="float-panel float-panel-closed fixed left-4 right-4 top-[5.25rem] md:w-[30rem] md:left-[unset] z-50 shadow-2xl rounded-2xl p-2">
+		<form class="search-panel-form flex relative items-center h-11 rounded-xl bg-black/[0.04] hover:bg-black/[0.06] focus-within:bg-black/[0.06] dark:bg-white/5 dark:hover:bg-white/10 dark:focus-within:bg-white/10" role="search" action="<?php echo esc_url( home_url( '/' ) ); ?>" method="get">
+			<svg class="absolute ml-3 text-[1.25rem] text-black/30 dark:text-white/30 pointer-events-none" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+			<input type="search" name="s" class="pl-10 w-full text-sm bg-transparent outline-0 text-black/50 dark:text-white/50" placeholder="<?php esc_attr_e( '搜索…', 'mizuki' ); ?>" aria-label="<?php esc_attr_e( '搜索', 'mizuki' ); ?>" />
+		</form>
 	</div>
 </div>
 		<?php
