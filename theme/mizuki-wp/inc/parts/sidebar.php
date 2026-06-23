@@ -150,9 +150,6 @@ if ( ! function_exists( 'mizuki_render_left_sidebar' ) ) {
 				mizuki_widget_close();
 			}
 
-			// 分类(桌面端由右侧栏显示,此处仅移动/平板可见)。
-			mizuki_categories_widget( 'lg:hidden' );
-
 			// 标签。
 			mizuki_left_tags_widget();
 			?>
@@ -214,27 +211,23 @@ if ( ! function_exists( 'mizuki_left_tags_widget' ) ) {
 
 if ( ! function_exists( 'mizuki_render_right_sidebar' ) ) {
 	/**
-	 * 输出右侧边栏(第 3 栏):站点统计 + 日历 + 分类。
+	 * 输出右侧边栏(第 3 栏,仅 ≥1280px 显示):站点统计 + 日历 + 分类。
 	 *
-	 * 关键结构(对照上游 MainGridLayout):外层 .right-sidebar-container 带
-	 * hidden md:hidden lg:block + 栅格定位类(lg:col-start-3 lg:col-end-4 lg:col-span-1),
-	 * 由 mizuki-overrides.css 的 .right-sidebar-container{display:contents} 退化为 contents,
-	 * 使外层不占格子、内部 #right-sidebar 落到指定列。内层 #right-sidebar 不带 hidden/lg:block
-	 * 显隐类(显隐全靠外层),故 768-1279px(2 列网格)右栏仍可见 —— 这正是上游行为;
-	 * 之前移植时把两层合并成单层 #right-sidebar.hidden.lg:block,导致 <1280px 右栏塌掉、
-	 * 主内容铺满整行(用户在 1024-1279px 桌面模式访问看不到右栏的根因)。
+	 * 与上游 MainGridLayout 一致:右栏整体只在 lg(≥1280px) 出现;<1280px 时
+	 * 网格退化为 2 列(左栏 + 主内容),右栏内容不在任何位置显示 —— 上游实测
+	 * 980/1100px 左栏也只有公告/标签,站点统计/日历/分类均不显示。
+	 * 故此处用单层 #right-sidebar.hidden.lg:block 即可,切勿用 display:contents 把
+	 * 内容在 2 列网格下泄漏到左栏下方。
 	 */
 	function mizuki_render_right_sidebar() {
 		?>
-<div class="right-sidebar-container onload-animation hidden md:hidden lg:block lg:self-start lg:h-fit lg:mb-4 lg:col-start-3 lg:col-end-4 lg:col-span-1">
-	<div id="right-sidebar" class="w-full sidebar-column-root">
-		<div id="right-sidebar-sticky" class="transition-all duration-700 flex flex-col w-full gap-4 sticky top-4">
-			<?php
-			mizuki_site_stats_widget();
-			mizuki_calendar_widget();
-			mizuki_categories_widget();
-			?>
-		</div>
+<div id="right-sidebar" class="w-full sidebar-column-root hidden lg:block">
+	<div id="right-sidebar-sticky" class="transition-all duration-700 flex flex-col w-full gap-4 sticky top-4">
+		<?php
+		mizuki_site_stats_widget();
+		mizuki_calendar_widget();
+		mizuki_categories_widget();
+		?>
 	</div>
 </div>
 		<?php

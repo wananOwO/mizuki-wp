@@ -7,10 +7,11 @@
 
 defined( 'ABSPATH' ) || exit;
 
-// 资源缓存版本:改 CSS/JS 时 +1,使浏览器丢弃旧缓存。本次修复 768-1279px 右侧栏
-// 塌掉(右栏容器结构对齐上游 MainGridLayout + mizuki-overrides 新增 display:contents 规则),
-// 必须递增,否则用户会用旧缓存的 overrides CSS 看不到修复。
-define( 'MIZUKI_VERSION', '0.4.4' );
+// 资源缓存版本:改 CSS/JS 时 +1,使浏览器丢弃旧缓存。本次回退 v1.0.5 的错误修复
+// (display:contents 导致右栏内容在 <1280px 泄漏到左栏底部),改回上游单层结构:
+// 右栏 #right-sidebar.hidden.lg:block 仅 ≥1280px 显示,左栏移除分类(与上游一致)。
+// 必须递增,否则用户会用旧缓存看到右栏跑到左边。
+define( 'MIZUKI_VERSION', '0.4.5' );
 // 内容结构版本:每次新增页面/改菜单结构时 +1,触发升级迁移(即使主题是覆盖升级)。
 define( 'MIZUKI_CONTENT_VERSION', '2' );
 define( 'MIZUKI_DIR', get_template_directory() );
