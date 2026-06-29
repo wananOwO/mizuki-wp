@@ -366,6 +366,23 @@ if ( ! function_exists( 'mizuki_render_navbar' ) ) {
 			       class="w-full accent-[var(--primary)]" />
 		</div>
 		<?php endif; ?>
+		<!-- Banner Mode Toggle -->
+		<div class="config-item">
+			<div class="config-title-wrapper">
+				<div class="text-90 text-sm font-bold"><?php esc_html_e( 'Banner 模式', 'mizuki' ); ?></div>
+			</div>
+			<div class="config-range-wrapper flex gap-2 mt-2">
+				<button id="banner-mode-fullscreen" class="banner-mode-btn flex-1 py-2 px-3 rounded-lg text-sm transition" data-mode="fullscreen">
+					<?php esc_html_e( '全屏', 'mizuki' ); ?>
+				</button>
+				<button id="banner-mode-banner" class="banner-mode-btn flex-1 py-2 px-3 rounded-lg text-sm transition" data-mode="banner">
+					<?php esc_html_e( '横幅', 'mizuki' ); ?>
+				</button>
+				<button id="banner-mode-off" class="banner-mode-btn flex-1 py-2 px-3 rounded-lg text-sm transition" data-mode="off">
+					<?php esc_html_e( '关闭', 'mizuki' ); ?>
+				</button>
+			</div>
+		</div>
 	</div>
 	<!-- 搜索面板(移动/平板端,点击 #search-switch 弹出) -->
 	<div id="search-panel" class="float-panel float-panel-closed fixed left-4 right-4 top-[5.25rem] md:w-[30rem] md:left-[unset] z-50 shadow-2xl rounded-2xl p-2">

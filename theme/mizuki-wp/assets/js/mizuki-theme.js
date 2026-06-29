@@ -37,6 +37,28 @@
   var storedHue = getStoredHue();
   if (storedHue !== null) { setHue(storedHue); }
 
+  // === Banner 显示模式 ===
+  var BANNER_MODE_KEY = 'bannerMode';
+  function getStoredBannerMode() {
+    return localStorage.getItem(BANNER_MODE_KEY) || 'banner';
+  }
+  function setBannerMode(mode) {
+    var body = document.body;
+    body.classList.remove('enable-banner', 'fullscreen-banner', 'no-banner-mode');
+
+    if (mode === 'fullscreen') {
+      body.classList.add('enable-banner', 'fullscreen-banner');
+    } else if (mode === 'banner') {
+      body.classList.add('enable-banner');
+    } else if (mode === 'off') {
+      body.classList.add('no-banner-mode');
+    }
+
+    localStorage.setItem(BANNER_MODE_KEY, mode);
+  }
+  // Apply stored mode on load
+  setBannerMode(getStoredBannerMode());
+
   // === DOMContentLoaded ===
   document.addEventListener('DOMContentLoaded', function () {
     // 导航栏滚动透明切换(semifull:顶部透明,滚动后磨砂卡片背景)。
@@ -77,6 +99,24 @@
     if (panelSlider) {
       panelSlider.value = getStoredHue() || panelSlider.dataset.default || '240';
       panelSlider.addEventListener('input', function () { setHue(this.value); });
+    }
+
+    // === Banner 显示模式切换按钮 ===
+    var bannerModeBtns = document.querySelectorAll('.banner-mode-btn');
+    if (bannerModeBtns.length) {
+      var currentBannerMode = getStoredBannerMode();
+      for (var i = 0; i < bannerModeBtns.length; i++) {
+        if (bannerModeBtns[i].dataset.mode === currentBannerMode) {
+          bannerModeBtns[i].classList.add('active');
+        }
+        bannerModeBtns[i].addEventListener('click', function() {
+          for (var j = 0; j < bannerModeBtns.length; j++) {
+            bannerModeBtns[j].classList.remove('active');
+          }
+          this.classList.add('active');
+          setBannerMode(this.dataset.mode);
+        });
+      }
     }
 
     // === 通用面板切换函数 ===

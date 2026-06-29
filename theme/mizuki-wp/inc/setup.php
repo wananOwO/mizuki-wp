@@ -144,7 +144,15 @@ add_action( 'wp_head', 'mizuki_output_hue', 1 );
  * 始终启用 banner(与 Mizuki 默认 wallpaperMode="banner" 一致,内置默认 banner 图)。
  */
 function mizuki_body_classes( $classes ) {
-	$classes[] = 'enable-banner';
+	$mode = get_theme_mod( 'mizuki_banner_mode', 'banner' );
+	if ( 'fullscreen' === $mode ) {
+		$classes[] = 'enable-banner';
+		$classes[] = 'fullscreen-banner';
+	} elseif ( 'banner' === $mode ) {
+		$classes[] = 'enable-banner';
+	} elseif ( 'off' === $mode ) {
+		$classes[] = 'no-banner-mode';
+	}
 	$classes[] = 'enable-card-border';
 	return $classes;
 }

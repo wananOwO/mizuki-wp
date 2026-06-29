@@ -37,6 +37,21 @@ function mizuki_customize_register( $wp_customize ) {
 		'section' => 'mizuki_banner',
 		'type'    => 'text',
 	) );
+	$wp_customize->add_setting( 'mizuki_banner_mode', array(
+		'default'           => 'banner',
+		'sanitize_callback' => 'sanitize_text_field',
+	) );
+	$wp_customize->add_control( 'mizuki_banner_mode', array(
+		'label'       => __( 'Banner 显示模式', 'mizuki' ),
+		'description' => __( '全屏:100vh | 横幅:60vh(默认) | 关闭:隐藏', 'mizuki' ),
+		'section'     => 'mizuki_banner',
+		'type'        => 'select',
+		'choices'     => array(
+			'fullscreen' => __( '全屏', 'mizuki' ),
+			'banner'     => __( '横幅(默认)', 'mizuki' ),
+			'off'        => __( '关闭', 'mizuki' ),
+		),
+	) );
 
 	// === 主题色 ===
 	$wp_customize->add_section( 'mizuki_color', array(
