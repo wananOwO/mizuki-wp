@@ -52,6 +52,20 @@ function mizuki_customize_register( $wp_customize ) {
 			'off'        => __( '关闭', 'mizuki' ),
 		),
 	) );
+	$wp_customize->add_setting( 'mizuki_layout_mode', array(
+		'default'           => 'list',
+		'sanitize_callback' => 'sanitize_text_field',
+	) );
+	$wp_customize->add_control( 'mizuki_layout_mode', array(
+		'label'       => __( '布局模式', 'mizuki' ),
+		'description' => __( '列表:三栏布局 | 网格:侧栏小部件横向展开', 'mizuki' ),
+		'section'     => 'mizuki_banner',
+		'type'        => 'select',
+		'choices'     => array(
+			'list' => __( '列表(默认)', 'mizuki' ),
+			'grid' => __( '网格', 'mizuki' ),
+		),
+	) );
 
 	// === 主题色 ===
 	$wp_customize->add_section( 'mizuki_color', array(

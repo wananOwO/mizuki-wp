@@ -383,6 +383,20 @@ if ( ! function_exists( 'mizuki_render_navbar' ) ) {
 				</button>
 			</div>
 		</div>
+		<!-- Layout Mode Toggle -->
+		<div class="config-item">
+			<div class="config-title-wrapper">
+				<div class="text-90 text-sm font-bold"><?php esc_html_e( '布局模式', 'mizuki' ); ?></div>
+			</div>
+			<div class="config-range-wrapper flex gap-2 mt-2">
+				<button id="layout-mode-list" class="layout-mode-btn flex-1 py-2 px-3 rounded-lg text-sm transition" data-mode="list">
+					<?php esc_html_e( '列表', 'mizuki' ); ?>
+				</button>
+				<button id="layout-mode-grid" class="layout-mode-btn flex-1 py-2 px-3 rounded-lg text-sm transition" data-mode="grid">
+					<?php esc_html_e( '网格', 'mizuki' ); ?>
+				</button>
+			</div>
+		</div>
 	</div>
 	<!-- 搜索面板(移动/平板端,点击 #search-switch 弹出) -->
 	<div id="search-panel" class="float-panel float-panel-closed fixed left-4 right-4 top-[5.25rem] md:w-[30rem] md:left-[unset] z-50 shadow-2xl rounded-2xl p-2">

@@ -13,3 +13,16 @@
 	border-color: var(--primary);
 	color: var(--primary);
 }
+.layout-mode-btn {
+	background: var(--btn-plain-bg);
+	color: var(--btn-content);
+	border: 1px solid transparent;
+}
+.layout-mode-btn:hover {
+	background: var(--btn-regular-bg);
+}
+.layout-mode-btn.active {
+	background: var(--btn-card-bg);
+	border-color: var(--primary);
+	color: var(--primary);
+}

@@ -59,6 +59,22 @@
   // Apply stored mode on load
   setBannerMode(getStoredBannerMode());
 
+  // === 布局模式(Grid/List)===
+  var LAYOUT_MODE_KEY = 'layoutMode';
+  function getStoredLayoutMode() {
+    return localStorage.getItem(LAYOUT_MODE_KEY) || 'list';
+  }
+  function setLayoutMode(mode) {
+    var mainGrid = document.getElementById('main-grid');
+    if (mainGrid) {
+      mainGrid.setAttribute('data-layout-mode', mode);
+    }
+    localStorage.setItem(LAYOUT_MODE_KEY, mode);
+  }
+  // Apply stored mode on load
+  var storedLayoutMode = getStoredLayoutMode();
+  setLayoutMode(storedLayoutMode);
+
   // === DOMContentLoaded ===
   document.addEventListener('DOMContentLoaded', function () {
     // 导航栏滚动透明切换(semifull:顶部透明,滚动后磨砂卡片背景)。
@@ -115,6 +131,24 @@
           }
           this.classList.add('active');
           setBannerMode(this.dataset.mode);
+        });
+      }
+    }
+
+    // === 布局模式切换按钮 ===
+    var layoutModeBtns = document.querySelectorAll('.layout-mode-btn');
+    if (layoutModeBtns.length) {
+      var currentLayoutMode = getStoredLayoutMode();
+      for (var i = 0; i < layoutModeBtns.length; i++) {
+        if (layoutModeBtns[i].dataset.mode === currentLayoutMode) {
+          layoutModeBtns[i].classList.add('active');
+        }
+        layoutModeBtns[i].addEventListener('click', function() {
+          for (var j = 0; j < layoutModeBtns.length; j++) {
+            layoutModeBtns[j].classList.remove('active');
+          }
+          this.classList.add('active');
+          setLayoutMode(this.dataset.mode);
         });
       }
     }

@@ -32,7 +32,7 @@ $mz_banner_inner = mizuki_get_theme_mod( 'mizuki_banner_height', '35vh' );
 <!-- 主内容网格 -->
 <div class="absolute w-full z-30 pointer-events-none<?php echo ( ! is_front_page() ) ? ' mobile-main-no-banner' : ''; ?>" style="top: 35vh" data-astro-cid-haiuh7kc>
 	<div class="relative max-w-(--page-width) mx-auto pointer-events-auto" data-astro-cid-haiuh7kc>
-		<div id="main-grid" class="transition duration-700 w-full left-0 right-0 grid grid-cols-1 md:grid-cols-[17.5rem_1fr] lg:grid-cols-[17.5rem_1fr_17.5rem] grid-rows-none md:grid-rows-[auto] mx-auto gap-4 px-2 md:px-4 mobile-both-sidebar" data-layout-mode="list">
+		<div id="main-grid" class="transition duration-700 w-full left-0 right-0 grid grid-cols-1 md:grid-cols-[17.5rem_1fr] lg:grid-cols-[17.5rem_1fr_17.5rem] grid-rows-none md:grid-rows-[auto] mx-auto gap-4 px-2 md:px-4 mobile-both-sidebar" data-layout-mode="<?php echo esc_attr( get_theme_mod( 'mizuki_layout_mode', 'list' ) ); ?>">
 			<?php mizuki_render_left_sidebar(); ?>
 
 			<main id="swup-container" class="transition-main">
