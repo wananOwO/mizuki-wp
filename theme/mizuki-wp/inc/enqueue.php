@@ -194,6 +194,9 @@ function mizuki_enqueue_scripts() {
 		mizuki_enqueue_script_if_exists( 'mizuki-theme', 'mizuki-theme.js' );
 	}
 
+	// Banner 轮播: 全站加载(首页 + 内页均显示 banner)
+	mizuki_enqueue_script_if_exists( 'mizuki-banner-carousel', 'banner-carousel.js' );
+
 	// 标签过滤功能: 仅特色页加载
 	if ( mizuki_is_feature_page() ) {
 		mizuki_enqueue_script_if_exists( 'mizuki-filter', 'filter-handler.js' );

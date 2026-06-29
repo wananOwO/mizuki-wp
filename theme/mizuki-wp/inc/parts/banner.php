@@ -58,14 +58,17 @@ if ( ! function_exists( 'mizuki_render_banner' ) ) {
 	 * 输出 Mizuki Banner。
 	 */
 	function mizuki_render_banner() {
-		$imgs        = mizuki_banner_images();
-		$desktop     = $imgs['desktop'];
-		$mobile      = $imgs['mobile'];
-		$mobile_hide = ( ! is_front_page() ) ? ' mobile-hide-banner' : '';
+		$imgs              = mizuki_banner_images();
+		$desktop           = $imgs['desktop'];
+		$mobile            = $imgs['mobile'];
+		$mobile_hide       = ( ! is_front_page() ) ? ' mobile-hide-banner' : '';
+		$carousel_enabled  = get_theme_mod( 'mizuki_banner_carousel_enabled', true );
+		$carousel_interval = get_theme_mod( 'mizuki_banner_carousel_interval', 3000 );
+		$fade_duration     = get_theme_mod( 'mizuki_banner_fade_duration', 1200 );
 		?>
 <!-- Banner 大图区域 -->
 <div id="banner-wrapper" class="absolute z-10 w-full transition duration-700 overflow-hidden<?php echo esc_attr( $mobile_hide ); ?>" style="top: -30vh" data-astro-cid-3tcy46xc>
-	<div id="banner-carousel" class="relative h-full w-full" data-mobile-count="<?php echo count( $mobile ); ?>" data-desktop-count="<?php echo count( $desktop ); ?>" data-carousel-interval="3000" data-fade-ms="1200" data-astro-cid-3tcy46xc>
+	<div id="banner-carousel" class="relative h-full w-full" data-mobile-count="<?php echo count( $mobile ); ?>" data-desktop-count="<?php echo count( $desktop ); ?>" data-carousel-interval="<?php echo esc_attr( $carousel_interval ); ?>" data-fade-ms="<?php echo esc_attr( $fade_duration ); ?>" data-carousel-enabled="<?php echo $carousel_enabled ? '1' : '0'; ?>" data-astro-cid-3tcy46xc>
 		<div class="banner-image-slot-mobile absolute inset-0 block md:hidden" data-astro-cid-3tcy46xc>
 			<?php mizuki_banner_slide( $mobile[0], 'Mobile banner image 1' ); ?>
 		</div>

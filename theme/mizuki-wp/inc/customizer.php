@@ -67,6 +67,41 @@ function mizuki_customize_register( $wp_customize ) {
 		),
 	) );
 
+	// === Banner 轮播 ===
+	$wp_customize->add_setting( 'mizuki_banner_carousel_enabled', array(
+		'default'           => true,
+		'sanitize_callback' => 'wp_validate_boolean',
+	) );
+	$wp_customize->add_control( 'mizuki_banner_carousel_enabled', array(
+		'label'   => __( '启用 Banner 轮播', 'mizuki' ),
+		'section' => 'mizuki_banner',
+		'type'    => 'checkbox',
+	) );
+
+	$wp_customize->add_setting( 'mizuki_banner_carousel_interval', array(
+		'default'           => 3000,
+		'sanitize_callback' => 'absint',
+	) );
+	$wp_customize->add_control( 'mizuki_banner_carousel_interval', array(
+		'label'       => __( '轮播间隔(毫秒)', 'mizuki' ),
+		'description' => __( '每张图显示时长,默认 3000ms (3秒)', 'mizuki' ),
+		'section'     => 'mizuki_banner',
+		'type'        => 'number',
+		'input_attrs' => array( 'min' => 1000, 'max' => 10000, 'step' => 100 ),
+	) );
+
+	$wp_customize->add_setting( 'mizuki_banner_fade_duration', array(
+		'default'           => 1200,
+		'sanitize_callback' => 'absint',
+	) );
+	$wp_customize->add_control( 'mizuki_banner_fade_duration', array(
+		'label'       => __( '淡入淡出时长(毫秒)', 'mizuki' ),
+		'description' => __( '图片切换动画时长,默认 1200ms', 'mizuki' ),
+		'section'     => 'mizuki_banner',
+		'type'        => 'number',
+		'input_attrs' => array( 'min' => 300, 'max' => 3000, 'step' => 100 ),
+	) );
+
 	// === 主题色 ===
 	$wp_customize->add_section( 'mizuki_color', array(
 		'title'    => __( '主题色', 'mizuki' ),
