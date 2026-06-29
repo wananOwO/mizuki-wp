@@ -27,27 +27,49 @@
 
     var currentIndex = 0;
 
+    function makeSlide(index) {
+      var content = templates[index].content.cloneNode(true);
+      var slide = content.firstElementChild;
+      return slide;
+    }
+
+    function applyKenBurns(slide) {
+      var inner = slide.querySelector('.object-cover');
+      if (inner) {
+        inner.classList.add('banner-kb');
+      }
+    }
+
+    // 初始化:从 templates[0] 克隆首图填入空 slot,使其立即可见。
+    var firstSlide = makeSlide(0);
+    firstSlide.style.opacity = '1';
+    firstSlide.style.position = 'absolute';
+    firstSlide.style.inset = '0';
+    applyKenBurns(firstSlide);
+    slot.appendChild(firstSlide);
+    currentIndex = 1; // 下一次切换到 image #2
+
     function nextSlide() {
+      if (templates.length < 2) return; // 单图不轮播
+
       var oldSlide = slot.firstElementChild;
-      if (!oldSlide) return;
+      if (!oldSlide) {
+        currentIndex = 0;
+        return;
+      }
 
-      // 克隆下一张图片的 template 内容
-      var newContent = templates[currentIndex].content.cloneNode(true);
-      var newSlide = newContent.firstElementChild;
+      // 克隆下一张图片。
+      var newSlide = makeSlide(currentIndex);
 
-      // 初始化:透明 + 准备 Ken Burns 动画
+      // 初始化:透明 + Ken Burns 动画。
       newSlide.style.opacity = '0';
       newSlide.style.position = 'absolute';
       newSlide.style.inset = '0';
-
-      var newInner = newSlide.querySelector('.object-cover');
-      if (newInner) {
-        newInner.classList.add('banner-kb');
-      }
+      applyKenBurns(newSlide);
 
       slot.appendChild(newSlide);
 
-      // 淡入新图,淡出旧图
+      // 淡入新图,淡出旧图。
       setTimeout(function() {
         newSlide.style.transition = 'opacity ' + fadeMs + 'ms ease-in-out';
         newSlide.style.opacity = '1';
@@ -55,7 +77,7 @@
         oldSlide.style.opacity = '0';
       }, 50);
 
-      // 移除旧图
+      // 移除旧图。
       setTimeout(function() {
         if (oldSlide.parentNode === slot) {
           slot.removeChild(oldSlide);

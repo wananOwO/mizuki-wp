@@ -69,21 +69,18 @@ if ( ! function_exists( 'mizuki_render_banner' ) ) {
 <!-- Banner 大图区域 -->
 <div id="banner-wrapper" class="absolute z-10 w-full transition duration-700 overflow-hidden<?php echo esc_attr( $mobile_hide ); ?>" style="top: -30vh" data-astro-cid-3tcy46xc>
 	<div id="banner-carousel" class="relative h-full w-full" data-mobile-count="<?php echo count( $mobile ); ?>" data-desktop-count="<?php echo count( $desktop ); ?>" data-carousel-interval="<?php echo esc_attr( $carousel_interval ); ?>" data-fade-ms="<?php echo esc_attr( $fade_duration ); ?>" data-carousel-enabled="<?php echo $carousel_enabled ? '1' : '0'; ?>" data-astro-cid-3tcy46xc>
-		<div class="banner-image-slot-mobile absolute inset-0 block md:hidden" data-astro-cid-3tcy46xc>
-			<?php mizuki_banner_slide( $mobile[0], 'Mobile banner image 1' ); ?>
-		</div>
+		<div class="banner-image-slot-mobile absolute inset-0 block md:hidden" data-astro-cid-3tcy46xc><!-- 首图由 banner-carousel.js 从 template 克隆填充 --></div>
 		<?php
-		foreach ( array_slice( $mobile, 1 ) as $i => $src ) :
+		foreach ( $mobile as $i => $src ) :
 			?>
-			<template class="banner-tpl-mobile" data-astro-cid-3tcy46xc><?php mizuki_banner_slide( $src, 'Mobile banner image ' . ( $i + 2 ) ); ?></template>
+			<template class="banner-tpl-mobile" data-astro-cid-3tcy46xc><?php mizuki_banner_slide( $src, 'Mobile banner image ' . ( $i + 1 ) ); ?></template>
 		<?php endforeach; ?>
-		<div class="banner-image-slot-desktop absolute inset-0 hidden md:block" data-astro-cid-3tcy46xc>
-			<?php mizuki_banner_slide( $desktop[0], 'Desktop banner image 1', 'banner' ); ?>
-		</div>
+		<div class="banner-image-slot-desktop absolute inset-0 hidden md:block" data-astro-cid-3tcy46xc><!-- 首图由 banner-carousel.js 从 template 克隆填充 --></div>
 		<?php
-		foreach ( array_slice( $desktop, 1 ) as $i => $src ) :
+		foreach ( $desktop as $i => $src ) :
+			$wrap_id = ( 0 === $i ) ? 'banner' : '';
 			?>
-			<template class="banner-tpl-desktop" data-astro-cid-3tcy46xc><?php mizuki_banner_slide( $src, 'Desktop banner image ' . ( $i + 2 ) ); ?></template>
+			<template class="banner-tpl-desktop" data-astro-cid-3tcy46xc><?php mizuki_banner_slide( $src, 'Desktop banner image ' . ( $i + 1 ), $wrap_id ); ?></template>
 		<?php endforeach; ?>
 	</div>
 
