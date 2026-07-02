@@ -10,7 +10,12 @@ get_header();
 <main id="main" class="post-list onload-animation">
 	<?php if ( have_posts() ) : ?>
 	<?php mizuki_category_bar(); ?>
-	<div id="post-list-container" class="post-list-container transition-all duration-500 ease-in-out rounded-[var(--radius-large)] bg-[var(--card-bg)] md:bg-transparent mb-4 list-mode" data-both-sidebars="true" style="--coverWidth: 28%;">
+	<?php
+	// 初始布局模式 class:与 header.php 中 data-layout-mode 默认值保持一致。
+	$default_layout_mode = get_theme_mod( 'mizuki_layout_mode', 'list' );
+	$initial_list_class  = ( 'grid' === $default_layout_mode ) ? 'grid-mode' : 'list-mode';
+	?>
+	<div id="post-list-container" class="post-list-container transition-all duration-500 ease-in-out rounded-[var(--radius-large)] bg-[var(--card-bg)] md:bg-transparent mb-4 <?php echo esc_attr( $initial_list_class ); ?>" data-both-sidebars="true" style="--coverWidth: 28%;">
 		<?php while ( have_posts() ) : the_post();
 			$has_cover = has_post_thumbnail();
 			$wc        = str_word_count( wp_strip_all_tags( get_the_content() ) );

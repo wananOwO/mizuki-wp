@@ -69,6 +69,13 @@
     if (mainGrid) {
       mainGrid.setAttribute('data-layout-mode', mode);
     }
+    // 同步切换 post-list-container 的 list-mode/grid-mode class,
+    // 触发 mizuki-layout-modes.css 中的网格布局规则。
+    var postList = document.getElementById('post-list-container');
+    if (postList) {
+      postList.classList.remove('list-mode', 'grid-mode');
+      postList.classList.add(mode === 'grid' ? 'grid-mode' : 'list-mode');
+    }
     localStorage.setItem(LAYOUT_MODE_KEY, mode);
   }
   // Apply stored mode on load

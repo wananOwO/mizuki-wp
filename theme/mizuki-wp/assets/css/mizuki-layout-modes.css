@@ -1,0 +1,194 @@
+/**
+ * Mizuki 布局模式修正 —— 全屏模式 + 网格模式
+ *
+ * 对齐上游 Mizuki (https://github.com/LyraVoid/Mizuki) 的布局行为:
+ * 1. 全屏模式 (fullscreen): banner 作为全屏背景,主内容区 top:0 直接呈现文章
+ * 2. 网格模式 (grid): 文章列表变 2×2 网格,保留右侧边栏
+ *
+ * 必须在 mizuki-main.css 之后加载以覆盖相关规则。
+ *
+ * @package Mizuki
+ */
+
+/* ============================================================
+ * 问题一:全屏模式 (fullscreen-banner)
+ * 对齐上游 getMainPanelTop("fullscreen") = "0"
+ * banner 作为 fixed 全屏背景(z-index:0),主内容区贴顶(z-index:30)
+ * ============================================================ */
+
+/* 全屏模式下 banner 作为固定全屏背景 */
+body.fullscreen-banner #banner-wrapper {
+	position: fixed !important;
+	top: 0 !important;
+	left: 0 !important;
+	height: 100vh !important;
+	max-height: 100vh !important;
+	z-index: 0 !important;
+}
+
+/* 全屏模式下隐藏 banner 底部水波纹(全屏背景不需要) */
+body.fullscreen-banner #header-waves {
+	display: none !important;
+}
+
+/* 全屏模式下主内容区贴顶,覆盖 header.php 内联 top 与 banner.css 的 35vh 规则 */
+body.fullscreen-banner .absolute.w-full.z-30 {
+	top: 0 !important;
+}
+
+/* 全屏模式下 navbar 提到最上层(z-index 高于 banner 背景) */
+body.fullscreen-banner #top-row {
+	z-index: 50 !important;
+	position: relative !important;
+}
+
+/* 全屏模式下内容区背景半透明 + 毛玻璃,保证文字可读性 */
+body.fullscreen-banner #main-grid {
+	background-color: transparent !important;
+}
+
+body.fullscreen-banner #swup-container,
+body.fullscreen-banner #content-wrapper {
+	background-color: transparent !important;
+}
+
+/* 全屏模式下卡片用半透明 + 毛玻璃效果,让背景图透出 */
+body.fullscreen-banner .card-base {
+	background-color: var(--card-bg-transparent, rgba(255, 255, 255, 0.82)) !important;
+	backdrop-filter: blur(8px) !important;
+	-webkit-backdrop-filter: blur(8px) !important;
+}
+
+/* 全屏模式下页面整体背景透明,露出 fixed banner */
+body.fullscreen-banner {
+	background-color: transparent !important;
+}
+
+body.fullscreen-banner #page-bg,
+body.fullscreen-banner .bg-\[var\(--page-bg\)\] {
+	background-color: transparent !important;
+}
+
+/* 全屏模式下非首页也显示 banner 背景(上游 fullscreen 是全站背景) */
+body.fullscreen-banner #banner-wrapper.mobile-hide-banner {
+	display: block !important;
+}
+
+/* 全屏模式下移动端非首页内容区也贴顶 */
+@media (max-width: 767px) {
+	body.fullscreen-banner .absolute.w-full.z-30.mobile-main-no-banner {
+		top: 0 !important;
+	}
+}
+
+/* ============================================================
+ * 问题二:网格模式 (grid-mode) — 文章列表 2×2 网格
+ * 对齐上游 .post-list-container.grid-mode 在 ≥769px 变 2 列网格
+ * 与上游不同:本移植版保留右侧边栏(用户明确要求)
+ * ============================================================ */
+
+/* 网格模式下文章列表容器变 2 列 grid (≥769px) */
+@media (min-width: 769px) {
+	#post-list-container.grid-mode {
+		display: grid !important;
+		grid-template-columns: repeat(2, 1fr) !important;
+		gap: 1rem !important;
+		flex-direction: row !important;
+		background: transparent !important;
+		padding: 0 !important;
+	}
+
+	/* 网格模式下文章卡片宽度 100%,间距统一 */
+	#post-list-container.grid-mode .post-card-item {
+		width: 100% !important;
+		margin-bottom: 0 !important;
+	}
+
+	/* 网格模式下卡片改垂直布局:封面在上,文字在下 */
+	#post-list-container.grid-mode .post-card-item {
+		flex-direction: column !important;
+	}
+
+	/* 封面图:从 absolute 改为 relative,占满卡片宽度,固定高度 */
+	#post-list-container.grid-mode .post-card-item > a[class*="md:absolute"] {
+		position: relative !important;
+		width: 100% !important;
+		max-width: 100% !important;
+		max-height: 14rem !important;
+		top: auto !important;
+		bottom: auto !important;
+		right: auto !important;
+		left: auto !important;
+		margin: 0 !important;
+		border-radius: 0 !important;
+		min-height: 10rem;
+	}
+
+	/* 文字区:占满宽度 */
+	#post-list-container.grid-mode .post-card-item > .pl-6,
+	#post-list-container.grid-mode .post-card-item > div[class*="md:w-[72%"],
+	#post-list-container.grid-mode .post-card-item > div[class*="md:w-[calc"] {
+		width: 100% !important;
+		padding: 1.25rem !important;
+	}
+
+	/* 标题字号略小,2 行截断 */
+	#post-list-container.grid-mode .post-card-item a[href] {
+		font-size: 1.125rem !important;
+		line-height: 1.5rem !important;
+		display: -webkit-box !important;
+		-webkit-line-clamp: 2 !important;
+		-webkit-box-orient: vertical !important;
+		overflow: hidden !important;
+	}
+
+	/* 摘要 2 行截断 */
+	#post-list-container.grid-mode .post-card-item .line-clamp-2,
+	#post-list-container.grid-mode .post-card-item .description {
+		-webkit-line-clamp: 2 !important;
+		-webkit-box-orient: vertical !important;
+		margin-bottom: 0.5rem !important;
+		font-size: 0.875rem !important;
+		line-height: 1.25rem !important;
+		display: -webkit-box !important;
+		overflow: hidden !important;
+	}
+
+	/* 元信息更紧凑 */
+	#post-list-container.grid-mode .post-card-item .meta-icon {
+		font-size: 0.75rem !important;
+	}
+
+	/* 隐藏移动端分隔线(网格模式下不需要) */
+	#post-list-container.grid-mode > .border-t-\[1px\],
+	#post-list-container.grid-mode > div[class*="border-dashed"] {
+		display: none !important;
+	}
+}
+
+/* 移动端(≤768px)网格模式退化为单列 */
+@media (max-width: 768px) {
+	#post-list-container.grid-mode {
+		display: flex !important;
+		flex-direction: column !important;
+		grid-template-columns: 1fr !important;
+		gap: 0.5rem !important;
+	}
+}
+
+/* 网格模式下 main-grid 保留 3 列布局(左栏 + 主内容 + 右栏)
+ * 上游默认会隐藏右栏,但本移植版按用户要求保留右栏 */
+#main-grid[data-layout-mode="grid"] {
+	/* 不覆盖 grid-template-columns,保留 header.php 中的 3 列定义 */
+}
+
+/* 确保网格模式下右栏不被隐藏(覆盖上游可能存在的 hidden-in-grid-mode) */
+.right-sidebar-container.hidden-in-grid-mode,
+#right-sidebar.hidden-in-grid-mode {
+	display: block !important;
+}
+
+/* 网格模式下列表与网格容器过渡动画 */
+#post-list-container {
+	transition: all 0.3s ease-in-out;
+}
