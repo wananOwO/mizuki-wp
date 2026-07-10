@@ -16,13 +16,50 @@
  * banner 作为 fixed 全屏背景(z-index:0),主内容区贴顶(z-index:30)
  * ============================================================ */
 
+/* Overlay uses an independent fixed wallpaper, matching upstream FullscreenWallpaper. */
+[data-fullscreen-wallpaper] {
+	position: fixed;
+	inset: 0;
+	display: none;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	pointer-events: none;
+	z-index: 0;
+	opacity: var(--wallpaper-opacity, 0.8);
+	filter: blur(var(--wallpaper-blur, 1.5px));
+	transform: translateZ(0);
+}
+
+body.overlay-wallpaper [data-fullscreen-wallpaper] {
+	display: block !important;
+}
+
+[data-fullscreen-wallpaper] .banner-image-slot-mobile,
+[data-fullscreen-wallpaper] .banner-image-slot-desktop,
+[data-fullscreen-wallpaper] img {
+	width: 100%;
+	height: 100%;
+}
+
+[data-fullscreen-wallpaper] img {
+	object-fit: cover;
+}
+
+body.overlay-wallpaper,
+body.overlay-wallpaper #page-bg,
+body.overlay-wallpaper .bg-\[var\(--page-bg\)\] {
+	background-color: transparent !important;
+}
+
 /* 全屏模式下 banner 作为固定全屏背景 */
-body.fullscreen-banner #banner-wrapper {
+body.enable-banner.fullscreen-banner #banner-wrapper.w-full {
 	position: fixed !important;
 	top: 0 !important;
 	left: 0 !important;
 	height: 100vh !important;
 	max-height: 100vh !important;
+	transform: none !important;
 	z-index: 0 !important;
 }
 
@@ -31,15 +68,28 @@ body.fullscreen-banner #header-waves {
 	display: none !important;
 }
 
+/* Fullscreen wallpaper mode shows content immediately, without hero copy. */
+body.fullscreen-banner .banner-text-overlay,
+body.fullscreen-banner .banner-page-overlay {
+	display: none !important;
+}
+
 /* 全屏模式下主内容区贴顶,覆盖 header.php 内联 top 与 banner.css 的 35vh 规则 */
-body.fullscreen-banner .absolute.w-full.z-30 {
+body.enable-banner.fullscreen-banner .absolute.w-full.z-30:not(.no-banner-layout) {
+	position: absolute !important;
 	top: 0 !important;
+	margin-top: 0 !important;
+	min-height: 0 !important;
+}
+
+/* Keep the first-row cards below the fixed navbar while remaining in view. */
+body.enable-banner.fullscreen-banner .absolute.w-full.z-30:not(.no-banner-layout) > .relative {
+	padding-top: 5.5rem;
 }
 
 /* 全屏模式下 navbar 提到最上层(z-index 高于 banner 背景) */
 body.fullscreen-banner #top-row {
 	z-index: 50 !important;
-	position: relative !important;
 }
 
 /* 全屏模式下内容区背景半透明 + 毛玻璃,保证文字可读性 */
@@ -74,17 +124,8 @@ body.fullscreen-banner #banner-wrapper.mobile-hide-banner {
 	display: block !important;
 }
 
-/* 全屏模式下移动端非首页内容区也贴顶 */
-@media (max-width: 767px) {
-	body.fullscreen-banner .absolute.w-full.z-30.mobile-main-no-banner {
-		top: 0 !important;
-	}
-}
-
 /* ============================================================
- * 问题二:网格模式 (grid-mode) — 文章列表 2×2 网格
- * 对齐上游 .post-list-container.grid-mode 在 ≥769px 变 2 列网格
- * 与上游不同:本移植版保留右侧边栏(用户明确要求)
+ * Grid mode: two-column post cards and upstream desktop sidebar geometry.
  * ============================================================ */
 
 /* 网格模式下文章列表容器变 2 列 grid (≥769px) */
@@ -111,6 +152,8 @@ body.fullscreen-banner #banner-wrapper.mobile-hide-banner {
 
 	/* 封面图:从 absolute 改为 relative,占满卡片宽度,固定高度 */
 	#post-list-container.grid-mode .post-card-item > a[class*="md:absolute"] {
+		order: -1;
+		display: block !important;
 		position: relative !important;
 		width: 100% !important;
 		max-width: 100% !important;
@@ -122,6 +165,10 @@ body.fullscreen-banner #banner-wrapper.mobile-hide-banner {
 		margin: 0 !important;
 		border-radius: 0 !important;
 		min-height: 10rem;
+		font-size: inherit !important;
+		line-height: normal !important;
+		-webkit-line-clamp: unset !important;
+		-webkit-box-orient: initial !important;
 	}
 
 	/* 文字区:占满宽度 */
@@ -133,13 +180,31 @@ body.fullscreen-banner #banner-wrapper.mobile-hide-banner {
 	}
 
 	/* 标题字号略小,2 行截断 */
-	#post-list-container.grid-mode .post-card-item a[href] {
+	#post-list-container.grid-mode .post-card-item .post-card-title {
 		font-size: 1.125rem !important;
 		line-height: 1.5rem !important;
 		display: -webkit-box !important;
 		-webkit-line-clamp: 2 !important;
 		-webkit-box-orient: vertical !important;
 		overflow: hidden !important;
+	}
+
+	/* Keep category/tag links on their utility sizes; the legacy bundle targets every card link. */
+	#post-list-container.grid-mode .post-card-item a.link-lg {
+		display: inline-block !important;
+		-webkit-line-clamp: unset !important;
+		-webkit-box-orient: initial !important;
+		overflow: visible !important;
+	}
+
+	#post-list-container.grid-mode .post-card-item a.link-lg.text-sm {
+		font-size: var(--text-sm, 0.875rem) !important;
+		line-height: var(--text-sm--line-height, 1.25rem) !important;
+	}
+
+	#post-list-container.grid-mode .post-card-item a.link-lg.text-xs {
+		font-size: var(--text-xs, 0.75rem) !important;
+		line-height: var(--text-xs--line-height, 1rem) !important;
 	}
 
 	/* 摘要 2 行截断 */
@@ -176,16 +241,29 @@ body.fullscreen-banner #banner-wrapper.mobile-hide-banner {
 	}
 }
 
-/* 网格模式下 main-grid 保留 3 列布局(左栏 + 主内容 + 右栏)
- * 上游默认会隐藏右栏,但本移植版按用户要求保留右栏 */
-#main-grid[data-layout-mode="grid"] {
-	/* 不覆盖 grid-template-columns,保留 header.php 中的 3 列定义 */
+/* The wrapper is the grid item, matching upstream MainGridLayout. */
+.right-sidebar-container {
+	align-self: start;
+	display: contents;
 }
 
-/* 确保网格模式下右栏不被隐藏(覆盖上游可能存在的 hidden-in-grid-mode) */
-.right-sidebar-container.hidden-in-grid-mode,
-#right-sidebar.hidden-in-grid-mode {
-	display: block !important;
+.right-sidebar-container #right-sidebar {
+	height: fit-content;
+}
+
+.hidden-in-grid-mode {
+	display: none !important;
+}
+
+/* Grid mode removes the right track and keeps main content in column two. */
+@media (min-width: 1280px) {
+	#main-grid[data-layout-mode="grid"] {
+		grid-template-columns: 17.5rem 1fr !important;
+	}
+
+	#main-grid[data-layout-mode="grid"] #swup-container {
+		grid-column: 2 / 3;
+	}
 }
 
 /* 网格模式下列表与网格容器过渡动画 */

@@ -18,11 +18,11 @@ $mz_banner_inner = mizuki_get_theme_mod( 'mizuki_banner_height', '35vh' );
 // 主内容区顶部位置:对齐上游 getMainPanelTop()。
 // - fullscreen 模式: top=0 (内容贴顶,banner 作为全屏背景在底层显示)
 // - banner 模式:    top=35vh (内容压在 banner 下沿)
-// - off 模式:       top=5.5rem (无 banner,内容紧贴导航栏下方)
+// - overlay/none 模式: top=5.5rem (无 Banner,内容紧贴导航栏下方)
 $mz_banner_mode  = get_theme_mod( 'mizuki_banner_mode', 'banner' );
 if ( 'fullscreen' === $mz_banner_mode ) {
 	$mz_main_top = '0';
-} elseif ( 'off' === $mz_banner_mode ) {
+} elseif ( in_array( $mz_banner_mode, array( 'overlay', 'none', 'off' ), true ) ) {
 	$mz_main_top = '5.5rem';
 } else {
 	$mz_main_top = '35vh';
@@ -37,6 +37,8 @@ if ( 'fullscreen' === $mz_banner_mode ) {
 </head>
 <body <?php body_class(); ?>>
 <?php wp_body_open(); ?>
+
+<?php mizuki_render_fullscreen_wallpaper(); ?>
 
 <?php mizuki_render_navbar(); ?>
 

@@ -146,7 +146,7 @@ if ( ! function_exists( 'mizuki_render_left_sidebar' ) ) {
 			$announcement = mizuki_get_theme_mod( 'mizuki_announcement', __( '欢迎来到我的小站 ✨', 'mizuki' ) );
 			if ( $announcement ) {
 				mizuki_widget_open( __( '公告', 'mizuki' ), 100 );
-				echo '<div class="text-sm text-neutral-700 dark:text-neutral-300 leading-relaxed">' . wp_kses_post( $announcement ) . '</div>';
+				echo '<div class="text-sm text-neutral-700 dark:text-neutral-300 leading-relaxed">' . esc_html( $announcement ) . '</div>';
 				mizuki_widget_close();
 			}
 
@@ -213,21 +213,21 @@ if ( ! function_exists( 'mizuki_render_right_sidebar' ) ) {
 	/**
 	 * 输出右侧边栏(第 3 栏,仅 ≥1280px 显示):站点统计 + 日历 + 分类。
 	 *
-	 * 与上游 MainGridLayout 一致:右栏整体只在 lg(≥1280px) 出现;<1280px 时
-	 * 网格退化为 2 列(左栏 + 主内容),右栏内容不在任何位置显示 —— 上游实测
-	 * 980/1100px 左栏也只有公告/标签,站点统计/日历/分类均不显示。
-	 * 故此处用单层 #right-sidebar.hidden.lg:block 即可,切勿用 display:contents 把
-	 * 内容在 2 列网格下泄漏到左栏下方。
+	 * The wrapper is the grid item so grid mode can hide the entire right column
+	 * without allowing its contents to flow into another track.
 	 */
 	function mizuki_render_right_sidebar() {
+		$hidden_class = ( 'grid' === get_theme_mod( 'mizuki_layout_mode', 'list' ) ) ? ' hidden-in-grid-mode' : '';
 		?>
-<div id="right-sidebar" class="w-full sidebar-column-root hidden lg:block">
-	<div id="right-sidebar-sticky" class="transition-all duration-700 flex flex-col w-full gap-4 sticky top-4">
-		<?php
-		mizuki_site_stats_widget();
-		mizuki_calendar_widget();
-		mizuki_categories_widget();
-		?>
+<div class="right-sidebar-container<?php echo esc_attr( $hidden_class ); ?>">
+	<div id="right-sidebar" class="w-full sidebar-column-root hidden lg:block">
+		<div id="right-sidebar-sticky" class="transition-all duration-700 flex flex-col w-full gap-4 sticky top-4">
+			<?php
+			mizuki_site_stats_widget();
+			mizuki_calendar_widget();
+			mizuki_categories_widget();
+			?>
+		</div>
 	</div>
 </div>
 		<?php

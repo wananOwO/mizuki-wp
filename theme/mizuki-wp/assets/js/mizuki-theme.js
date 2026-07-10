@@ -30,57 +30,254 @@
   // === Hue 调色器 ===
   var HUE_KEY = 'hue';
   function getStoredHue() { return localStorage.getItem(HUE_KEY); }
-  function setHue(hue) {
+  function setHue(hue, persist) {
     document.documentElement.style.setProperty('--hue', String(hue));
-    localStorage.setItem(HUE_KEY, String(hue));
+    if (persist !== false) localStorage.setItem(HUE_KEY, String(hue));
   }
   var storedHue = getStoredHue();
   if (storedHue !== null) { setHue(storedHue); }
 
   // === Banner 显示模式 ===
-  var BANNER_MODE_KEY = 'bannerMode';
-  function getStoredBannerMode() {
-    return localStorage.getItem(BANNER_MODE_KEY) || 'banner';
-  }
-  function setBannerMode(mode) {
-    var body = document.body;
-    body.classList.remove('enable-banner', 'fullscreen-banner', 'no-banner-mode');
+  var WALLPAPER_MODE_KEY = 'wallpaperMode';
+  var POST_LIST_LAYOUT_KEY = 'postListLayout';
+  var OVERLAY_OPACITY_KEY = 'overlayOpacity';
+  var OVERLAY_BLUR_KEY = 'overlayBlur';
+  var OVERLAY_CARD_OPACITY_KEY = 'overlayCardOpacity';
+  var LEGACY_BANNER_MODE_KEY = 'bannerMode';
+  var LEGACY_LAYOUT_MODE_KEY = 'layoutMode';
+  var desktopMediaQuery = window.matchMedia('(min-width: 1280px)');
 
+  function normalizeWallpaperMode(mode) {
+    if (mode === 'off') return 'none';
+    return mode === 'banner' || mode === 'fullscreen' || mode === 'overlay' || mode === 'none' ? mode : null;
+  }
+
+  function normalizeLayoutMode(mode) {
+    return mode === 'list' || mode === 'grid' ? mode : null;
+  }
+
+  function getSectionDefault(resetId, fallback, normalize) {
+    var reset = document.getElementById(resetId);
+    var section = reset && reset.closest('.desktop-setting-section');
+    return normalize(section ? section.dataset.default : null) || fallback;
+  }
+
+  function migratePreference(key, legacyKey, normalize) {
+    var current = normalize(localStorage.getItem(key));
+    if (!current) {
+      var legacy = normalize(localStorage.getItem(legacyKey));
+      if (legacy) localStorage.setItem(key, legacy);
+    } else if (localStorage.getItem(key) !== current) {
+      localStorage.setItem(key, current);
+    }
+    localStorage.removeItem(legacyKey);
+  }
+
+  function migrateDisplayPreferences() {
+    migratePreference(WALLPAPER_MODE_KEY, LEGACY_BANNER_MODE_KEY, normalizeWallpaperMode);
+    migratePreference(POST_LIST_LAYOUT_KEY, LEGACY_LAYOUT_MODE_KEY, normalizeLayoutMode);
+  }
+
+  function getStoredWallpaperMode() {
+    return normalizeWallpaperMode(localStorage.getItem(WALLPAPER_MODE_KEY)) ||
+      getSectionDefault('reset-wallpaper-mode', 'banner', normalizeWallpaperMode);
+  }
+
+  function getStoredLayoutMode() {
+    return normalizeLayoutMode(localStorage.getItem(POST_LIST_LAYOUT_KEY)) ||
+      getSectionDefault('reset-layout-mode', 'list', normalizeLayoutMode);
+  }
+
+  function updateResetState(resetId, isDefault) {
+    var reset = document.getElementById(resetId);
+    if (!reset) return;
+    reset.classList.toggle('is-default', isDefault);
+    reset.disabled = isDefault;
+    reset.setAttribute('aria-hidden', String(isDefault));
+  }
+
+  function updateOptionState(selector, mode) {
+    var buttons = document.querySelectorAll(selector);
+    for (var i = 0; i < buttons.length; i++) {
+      var selected = buttons[i].dataset.mode === mode;
+      buttons[i].classList.toggle('is-selected', selected);
+      buttons[i].setAttribute('data-selected', String(selected));
+      buttons[i].setAttribute('aria-pressed', String(selected));
+    }
+  }
+
+  function getOverlayDefault(inputId, fallback) {
+    var input = document.getElementById(inputId);
+    var value = Number(input && input.dataset ? input.dataset.default : fallback);
+    return Number.isFinite(value) ? value : fallback;
+  }
+
+  function getStoredNumber(key, fallback, min, max) {
+    var raw = localStorage.getItem(key);
+    var value = raw === null ? fallback : Number(raw);
+    if (!Number.isFinite(value)) value = fallback;
+    return Math.min(max, Math.max(min, value));
+  }
+
+  function getOverlaySettings() {
+    var opacityDefault = getOverlayDefault('overlay-opacity-slider', 0.8);
+    var blurDefault = getOverlayDefault('overlay-blur-slider', 1.5);
+    var cardOpacityDefault = getOverlayDefault('overlay-card-opacity-slider', 0.8);
+    return {
+      opacity: getStoredNumber(OVERLAY_OPACITY_KEY, opacityDefault, 0.2, 1),
+      blur: getStoredNumber(OVERLAY_BLUR_KEY, blurDefault, 0, 12),
+      cardOpacity: getStoredNumber(OVERLAY_CARD_OPACITY_KEY, cardOpacityDefault, 0.2, 1)
+    };
+  }
+
+  function persistOverlaySettings(settings) {
+    localStorage.setItem(OVERLAY_OPACITY_KEY, String(settings.opacity));
+    localStorage.setItem(OVERLAY_BLUR_KEY, String(settings.blur));
+    localStorage.setItem(OVERLAY_CARD_OPACITY_KEY, String(settings.cardOpacity));
+  }
+
+  function updateRangeProgress(input) {
+    if (!input) return;
+    var min = Number(input.min || 0);
+    var max = Number(input.max || 100);
+    var value = Number(input.value || 0);
+    var progress = ((value - min) * 100) / (max - min || 1);
+    input.style.setProperty('--range-progress', Math.min(100, Math.max(0, progress)) + '%');
+  }
+
+  function updateOverlayControls(settings) {
+    var opacity = document.getElementById('overlay-opacity-slider');
+    var blur = document.getElementById('overlay-blur-slider');
+    var cardOpacity = document.getElementById('overlay-card-opacity-slider');
+    var opacityValue = document.getElementById('overlay-opacity-value');
+    var blurValue = document.getElementById('overlay-blur-value');
+    var cardOpacityValue = document.getElementById('overlay-card-opacity-value');
+
+    if (opacity) opacity.value = String(Math.round(settings.opacity * 100));
+    if (blur) blur.value = String(settings.blur);
+    if (cardOpacity) cardOpacity.value = String(Math.round(settings.cardOpacity * 100));
+    if (opacityValue) opacityValue.textContent = Math.round(settings.opacity * 100) + '%';
+    if (blurValue) blurValue.textContent = settings.blur.toFixed(1) + 'px';
+    if (cardOpacityValue) cardOpacityValue.textContent = Math.round(settings.cardOpacity * 100) + '%';
+    updateRangeProgress(opacity);
+    updateRangeProgress(blur);
+    updateRangeProgress(cardOpacity);
+
+    updateResetState(
+      'reset-overlay-settings',
+      settings.opacity === getOverlayDefault('overlay-opacity-slider', 0.8) &&
+      settings.blur === getOverlayDefault('overlay-blur-slider', 1.5) &&
+      settings.cardOpacity === getOverlayDefault('overlay-card-opacity-slider', 0.8)
+    );
+  }
+
+  function applyOverlayVisualSettings(mode) {
+    var wallpaper = document.querySelector('[data-fullscreen-wallpaper]');
+    var root = document.documentElement;
+    var settings = getOverlaySettings();
+    updateOverlayControls(settings);
+    if (!wallpaper) return;
+
+    if (mode === 'overlay') {
+      wallpaper.style.setProperty('--wallpaper-opacity', String(settings.opacity));
+      wallpaper.style.setProperty('--wallpaper-blur', String(settings.blur) + 'px');
+      root.style.setProperty('--card-transparent-opacity', String(settings.cardOpacity));
+    } else {
+      wallpaper.style.removeProperty('--wallpaper-opacity');
+      wallpaper.style.removeProperty('--wallpaper-blur');
+      root.style.removeProperty('--card-transparent-opacity');
+    }
+  }
+
+  function updateOverlaySection(mode) {
+    var section = document.getElementById('overlay-settings-section');
+    if (section) section.hidden = mode !== 'overlay' || !desktopMediaQuery.matches;
+  }
+
+  function applyWallpaperMode(mode) {
+    var body = document.body;
+    if (!body) return;
+    var banner = document.getElementById('banner-wrapper');
+    var wallpaper = document.querySelector('[data-fullscreen-wallpaper]');
+    body.classList.remove(
+      'enable-banner',
+      'fullscreen-banner',
+      'overlay-wallpaper',
+      'wallpaper-transparent',
+      'no-banner-mode'
+    );
     if (mode === 'fullscreen') {
       body.classList.add('enable-banner', 'fullscreen-banner');
+      if (banner) banner.style.display = 'block';
+      if (wallpaper) wallpaper.style.display = 'none';
     } else if (mode === 'banner') {
       body.classList.add('enable-banner');
-    } else if (mode === 'off') {
+      if (banner) banner.style.display = 'block';
+      if (wallpaper) wallpaper.style.display = 'none';
+    } else if (mode === 'overlay') {
+      body.classList.add('overlay-wallpaper', 'wallpaper-transparent', 'no-banner-mode');
+      if (banner) banner.style.display = 'none';
+      if (wallpaper) wallpaper.style.display = 'block';
+    } else if (mode === 'none') {
       body.classList.add('no-banner-mode');
+      if (banner) banner.style.display = 'none';
+      if (wallpaper) wallpaper.style.display = 'none';
     }
-
-    localStorage.setItem(BANNER_MODE_KEY, mode);
+    applyOverlayVisualSettings(mode);
+    updateOverlaySection(mode);
   }
-  // Apply stored mode on load
-  setBannerMode(getStoredBannerMode());
 
-  // === 布局模式(Grid/List)===
-  var LAYOUT_MODE_KEY = 'layoutMode';
-  function getStoredLayoutMode() {
-    return localStorage.getItem(LAYOUT_MODE_KEY) || 'list';
+  function setWallpaperMode(mode, persist) {
+    mode = normalizeWallpaperMode(mode) || 'banner';
+    if (persist !== false && !desktopMediaQuery.matches) return;
+    if (persist !== false) localStorage.setItem(WALLPAPER_MODE_KEY, mode);
+    applyWallpaperMode(mode);
+    updateOptionState('.wallpaper-mode-btn', mode);
+    updateResetState(
+      'reset-wallpaper-mode',
+      mode === getSectionDefault('reset-wallpaper-mode', 'banner', normalizeWallpaperMode)
+    );
   }
-  function setLayoutMode(mode) {
+
+  function setLayoutMode(mode, persist) {
+    mode = normalizeLayoutMode(mode) || 'list';
+    if (persist !== false && !desktopMediaQuery.matches) return;
     var mainGrid = document.getElementById('main-grid');
-    if (mainGrid) {
-      mainGrid.setAttribute('data-layout-mode', mode);
-    }
-    // 同步切换 post-list-container 的 list-mode/grid-mode class,
-    // 触发 mizuki-layout-modes.css 中的网格布局规则。
+    if (mainGrid) mainGrid.setAttribute('data-layout-mode', mode);
     var postList = document.getElementById('post-list-container');
     if (postList) {
       postList.classList.remove('list-mode', 'grid-mode');
       postList.classList.add(mode === 'grid' ? 'grid-mode' : 'list-mode');
     }
-    localStorage.setItem(LAYOUT_MODE_KEY, mode);
+    var rightSidebar = document.querySelector('.right-sidebar-container');
+    if (rightSidebar) {
+      rightSidebar.classList.toggle('hidden-in-grid-mode', mode === 'grid');
+    }
+    if (persist !== false) localStorage.setItem(POST_LIST_LAYOUT_KEY, mode);
+    updateOptionState('.layout-mode-btn', mode);
+    updateResetState(
+      'reset-layout-mode',
+      mode === getSectionDefault('reset-layout-mode', 'list', normalizeLayoutMode)
+    );
   }
-  // Apply stored mode on load
-  var storedLayoutMode = getStoredLayoutMode();
-  setLayoutMode(storedLayoutMode);
+
+  function applyResponsiveDisplayState() {
+    if (desktopMediaQuery.matches) {
+      setWallpaperMode(getStoredWallpaperMode(), false);
+      setLayoutMode(getStoredLayoutMode(), false);
+    } else {
+      setWallpaperMode('banner', false);
+      setLayoutMode('list', false);
+    }
+  }
+
+  migrateDisplayPreferences();
+  applyResponsiveDisplayState();
+  if (typeof desktopMediaQuery.addEventListener === 'function') {
+    desktopMediaQuery.addEventListener('change', applyResponsiveDisplayState);
+  } else if (typeof desktopMediaQuery.addListener === 'function') {
+    desktopMediaQuery.addListener(applyResponsiveDisplayState);
+  }
 
   // === DOMContentLoaded ===
   document.addEventListener('DOMContentLoaded', function () {
@@ -119,73 +316,139 @@
 
     // === Hue 滑块(顶部"显示设置"面板,唯一调色入口) ===
     var panelSlider = document.getElementById('panel-hue-slider');
+    var panelHueValue = document.getElementById('panel-hue-value');
+    var resetHue = document.getElementById('reset-hue');
     if (panelSlider) {
-      panelSlider.value = getStoredHue() || panelSlider.dataset.default || '240';
-      panelSlider.addEventListener('input', function () { setHue(this.value); });
+      var defaultHue = panelSlider.dataset.default || '240';
+      var updateHueControl = function (hue) {
+        panelSlider.value = String(hue);
+        if (panelHueValue) panelHueValue.value = String(hue) + '\u00b0';
+        updateResetState('reset-hue', String(hue) === String(defaultHue));
+      };
+      updateHueControl(getStoredHue() || defaultHue);
+      panelSlider.addEventListener('input', function () {
+        setHue(this.value);
+        updateHueControl(this.value);
+      });
+      if (resetHue) {
+        resetHue.addEventListener('click', function () {
+          localStorage.removeItem(HUE_KEY);
+          setHue(defaultHue, false);
+          updateHueControl(defaultHue);
+        });
+      }
     }
 
     // === Banner 显示模式切换按钮 ===
-    var bannerModeBtns = document.querySelectorAll('.banner-mode-btn');
-    if (bannerModeBtns.length) {
-      var currentBannerMode = getStoredBannerMode();
-      for (var i = 0; i < bannerModeBtns.length; i++) {
-        if (bannerModeBtns[i].dataset.mode === currentBannerMode) {
-          bannerModeBtns[i].classList.add('active');
-        }
-        bannerModeBtns[i].addEventListener('click', function() {
-          for (var j = 0; j < bannerModeBtns.length; j++) {
-            bannerModeBtns[j].classList.remove('active');
-          }
-          this.classList.add('active');
-          setBannerMode(this.dataset.mode);
-        });
-      }
+    var wallpaperModeBtns = document.querySelectorAll('.wallpaper-mode-btn');
+    for (var wi = 0; wi < wallpaperModeBtns.length; wi++) {
+      wallpaperModeBtns[wi].addEventListener('click', function () {
+        setWallpaperMode(this.dataset.mode);
+      });
+    }
+
+    var overlayOpacity = document.getElementById('overlay-opacity-slider');
+    var overlayBlur = document.getElementById('overlay-blur-slider');
+    var overlayCardOpacity = document.getElementById('overlay-card-opacity-slider');
+    var updateOverlayFromInputs = function () {
+      if (!desktopMediaQuery.matches) return;
+      var settings = {
+        opacity: overlayOpacity ? Number(overlayOpacity.value) / 100 : 0.8,
+        blur: overlayBlur ? Number(overlayBlur.value) : 1.5,
+        cardOpacity: overlayCardOpacity ? Number(overlayCardOpacity.value) / 100 : 0.8
+      };
+      persistOverlaySettings(settings);
+      updateOverlayControls(settings);
+      if (getStoredWallpaperMode() === 'overlay') applyOverlayVisualSettings('overlay');
+    };
+    if (overlayOpacity) overlayOpacity.addEventListener('input', updateOverlayFromInputs);
+    if (overlayBlur) overlayBlur.addEventListener('input', updateOverlayFromInputs);
+    if (overlayCardOpacity) overlayCardOpacity.addEventListener('input', updateOverlayFromInputs);
+
+    var resetOverlay = document.getElementById('reset-overlay-settings');
+    if (resetOverlay) {
+      resetOverlay.addEventListener('click', function () {
+        if (!desktopMediaQuery.matches) return;
+        var defaults = {
+          opacity: getOverlayDefault('overlay-opacity-slider', 0.8),
+          blur: getOverlayDefault('overlay-blur-slider', 1.5),
+          cardOpacity: getOverlayDefault('overlay-card-opacity-slider', 0.8)
+        };
+        persistOverlaySettings(defaults);
+        updateOverlayControls(defaults);
+        if (getStoredWallpaperMode() === 'overlay') applyOverlayVisualSettings('overlay');
+      });
     }
 
     // === 布局模式切换按钮 ===
     var layoutModeBtns = document.querySelectorAll('.layout-mode-btn');
-    if (layoutModeBtns.length) {
-      var currentLayoutMode = getStoredLayoutMode();
-      for (var i = 0; i < layoutModeBtns.length; i++) {
-        if (layoutModeBtns[i].dataset.mode === currentLayoutMode) {
-          layoutModeBtns[i].classList.add('active');
-        }
-        layoutModeBtns[i].addEventListener('click', function() {
-          for (var j = 0; j < layoutModeBtns.length; j++) {
-            layoutModeBtns[j].classList.remove('active');
-          }
-          this.classList.add('active');
-          setLayoutMode(this.dataset.mode);
-        });
-      }
+    for (var li = 0; li < layoutModeBtns.length; li++) {
+      layoutModeBtns[li].addEventListener('click', function () {
+        setLayoutMode(this.dataset.mode);
+      });
     }
 
+    var resetWallpaper = document.getElementById('reset-wallpaper-mode');
+    if (resetWallpaper) {
+      resetWallpaper.addEventListener('click', function () {
+        if (!desktopMediaQuery.matches) return;
+        localStorage.removeItem(WALLPAPER_MODE_KEY);
+        setWallpaperMode(
+          getSectionDefault('reset-wallpaper-mode', 'banner', normalizeWallpaperMode),
+          false
+        );
+      });
+    }
+
+    var resetLayout = document.getElementById('reset-layout-mode');
+    if (resetLayout) {
+      resetLayout.addEventListener('click', function () {
+        if (!desktopMediaQuery.matches) return;
+        localStorage.removeItem(POST_LIST_LAYOUT_KEY);
+        setLayoutMode(
+          getSectionDefault('reset-layout-mode', 'list', normalizeLayoutMode),
+          false
+        );
+      });
+    }
+
+    applyResponsiveDisplayState();
+
     // === 通用面板切换函数 ===
+    var settingBtn = document.getElementById('display-settings-switch');
+    var settingPanel = document.getElementById('display-setting');
+    function setSettingsPanelOpen(open) {
+      if (!settingBtn || !settingPanel) return;
+      settingPanel.classList.toggle('float-panel-closed', !open);
+      settingBtn.setAttribute('aria-expanded', String(open));
+    }
+
     function closeAllPanels(exceptId) {
       var panels = ['display-setting', 'nav-menu-panel', 'search-panel'];
       for (var i = 0; i < panels.length; i++) {
         if (panels[i] === exceptId) continue;
         var el = document.getElementById(panels[i]);
         if (el && !el.classList.contains('float-panel-closed')) {
-          el.classList.add('float-panel-closed');
+          if (panels[i] === 'display-setting') {
+            setSettingsPanelOpen(false);
+          } else {
+            el.classList.add('float-panel-closed');
+          }
         }
       }
     }
 
     // === 显示设置面板切换 ===
-    var settingBtn = document.getElementById('display-settings-switch');
-    var settingPanel = document.getElementById('display-setting');
     if (settingBtn && settingPanel) {
+      setSettingsPanelOpen(!settingPanel.classList.contains('float-panel-closed'));
       settingBtn.addEventListener('click', function (e) {
         e.stopPropagation();
         var isOpen = !settingPanel.classList.contains('float-panel-closed');
         if (isOpen) {
-          // 如果已打开,直接关闭
-          settingPanel.classList.add('float-panel-closed');
+          setSettingsPanelOpen(false);
         } else {
-          // 如果已关闭,先关闭其他面板再打开
           closeAllPanels('display-setting');
-          settingPanel.classList.remove('float-panel-closed');
+          setSettingsPanelOpen(true);
         }
       });
     }
@@ -242,27 +505,60 @@
       }
     });
 
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') closeAllPanels();
+    });
+
     // === 导航下拉菜单(点击展开/收起,点击子项跳转,点击外部关闭) ===
     var navDropdowns = document.querySelectorAll('#navbar-links-container [data-dropdown]');
+    var dropdownForceClosedAttribute = 'data-dropdown-force-closed';
+    function releaseDropdownForcedClose(dropdown) {
+      dropdown.removeAttribute(dropdownForceClosedAttribute);
+    }
+    function openDropdown(dropdown, trigger) {
+      releaseDropdownForcedClose(dropdown);
+      trigger.setAttribute('aria-expanded', 'true');
+    }
+    function closeDropdown(dropdown, trigger) {
+      trigger.setAttribute('aria-expanded', 'false');
+      dropdown.setAttribute(dropdownForceClosedAttribute, '');
+      var active = document.activeElement;
+      if (active && dropdown.contains(active) && typeof active.blur === 'function') active.blur();
+    }
     function closeAllDropdowns(except) {
       for (var d = 0; d < navDropdowns.length; d++) {
         var t = navDropdowns[d].querySelector('[data-dropdown-trigger]');
-        if (t && t !== except) t.setAttribute('aria-expanded', 'false');
+        if (t && t !== except) closeDropdown(navDropdowns[d], t);
       }
     }
     for (var di = 0; di < navDropdowns.length; di++) {
       (function (dd) {
         var trigger = dd.querySelector('[data-dropdown-trigger]');
         if (!trigger) return;
+        dd.addEventListener('mouseenter', function () {
+          releaseDropdownForcedClose(dd);
+        });
+        trigger.addEventListener('focus', function () {
+          releaseDropdownForcedClose(dd);
+        });
         trigger.addEventListener('click', function (e) {
           e.stopPropagation();
           var open = trigger.getAttribute('aria-expanded') === 'true';
-          closeAllDropdowns(trigger);
-          trigger.setAttribute('aria-expanded', String(!open));
+          if (open) {
+            closeDropdown(dd, trigger);
+          } else {
+            closeAllDropdowns(trigger);
+            openDropdown(dd, trigger);
+          }
         });
         trigger.addEventListener('keydown', function (e) {
           if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); trigger.click(); }
-          else if (e.key === 'Escape') { trigger.setAttribute('aria-expanded', 'false'); }
+        });
+        dd.addEventListener('keydown', function (e) {
+          if (e.key === 'Escape') {
+            e.preventDefault();
+            closeDropdown(dd, trigger);
+          }
         });
       })(navDropdowns[di]);
     }
@@ -271,7 +567,7 @@
         for (var d = 0; d < navDropdowns.length; d++) {
           if (!navDropdowns[d].contains(e.target)) {
             var t = navDropdowns[d].querySelector('[data-dropdown-trigger]');
-            if (t) t.setAttribute('aria-expanded', 'false');
+            if (t) closeDropdown(navDropdowns[d], t);
           }
         }
       });

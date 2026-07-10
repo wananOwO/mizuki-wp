@@ -102,25 +102,32 @@ body.no-banner-mode .absolute.w-full.z-30 {
 #swup-container { min-width: 0; }
 .category-bar-inner { min-width: 0; }
 
-/* === 导航下拉:桌面端仅由"点击"(aria-expanded)控制展开 ===
- * 原版编译 CSS 用 :hover 和 :focus-within 打开菜单,会导致点击后按钮仍处于
- * focus / 鼠标仍在悬停 → 第二次点击设了 aria-expanded=false 也不收起。
- * 这里用更高优先级(带 #id)的规则中和 hover/focus 打开,改为纯点击切换,
- * 实现用户要求的"点击展开、再次点击收起"。 */
+/* === Desktop navigation dropdowns: hover, keyboard focus, and click state === */
 @media (min-width: 768px) {
 	#navbar-links-container .dropdown-container:hover .dropdown-menu,
-	#navbar-links-container .dropdown-container:focus-within .dropdown-menu {
-		opacity: 0;
-		visibility: hidden;
-		pointer-events: none;
-		translate: var(--tw-translate-x, 0) -8px;
-	}
+	#navbar-links-container .dropdown-container:focus-within .dropdown-menu,
 	#navbar-links-container .dropdown-trigger[aria-expanded="true"] + .dropdown-menu {
 		opacity: 1;
 		visibility: visible;
 		pointer-events: auto;
 		translate: var(--tw-translate-x, 0) 0;
 	}
+
+	#navbar-links-container .dropdown-container[data-dropdown-force-closed] .dropdown-menu {
+		opacity: 0;
+		visibility: hidden;
+		pointer-events: none;
+		translate: var(--tw-translate-x, 0) -8px;
+	}
+}
+
+.post-list-container.grid-mode .post-card-title {
+	position: relative;
+}
+
+.post-list-container.grid-mode .post-card-title::before {
+	top: 50%;
+	transform: translateY(-50%);
 }
 
 /* === 移动端导航分组折叠(details/summary) === */

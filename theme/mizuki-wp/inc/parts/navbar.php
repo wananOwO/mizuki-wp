@@ -339,11 +339,9 @@ if ( ! function_exists( 'mizuki_render_navbar' ) ) {
 					<button id="theme-toggle" aria-label="<?php esc_attr_e( '切换明暗', 'mizuki' ); ?>" class="btn-plain scale-animation rounded-lg h-11 w-11 active:scale-90">
 						<svg class="text-[1.25rem]" viewBox="0 0 24 24" width="1em" height="1em"><path fill="currentColor" d="M12 21q-3.75 0-6.375-2.625T3 12t2.625-6.375T12 3q.35 0 .688.025t.662.075q-1.025.725-1.638 1.888T11.1 7.5q0 2.25 1.575 3.825T16.5 12.9q1.35 0 2.512-.612T20.9 10.65q.05.325.075.663T21 12q0 3.75-2.625 6.375T12 21"/></svg>
 					</button>
-					<?php if ( ! mizuki_get_theme_mod( 'mizuki_hue_fixed', false ) ) : ?>
-					<button aria-label="<?php esc_attr_e( 'Display Settings', 'mizuki' ); ?>" class="btn-plain scale-animation rounded-lg h-11 w-11 active:scale-90" id="display-settings-switch">
+					<button aria-label="<?php esc_attr_e( 'Display Settings', 'mizuki' ); ?>" aria-haspopup="dialog" aria-expanded="false" class="btn-plain scale-animation rounded-lg h-11 w-11 active:scale-90<?php echo mizuki_get_theme_mod( 'mizuki_hue_fixed', false ) ? ' settings-desktop-only' : ''; ?>" id="display-settings-switch">
 						<svg class="text-[1.25rem]" viewBox="0 0 24 24" width="1em" height="1em"><path fill="currentColor" d="M12 22q-2.05 0-3.875-.788t-3.187-2.15t-2.15-3.187T2 12q0-2.075.813-3.9t2.2-3.175T8.25 2.788T12.05 2q2 0 3.788.738t3.125 2.025t2.137 3T21.1 11.4q.275 2.45-1.225 4.025T16 17h-1.85q-.225 0-.312.125t-.088.275q0 .3.375.863t.375 1.287q0 1.05-.725 1.75T12 22m-5.5-9q.65 0 1.075-.425T8 11.5t-.425-1.075T6.5 10t-1.075.425T5 11.5t.425 1.075T6.5 13m3-4q.65 0 1.075-.425T11 7.5t-.425-1.075T9.5 6t-1.075.425T8 7.5t.425 1.075T9.5 9m5 0q.65 0 1.075-.425T16 7.5t-.425-1.075T14.5 6t-1.075.425T13 7.5t.425 1.075T14.5 9m3 4q.65 0 1.075-.425T19 11.5t-.425-1.075T17.5 10t-1.075.425T16 11.5t.425 1.075T17.5 13"/></svg>
 					</button>
-					<?php endif; ?>
 					<button aria-label="<?php esc_attr_e( 'Menu', 'mizuki' ); ?>" name="Nav Menu" class="btn-plain scale-animation rounded-lg w-11 h-11 active:scale-90 md:!hidden" id="nav-menu-switch">
 						<svg class="text-[1.25rem]" viewBox="0 0 24 24" width="1em" height="1em"><path fill="currentColor" d="m12 21l-4.5-4.5l1.45-1.45L12 18.1l3.05-3.05l1.45 1.45zM8.95 9.05L7.5 7.6L12 3.1l4.5 4.5l-1.45 1.45L12 5.9z"/></svg>
 					</button>
@@ -357,46 +355,101 @@ if ( ! function_exists( 'mizuki_render_navbar' ) ) {
 		<?php mizuki_render_nav_mobile(); ?>
 	</div>
 	<!-- 显示设置面板 -->
-	<div id="display-setting" class="float-panel float-panel-closed fixed right-4 top-[5.25rem] px-4 py-4 w-64 z-50">
+	<div id="display-setting" class="float-panel float-panel-closed fixed right-4 top-[5.25rem] px-4 py-2 w-80 z-50" role="dialog" aria-label="<?php esc_attr_e( 'Display Settings', 'mizuki' ); ?>">
 		<?php if ( ! mizuki_get_theme_mod( 'mizuki_hue_fixed', false ) ) : ?>
-		<div class="mb-3">
-			<label class="text-50 text-xs font-medium mb-2 block"><?php esc_html_e( '主题色', 'mizuki' ); ?></label>
-			<input type="range" id="panel-hue-slider" min="0" max="360" step="1"
+		<section class="settings-section settings-theme-section">
+			<div class="settings-section-heading">
+				<span class="settings-section-accent" aria-hidden="true"></span>
+				<h2><?php esc_html_e( '主题色', 'mizuki' ); ?></h2>
+				<button type="button" id="reset-hue" class="settings-reset" aria-label="<?php esc_attr_e( '恢复默认主题色', 'mizuki' ); ?>" title="<?php esc_attr_e( '恢复默认', 'mizuki' ); ?>">
+					<svg viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><path fill="currentColor" d="M12 20q-3.35 0-5.675-2.325T4 12t2.325-5.675T12 4q1.725 0 3.3.713T18 6.7V4h2v7h-7V9h4.15q-.8-1.4-2.162-2.2T12 6Q9.5 6 7.75 7.75T6 12t1.75 4.25T12 18q1.925 0 3.475-1.1T17.65 14h2.1q-.7 2.6-2.85 4.3T12 20"/></svg>
+				</button>
+				<output id="panel-hue-value" for="panel-hue-slider" class="settings-hue-value"></output>
+			</div>
+			<div class="settings-hue-track">
+			<input type="range" id="panel-hue-slider" min="0" max="360" step="5"
 			       data-default="<?php echo esc_attr( mizuki_get_theme_mod( 'mizuki_hue', 240 ) ); ?>"
-			       class="w-full accent-[var(--primary)]" />
-		</div>
+			       aria-label="<?php esc_attr_e( '主题色', 'mizuki' ); ?>" />
+			</div>
+		</section>
 		<?php endif; ?>
 		<!-- Banner Mode Toggle -->
-		<div class="config-item">
-			<div class="config-title-wrapper">
-				<div class="text-90 text-sm font-bold"><?php esc_html_e( 'Banner 模式', 'mizuki' ); ?></div>
-			</div>
-			<div class="config-range-wrapper flex gap-2 mt-2">
-				<button id="banner-mode-fullscreen" class="banner-mode-btn flex-1 py-2 px-3 rounded-lg text-sm transition" data-mode="fullscreen">
-					<?php esc_html_e( '全屏', 'mizuki' ); ?>
-				</button>
-				<button id="banner-mode-banner" class="banner-mode-btn flex-1 py-2 px-3 rounded-lg text-sm transition" data-mode="banner">
-					<?php esc_html_e( '横幅', 'mizuki' ); ?>
-				</button>
-				<button id="banner-mode-off" class="banner-mode-btn flex-1 py-2 px-3 rounded-lg text-sm transition" data-mode="off">
-					<?php esc_html_e( '关闭', 'mizuki' ); ?>
+		<section class="settings-section desktop-setting-section" data-default="<?php echo esc_attr( mizuki_get_theme_mod( 'mizuki_banner_mode', 'banner' ) ); ?>">
+			<div class="settings-section-heading">
+				<span class="settings-section-accent" aria-hidden="true"></span>
+				<h2><?php esc_html_e( '壁纸', 'mizuki' ); ?></h2>
+				<button type="button" id="reset-wallpaper-mode" class="settings-reset" aria-label="<?php esc_attr_e( '恢复默认壁纸', 'mizuki' ); ?>" title="<?php esc_attr_e( '恢复默认', 'mizuki' ); ?>">
+					<svg viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><path fill="currentColor" d="M12 20q-3.35 0-5.675-2.325T4 12t2.325-5.675T12 4q1.725 0 3.3.713T18 6.7V4h2v7h-7V9h4.15q-.8-1.4-2.162-2.2T12 6Q9.5 6 7.75 7.75T6 12t1.75 4.25T12 18q1.925 0 3.475-1.1T17.65 14h2.1q-.7 2.6-2.85 4.3T12 20"/></svg>
 				</button>
 			</div>
-		</div>
+			<div class="settings-options settings-wallpaper-options">
+				<button type="button" class="wallpaper-mode-btn settings-option" data-mode="banner" aria-pressed="false">
+					<svg class="settings-option-icon" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><path fill="currentColor" d="M5 19h14V5H5zm2-2l3.5-4.5l2.5 3l1.5-2l2.5 3.5zm-2 4q-.825 0-1.412-.587T3 19V5q0-.825.588-1.412T5 3h14q.825 0 1.413.588T21 5v14q0 .825-.587 1.413T19 21z"/></svg>
+					<span><?php esc_html_e( '横幅', 'mizuki' ); ?></span>
+					<svg class="settings-option-check" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><path fill="currentColor" d="m10.6 16.2l7.05-7.05l-1.4-1.4l-5.65 5.65l-2.85-2.85l-1.4 1.4zM12 22q-2.075 0-3.9-.788t-3.175-2.137T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137T21.213 8.1T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22"/></svg>
+				</button>
+				<button type="button" class="wallpaper-mode-btn settings-option" data-mode="fullscreen" aria-pressed="false">
+					<svg class="settings-option-icon" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><path fill="currentColor" d="M3 21v-7h2v3.6l4.6-4.6l1.4 1.4L6.4 19H10v2zm11 0v-2h3.6L13 14.4l1.4-1.4l4.6 4.6V14h2v7zM9.6 11L5 6.4V10H3V3h7v2H6.4l4.6 4.6zM14.4 11L13 9.6L17.6 5H14V3h7v7h-2V6.4z"/></svg>
+					<span><?php esc_html_e( '全屏', 'mizuki' ); ?></span>
+					<svg class="settings-option-check" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><path fill="currentColor" d="m10.6 16.2l7.05-7.05l-1.4-1.4l-5.65 5.65l-2.85-2.85l-1.4 1.4zM12 22q-2.075 0-3.9-.788t-3.175-2.137T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137T21.213 8.1T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22"/></svg>
+				</button>
+				<button type="button" class="wallpaper-mode-btn settings-option" data-mode="overlay" aria-pressed="false">
+					<svg class="settings-option-icon" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><path fill="currentColor" d="M4 20q-.825 0-1.412-.587T2 18V6q0-.825.588-1.412T4 4h16q.825 0 1.413.588T22 6v12q0 .825-.587 1.413T20 20zm0-2h16V6H4zm2-2h12l-3.75-5l-3 4L9 12z"/></svg>
+					<span><?php esc_html_e( '叠加', 'mizuki' ); ?></span>
+					<svg class="settings-option-check" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><path fill="currentColor" d="m10.6 16.2l7.05-7.05l-1.4-1.4l-5.65 5.65l-2.85-2.85l-1.4 1.4zM12 22q-2.075 0-3.9-.788t-3.175-2.137T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137T21.213 8.1T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22"/></svg>
+				</button>
+				<button type="button" class="wallpaper-mode-btn settings-option" data-mode="none" aria-pressed="false">
+					<svg class="settings-option-icon" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><path fill="currentColor" d="m5.5 7.1l1.4-1.4L18.3 17.1l-1.4 1.4l-1.5-1.5H5q-.825 0-1.412-.587T3 15V5q0-.825.588-1.412T5 3h14q.825 0 1.413.588T21 5v10q0 .825-.587 1.413T19 17h-.8l-2-2H19V5H5v.2zM7 15h6.4l-2-2l-.9 1.2l-1.2-1.5z"/></svg>
+					<span><?php esc_html_e( '关闭', 'mizuki' ); ?></span>
+					<svg class="settings-option-check" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><path fill="currentColor" d="m10.6 16.2l7.05-7.05l-1.4-1.4l-5.65 5.65l-2.85-2.85l-1.4 1.4zM12 22q-2.075 0-3.9-.788t-3.175-2.137T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137T21.213 8.1T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22"/></svg>
+				</button>
+			</div>
+		</section>
+		<section id="overlay-settings-section" class="settings-section desktop-setting-section overlay-settings-section" hidden>
+			<div class="settings-section-heading">
+				<span class="settings-section-accent" aria-hidden="true"></span>
+				<h2><?php esc_html_e( '壁纸效果', 'mizuki' ); ?></h2>
+				<button type="button" id="reset-overlay-settings" class="settings-reset" aria-label="<?php esc_attr_e( '恢复默认壁纸效果', 'mizuki' ); ?>" title="<?php esc_attr_e( '恢复默认', 'mizuki' ); ?>">
+					<svg viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><path fill="currentColor" d="M12 20q-3.35 0-5.675-2.325T4 12t2.325-5.675T12 4q1.725 0 3.3.713T18 6.7V4h2v7h-7V9h4.15q-.8-1.4-2.162-2.2T12 6Q9.5 6 7.75 7.75T6 12t1.75 4.25T12 18q1.925 0 3.475-1.1T17.65 14h2.1q-.7 2.6-2.85 4.3T12 20"/></svg>
+				</button>
+			</div>
+			<div class="settings-overlay-controls">
+				<label class="overlay-range-control" for="overlay-opacity-slider">
+					<span><strong><?php esc_html_e( '壁纸不透明度', 'mizuki' ); ?></strong><output id="overlay-opacity-value">80%</output></span>
+					<input id="overlay-opacity-slider" type="range" min="20" max="100" step="1" value="80" data-default="0.8">
+				</label>
+				<label class="overlay-range-control" for="overlay-blur-slider">
+					<span><strong><?php esc_html_e( '背景模糊', 'mizuki' ); ?></strong><output id="overlay-blur-value">1.5px</output></span>
+					<input id="overlay-blur-slider" type="range" min="0" max="12" step="0.5" value="1.5" data-default="1.5">
+				</label>
+				<label class="overlay-range-control" for="overlay-card-opacity-slider">
+					<span><strong><?php esc_html_e( '卡片不透明度', 'mizuki' ); ?></strong><output id="overlay-card-opacity-value">80%</output></span>
+					<input id="overlay-card-opacity-slider" type="range" min="20" max="100" step="1" value="80" data-default="0.8">
+				</label>
+			</div>
+		</section>
 		<!-- Layout Mode Toggle -->
-		<div class="config-item">
-			<div class="config-title-wrapper">
-				<div class="text-90 text-sm font-bold"><?php esc_html_e( '布局模式', 'mizuki' ); ?></div>
-			</div>
-			<div class="config-range-wrapper flex gap-2 mt-2">
-				<button id="layout-mode-list" class="layout-mode-btn flex-1 py-2 px-3 rounded-lg text-sm transition" data-mode="list">
-					<?php esc_html_e( '列表', 'mizuki' ); ?>
-				</button>
-				<button id="layout-mode-grid" class="layout-mode-btn flex-1 py-2 px-3 rounded-lg text-sm transition" data-mode="grid">
-					<?php esc_html_e( '网格', 'mizuki' ); ?>
+		<section class="settings-section desktop-setting-section" data-default="<?php echo esc_attr( mizuki_get_theme_mod( 'mizuki_layout_mode', 'list' ) ); ?>">
+			<div class="settings-section-heading">
+				<span class="settings-section-accent" aria-hidden="true"></span>
+				<h2><?php esc_html_e( '布局', 'mizuki' ); ?></h2>
+				<button type="button" id="reset-layout-mode" class="settings-reset" aria-label="<?php esc_attr_e( '恢复默认布局', 'mizuki' ); ?>" title="<?php esc_attr_e( '恢复默认', 'mizuki' ); ?>">
+					<svg viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><path fill="currentColor" d="M12 20q-3.35 0-5.675-2.325T4 12t2.325-5.675T12 4q1.725 0 3.3.713T18 6.7V4h2v7h-7V9h4.15q-.8-1.4-2.162-2.2T12 6Q9.5 6 7.75 7.75T6 12t1.75 4.25T12 18q1.925 0 3.475-1.1T17.65 14h2.1q-.7 2.6-2.85 4.3T12 20"/></svg>
 				</button>
 			</div>
-		</div>
+			<div class="settings-options settings-layout-options">
+				<button type="button" class="layout-mode-btn settings-option" data-mode="list" aria-pressed="false">
+					<svg class="settings-option-icon" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><path fill="currentColor" d="M4 7V5h16v2zm0 6v-2h16v2zm0 6v-2h16v2z"/></svg>
+					<span><?php esc_html_e( '列表', 'mizuki' ); ?></span>
+					<svg class="settings-option-check" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><path fill="currentColor" d="m10.6 16.2l7.05-7.05l-1.4-1.4l-5.65 5.65l-2.85-2.85l-1.4 1.4zM12 22q-2.075 0-3.9-.788t-3.175-2.137T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137T21.213 8.1T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22"/></svg>
+				</button>
+				<button type="button" class="layout-mode-btn settings-option" data-mode="grid" aria-pressed="false">
+					<svg class="settings-option-icon" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><path fill="currentColor" d="M3 11V3h8v8zm2-2h4V5H5zm8 2V3h8v8zm2-2h4V5h-4zM3 21v-8h8v8zm2-2h4v-4H5zm8 2v-8h8v8zm2-2h4v-4h-4z"/></svg>
+					<span><?php esc_html_e( '网格', 'mizuki' ); ?></span>
+					<svg class="settings-option-check" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><path fill="currentColor" d="m10.6 16.2l7.05-7.05l-1.4-1.4l-5.65 5.65l-2.85-2.85l-1.4 1.4zM12 22q-2.075 0-3.9-.788t-3.175-2.137T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137T21.213 8.1T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22"/></svg>
+				</button>
+			</div>
+		</section>
 	</div>
 	<!-- 搜索面板(移动/平板端,点击 #search-switch 弹出) -->
 	<div id="search-panel" class="float-panel float-panel-closed fixed left-4 right-4 top-[5.25rem] md:w-[30rem] md:left-[unset] z-50 shadow-2xl rounded-2xl p-2">

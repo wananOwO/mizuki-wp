@@ -127,12 +127,14 @@ function mizuki_enqueue_global_styles() {
 		'mizuki-search'              => 'mizuki-search.css',
 	);
 	mizuki_enqueue_styles_batch( $global_css );
+	mizuki_enqueue_style_if_exists( 'mizuki-fonts', 'mizuki-fonts.css', array( 'mizuki-main' ) );
 
 	// 修正层必须最后加载（依赖 main）
 	mizuki_enqueue_style_if_exists( 'mizuki-overrides', 'mizuki-overrides.css', array( 'mizuki-main' ) );
 
 	// 布局模式修正(全屏模式 + 网格模式),必须在 main 与 overrides 之后
 	mizuki_enqueue_style_if_exists( 'mizuki-layout-modes', 'mizuki-layout-modes.css', array( 'mizuki-main', 'mizuki-overrides', 'mizuki-banner' ) );
+	mizuki_enqueue_style_if_exists( 'mizuki-settings-panel', 'mizuki-settings-panel.css', array( 'mizuki-main', 'mizuki-overrides' ) );
 
 	// ── 2. 文章页组：仅文章页加载 ──
 	if ( is_single() ) {

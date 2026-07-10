@@ -150,7 +150,11 @@ function mizuki_body_classes( $classes ) {
 		$classes[] = 'fullscreen-banner';
 	} elseif ( 'banner' === $mode ) {
 		$classes[] = 'enable-banner';
-	} elseif ( 'off' === $mode ) {
+	} elseif ( 'overlay' === $mode ) {
+		$classes[] = 'overlay-wallpaper';
+		$classes[] = 'wallpaper-transparent';
+		$classes[] = 'no-banner-mode';
+	} elseif ( in_array( $mode, array( 'none', 'off' ), true ) ) {
 		$classes[] = 'no-banner-mode';
 	}
 	$classes[] = 'enable-card-border';

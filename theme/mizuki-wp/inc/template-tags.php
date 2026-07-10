@@ -14,21 +14,40 @@ defined( 'ABSPATH' ) || exit;
  */
 function mizuki_reading_time( $post_id = null ) {
 	$content = get_post_field( 'post_content', $post_id ?: get_the_ID() );
-	$text    = wp_strip_all_tags( $content );
-	$count   = mb_strlen( preg_replace( '/\s+/u', '', $text ), 'UTF-8' );
+	$count   = mizuki_count_content_characters( $content );
 	return max( 1, (int) ceil( $count / 300 ) );
 }
 
 /**
- * 统计当前文章字数(中文)。
+ * Count visible, non-whitespace characters in post content.
  *
- * @param int|null $post_id 文章 ID,默认当前文章。
- * @return int 字数。
+ * @param string $content Post content, which may contain HTML.
+ * @return int Character count.
+ */
+function mizuki_count_content_characters( $content ) {
+	$text = wp_strip_all_tags( $content );
+	$text = html_entity_decode( $text, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+	$text = preg_replace( '/[\s\p{Z}]+/u', '', $text );
+
+	if ( null === $text ) {
+		return 0;
+	}
+
+	$count = preg_match_all( '/./us', $text, $characters );
+
+	return false === $count ? strlen( $text ) : $count;
+}
+
+/**
+ * Count characters in a post.
+ *
+ * @param int|null $post_id Post ID; defaults to the current post.
+ * @return int Character count.
  */
 function mizuki_word_count( $post_id = null ) {
 	$content = get_post_field( 'post_content', $post_id ?: get_the_ID() );
-	$text    = wp_strip_all_tags( $content );
-	return mb_strlen( preg_replace( '/\s+/u', '', $text ), 'UTF-8' );
+
+	return mizuki_count_content_characters( $content );
 }
 
 /**

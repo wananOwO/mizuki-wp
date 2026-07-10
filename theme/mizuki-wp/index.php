@@ -18,14 +18,14 @@ get_header();
 	<div id="post-list-container" class="post-list-container transition-all duration-500 ease-in-out rounded-[var(--radius-large)] bg-[var(--card-bg)] md:bg-transparent mb-4 <?php echo esc_attr( $initial_list_class ); ?>" data-both-sidebars="true" style="--coverWidth: 28%;">
 		<?php while ( have_posts() ) : the_post();
 			$has_cover = has_post_thumbnail();
-			$wc        = str_word_count( wp_strip_all_tags( get_the_content() ) );
+			$wc        = mizuki_word_count();
 		?>
 			<div class="post-card-item card-base flex flex-col-reverse md:flex-col w-full rounded-[var(--radius-large)] overflow-hidden relative transition onload-animation">
 				<!-- 文字区 -->
 				<div class="pl-6 md:pl-9 pr-6 md:pr-2 pt-6 md:pt-7 pb-6 relative w-full <?php echo $has_cover ? 'md:w-[72%]' : 'md:w-[calc(100%-3.25rem-0.75rem)]'; ?>">
 					<!-- 标题 -->
 					<a href="<?php the_permalink(); ?>"
-					   class="transition group w-full block font-bold mb-3 text-3xl text-90
+					   class="post-card-title transition group w-full block font-bold mb-3 text-3xl text-90
 					          hover:text-[var(--primary)] dark:hover:text-[var(--primary)]
 					          before:w-1 before:h-5 before:rounded-md before:bg-[var(--primary)]
 					          before:absolute before:top-[2.1875rem] before:left-[1.125rem] before:hidden md:before:block">

@@ -146,6 +146,22 @@ function mizuki_customize_register( $wp_customize ) {
 		$wp_customize->add_control( $id, array( 'label' => $cfg[0], 'section' => 'mizuki_profile', 'type' => $cfg[2] ) );
 	}
 
+	// === 网站公告 ===
+	$wp_customize->add_section( 'mizuki_announcement', array(
+		'title'    => __( '网站公告', 'mizuki' ),
+		'panel'    => 'mizuki_panel',
+		'priority' => 40,
+	) );
+	$wp_customize->add_setting( 'mizuki_announcement', array(
+		'default'           => __( '欢迎来到我的小站 ✨', 'mizuki' ),
+		'sanitize_callback' => 'sanitize_textarea_field',
+	) );
+	$wp_customize->add_control( 'mizuki_announcement', array(
+		'label'   => __( '公告内容', 'mizuki' ),
+		'section' => 'mizuki_announcement',
+		'type'    => 'textarea',
+	) );
+
 	// 社交链接:改由后台「Mizuki 主题设置」中的自定义 repeater 管理(theme_mod 'mizuki_custom_links')。
 	// 旧的固定四项 mizuki_social_{github,twitter,email,rss} 仅作为向后兼容的回退数据源,
 	// 不再在 Customizer 暴露独立控件(避免与新 repeater 冲突/混淆)。
@@ -696,7 +712,16 @@ function mizuki_render_admin_page() {
 	}
 
 	// 保存逻辑
-	if ( isset( $_POST['mizuki_settings_nonce'] ) && wp_verify_nonce( $_POST['mizuki_settings_nonce'], 'mizuki_save_settings' ) ) {
+	if (
+		isset( $_POST['mizuki_settings_nonce'] ) &&
+		wp_verify_nonce( sanitize_key( wp_unslash( $_POST['mizuki_settings_nonce'] ) ), 'mizuki_save_settings' ) &&
+		current_user_can( 'edit_theme_options' )
+	) {
+		$announcement = isset( $_POST['mizuki_announcement'] )
+			? sanitize_textarea_field( wp_unslash( $_POST['mizuki_announcement'] ) )
+			: '';
+		set_theme_mod( 'mizuki_announcement', $announcement );
+
 		// Banner
 		set_theme_mod( 'mizuki_banner_image', isset( $_POST['mizuki_banner_image'] ) ? esc_url_raw( $_POST['mizuki_banner_image'] ) : '' );
 		set_theme_mod( 'mizuki_banner_height', isset( $_POST['mizuki_banner_height'] ) ? sanitize_text_field( $_POST['mizuki_banner_height'] ) : '60vh' );
@@ -756,6 +781,7 @@ function mizuki_render_admin_page() {
 	$avatar           = get_theme_mod( 'mizuki_avatar', '' );
 	$nickname         = get_theme_mod( 'mizuki_nickname', '' );
 	$bio              = get_theme_mod( 'mizuki_bio', '' );
+	$announcement     = get_theme_mod( 'mizuki_announcement', __( '欢迎来到我的小站 ✨', 'mizuki' ) );
 	$custom_links     = mizuki_get_custom_links(); // 自定义社交/外链列表。
 	$live2d_enabled   = get_theme_mod( 'mizuki_live2d_enabled', false );
 
@@ -850,6 +876,20 @@ function mizuki_render_admin_page() {
 						<div class="mizuki-field">
 							<label for="mizuki_bio"><?php esc_html_e( '简介', 'mizuki' ); ?></label>
 							<textarea id="mizuki_bio" name="mizuki_bio" rows="3" class="large-text"><?php echo esc_textarea( $bio ); ?></textarea>
+						</div>
+					</div>
+				</div>
+
+				<!-- 网站公告 -->
+				<div class="mizuki-accordion-item">
+					<div class="mizuki-accordion-header">
+						<span><?php esc_html_e( '网站公告', 'mizuki' ); ?></span>
+						<span class="mizuki-accordion-arrow">▼</span>
+					</div>
+					<div class="mizuki-accordion-body">
+						<div class="mizuki-field">
+							<label for="mizuki_announcement"><?php esc_html_e( '公告内容', 'mizuki' ); ?></label>
+							<textarea id="mizuki_announcement" name="mizuki_announcement" rows="5" class="large-text"><?php echo esc_textarea( $announcement ); ?></textarea>
 						</div>
 					</div>
 				</div>

@@ -53,6 +53,36 @@ if ( ! function_exists( 'mizuki_banner_slide' ) ) {
 	}
 }
 
+if ( ! function_exists( 'mizuki_render_fullscreen_wallpaper' ) ) {
+	/**
+	 * 输出 overlay 模式使用的独立全屏壁纸层。
+	 */
+	function mizuki_render_fullscreen_wallpaper() {
+		$imgs              = mizuki_banner_images();
+		$desktop           = $imgs['desktop'];
+		$mobile            = $imgs['mobile'];
+		$carousel_enabled  = get_theme_mod( 'mizuki_banner_carousel_enabled', true );
+		$carousel_interval = get_theme_mod( 'mizuki_banner_carousel_interval', 3000 );
+		$fade_duration     = get_theme_mod( 'mizuki_banner_fade_duration', 1200 );
+		?>
+<div id="fullscreen-wallpaper" data-fullscreen-wallpaper data-mizuki-carousel data-carousel-interval="<?php echo esc_attr( $carousel_interval ); ?>" data-fade-ms="<?php echo esc_attr( $fade_duration ); ?>" data-carousel-enabled="<?php echo $carousel_enabled ? '1' : '0'; ?>" aria-hidden="true" style="--wallpaper-opacity:0.8;--wallpaper-blur:1.5px;">
+	<div class="banner-image-slot-mobile absolute inset-0 block md:hidden">
+		<?php if ( isset( $mobile[0] ) ) : ?><?php mizuki_banner_slide( $mobile[0], 'Mobile wallpaper image 1' ); ?><?php endif; ?>
+	</div>
+	<?php foreach ( $mobile as $i => $src ) : ?>
+		<template class="banner-tpl-mobile"><?php mizuki_banner_slide( $src, 'Mobile wallpaper image ' . ( $i + 1 ) ); ?></template>
+	<?php endforeach; ?>
+	<div class="banner-image-slot-desktop absolute inset-0 hidden md:block">
+		<?php if ( isset( $desktop[0] ) ) : ?><?php mizuki_banner_slide( $desktop[0], 'Desktop wallpaper image 1' ); ?><?php endif; ?>
+	</div>
+	<?php foreach ( $desktop as $i => $src ) : ?>
+		<template class="banner-tpl-desktop"><?php mizuki_banner_slide( $src, 'Desktop wallpaper image ' . ( $i + 1 ) ); ?></template>
+	<?php endforeach; ?>
+</div>
+		<?php
+	}
+}
+
 if ( ! function_exists( 'mizuki_render_banner' ) ) {
 	/**
 	 * 输出 Mizuki Banner。
@@ -66,15 +96,12 @@ if ( ! function_exists( 'mizuki_render_banner' ) ) {
 		$carousel_interval = get_theme_mod( 'mizuki_banner_carousel_interval', 3000 );
 		$fade_duration     = get_theme_mod( 'mizuki_banner_fade_duration', 1200 );
 		$banner_mode       = get_theme_mod( 'mizuki_banner_mode', 'banner' );
-		// 全屏模式: banner 作为固定全屏背景(z-index:0,内容区 z-index:30 在上层)。
 		$fullscreen_class  = ( 'fullscreen' === $banner_mode ) ? ' fullscreen-bg' : '';
-		$wrapper_style     = ( 'fullscreen' === $banner_mode )
-			? 'position:fixed;top:0;left:0;height:100vh;z-index:0;'
-			: 'top: -30vh';
+		$wrapper_style     = 'top: -30vh';
 		?>
 <!-- Banner 大图区域 -->
 <div id="banner-wrapper" class="absolute z-10 w-full transition duration-700 overflow-hidden<?php echo esc_attr( $mobile_hide ); ?><?php echo esc_attr( $fullscreen_class ); ?>" style="<?php echo esc_attr( $wrapper_style ); ?>" data-astro-cid-3tcy46xc>
-	<div id="banner-carousel" class="relative h-full w-full" data-mobile-count="<?php echo count( $mobile ); ?>" data-desktop-count="<?php echo count( $desktop ); ?>" data-carousel-interval="<?php echo esc_attr( $carousel_interval ); ?>" data-fade-ms="<?php echo esc_attr( $fade_duration ); ?>" data-carousel-enabled="<?php echo $carousel_enabled ? '1' : '0'; ?>" data-astro-cid-3tcy46xc>
+	<div id="banner-carousel" class="relative h-full w-full" data-mizuki-carousel data-mobile-count="<?php echo count( $mobile ); ?>" data-desktop-count="<?php echo count( $desktop ); ?>" data-carousel-interval="<?php echo esc_attr( $carousel_interval ); ?>" data-fade-ms="<?php echo esc_attr( $fade_duration ); ?>" data-carousel-enabled="<?php echo $carousel_enabled ? '1' : '0'; ?>" data-astro-cid-3tcy46xc>
 		<div class="banner-image-slot-mobile absolute inset-0 block md:hidden" data-astro-cid-3tcy46xc><!-- 首图由 banner-carousel.js 从 template 克隆填充 --></div>
 		<?php
 		foreach ( $mobile as $i => $src ) :
