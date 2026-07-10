@@ -11,7 +11,7 @@
 **约定:**
 - 工作目录:`/root/mizuki`,分支 `feat/wp-theme-phase0-1`
 - 主题目录:`theme/mizuki-wp/`,同步:`bash tools/sync-theme.sh`,WP-CLI:`bash tools/wp-cli.sh <cmd>`
-- 提交信息追加 `Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>`
+- 提交使用仓库配置的 `wananOwO` 作者信息
 
 ---
 
@@ -186,9 +186,7 @@ curl -s http://localhost:8888 | grep -o -- '--hue:[0-9]*'           # expect --h
 
 ```bash
 git add theme/mizuki-wp/inc/customizer.php theme/mizuki-wp/functions.php theme/mizuki-wp/inc/setup.php
-git commit -m "feat(theme): Customizer settings (banner, hue, profile, social, Live2D)
-
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
+git commit -m "feat(theme): Customizer settings (banner, hue, profile, social, Live2D)"
 ```
 
 ---
@@ -365,9 +363,7 @@ git add theme/mizuki-wp/assets/js/mizuki-theme.js theme/mizuki-wp/inc/enqueue.ph
 git commit -m "feat(theme): vanilla JS light/dark toggle + hue slider + TOC generation
 
 Reads/writes localStorage 'theme' and 'hue' keys. TOC generated from
-.markdown-content h2/h3 with IntersectionObserver scroll highlighting.
-
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
+.markdown-content h2/h3 with IntersectionObserver scroll highlighting."
 ```
 
 ---
@@ -420,9 +416,7 @@ bash tools/sync-theme.sh
 curl -s http://localhost:8888 | grep -c 'banner-wrapper'  # expect 1
 curl -s http://localhost:8888 | grep -c 'sidebar'          # expect >=1
 git add theme/mizuki-wp/header.php theme/mizuki-wp/sidebar.php
-git commit -m "feat(theme): Banner background image from Customizer + sidebar template
-
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
+git commit -m "feat(theme): Banner background image from Customizer + sidebar template"
 ```
 
 ---

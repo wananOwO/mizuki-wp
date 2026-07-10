@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const packer = join(root, 'tools', 'pack-theme.mjs');
+const expectedVersion = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).version;
 const fixtureRoot = mkdtempSync(join(tmpdir(), 'mizuki-package-regression-'));
 const sourceRoot = join(fixtureRoot, 'theme');
 const themeRoot = join(sourceRoot, 'mizuki-wp');
@@ -62,9 +63,9 @@ function runPacker() {
 }
 
 try {
-	write('style.css', '/*\nTheme Name: Mizuki\nVersion: 1.0.9\n*/\n');
-	write('functions.php', "<?php\ndefine( 'MIZUKI_VERSION', '1.0.8' );\n");
-	write('readme.txt', 'Stable tag: 1.0.9\n');
+	write('style.css', `/*\nTheme Name: Mizuki\nVersion: ${expectedVersion}\n*/\n`);
+	write('functions.php', "<?php\ndefine( 'MIZUKI_VERSION', '0.0.0' );\n");
+	write('readme.txt', `Stable tag: ${expectedVersion}\n`);
 
 	const result = runPacker();
 
@@ -75,7 +76,7 @@ try {
 	);
 	assert.match(`${result.stdout}${result.stderr}`, /version/i);
 
-	write('functions.php', "<?php\ndefine( 'MIZUKI_VERSION', '1.0.9' );\n");
+	write('functions.php', `<?php\ndefine( 'MIZUKI_VERSION', '${expectedVersion}' );\n`);
 	const missingAssets = runPacker();
 	assert.notEqual(
 		missingAssets.status,

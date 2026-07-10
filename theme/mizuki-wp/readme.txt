@@ -3,7 +3,7 @@ Contributors: mizuki-wp-port
 Requires at least: 6.4
 Tested up to: 6.7
 Requires PHP: 8.0
-Stable tag: 1.0.9
+Stable tag: 1.2.0
 License: Apache License 2.0
 License URI: https://www.apache.org/licenses/LICENSE-2.0
 

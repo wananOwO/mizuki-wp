@@ -353,4 +353,4 @@ theme/mizuki-wp/
 
 ---
 
-*Developed with ❤️ using Claude Code and Subagent-Driven Development*
+*Maintained by wananOwO*

@@ -1,7 +1,7 @@
 {
   "name": "mizuki-wp",
   "private": true,
-  "version": "1.0.9",
+  "version": "1.2.0",
   "description": "Mizuki theme ported to WordPress",
   "scripts": {
 	"test": "php tests/word-count-regression.php && php tests/layout-geometry-test.php && php tests/theme-version-regression.php && php tests/announcement-settings-regression.php && php tests/font-loading-regression.php && node tests/settings-panel-regression.mjs && node tests/navigation-grid-regression.mjs && node tests/package-tool-regression.mjs && node tests/audit-local-regression.mjs && php test-full-render.php && php test-layout-fixes.php",

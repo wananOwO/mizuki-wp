@@ -14,8 +14,7 @@
 - 项目根:`/root/mizuki`(已 `git init`)。
 - 主题目录:`theme/mizuki-wp/`;文本域 `mizuki`;函数/句柄前缀 `mizuki_`。
 - Mizuki 还原基准:`reference/mizuki/`(git 忽略)。
-- 所有 `git commit` 用一致作者信息;提交信息行尾追加
-  `Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>`。
+- 所有 `git commit` 使用仓库配置的 `wananOwO` 作者信息。
 
 ---
 
@@ -127,9 +126,7 @@ Create `/root/mizuki/README.md`:
 ```bash
 cd /root/mizuki
 git add .gitignore package.json package-lock.json LICENSE README.md
-git commit -m "chore: project scaffold + Apache-2.0 LICENSE and attribution README
-
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
+git commit -m "chore: project scaffold + Apache-2.0 LICENSE and attribution README"
 ```
 
 ---
@@ -209,9 +206,7 @@ Run: `grep -rl '\.svelte' src/ | head -50; ls src/components/**/*.svelte 2>/dev/
 ```bash
 cd /root/mizuki
 git add docs/superpowers/notes/2026-06-18-mizuki-build-discovery.md
-git commit -m "docs: Mizuki build discovery notes (DOM, assets, theming, island triage)
-
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
+git commit -m "docs: Mizuki build discovery notes (DOM, assets, theming, island triage)"
 ```
 
 ---
@@ -259,9 +254,7 @@ Expected: 输出默认站点名(确认 WP-CLI 经 wp-env 可用)。
 ```bash
 cd /root/mizuki
 git add .wp-env.json
-git commit -m "chore: wp-env local WordPress with Theme Check plugin
-
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
+git commit -m "chore: wp-env local WordPress with Theme Check plugin"
 ```
 
 ---
@@ -393,9 +386,7 @@ Expected: 输出 `ok`(无 PHP fatal)。
 ```bash
 cd /root/mizuki
 git add theme/mizuki-wp
-git commit -m "feat(theme): activatable theme skeleton (style.css, theme.json, functions, stubs)
-
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
+git commit -m "feat(theme): activatable theme skeleton (style.css, theme.json, functions, stubs)"
 ```
 
 ---
@@ -478,9 +469,7 @@ Expected: 每个 assets URL 返回 `200`(无 404)。
 ```bash
 cd /root/mizuki
 git add theme/mizuki-wp/assets theme/mizuki-wp/inc/enqueue.php
-git commit -m "feat(theme): bundle and enqueue Mizuki compiled CSS/JS/fonts
-
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
+git commit -m "feat(theme): bundle and enqueue Mizuki compiled CSS/JS/fonts"
 ```
 
 ---
@@ -567,9 +556,7 @@ Expected: 含 `site-header`;`debug.log` 无新增 `PHP Notice/Warning`。
 ```bash
 cd /root/mizuki
 git add theme/mizuki-wp/header.php theme/mizuki-wp/footer.php
-git commit -m "feat(theme): header/footer shell with nav + banner container (Mizuki DOM)
-
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
+git commit -m "feat(theme): header/footer shell with nav + banner container (Mizuki DOM)"
 ```
 
 ---
@@ -675,9 +662,7 @@ Expected: 出现多张 `post-card`。
 ```bash
 cd /root/mizuki
 git add theme/mizuki-wp/index.php theme/mizuki-wp/inc/template-tags.php
-git commit -m "feat(theme): post list with Mizuki card markup + reading time
-
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
+git commit -m "feat(theme): post list with Mizuki card markup + reading time"
 ```
 
 ---
@@ -775,9 +760,7 @@ Expected: 单篇页含 `post__content`,HTTP 200。(用 `?p=ID` 避免依赖固�
 ```bash
 cd /root/mizuki
 git add theme/mizuki-wp/single.php theme/mizuki-wp/comments.php
-git commit -m "feat(theme): single post template + native comments
-
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
+git commit -m "feat(theme): single post template + native comments"
 ```
 
 ---
@@ -894,9 +877,7 @@ Expected:archive/search 返回 200;404 返回 404 且页面含 `error-404`。
 ```bash
 cd /root/mizuki
 git add theme/mizuki-wp/archive.php theme/mizuki-wp/search.php theme/mizuki-wp/page.php theme/mizuki-wp/404.php
-git commit -m "feat(theme): archive, search, page, 404 templates
-
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
+git commit -m "feat(theme): archive, search, page, 404 templates"
 ```
 
 ---
@@ -974,9 +955,7 @@ Run: `npm run cli -- menu create "Main" ; npm run cli -- menu location assign Ma
 ```bash
 cd /root/mizuki
 git add theme/mizuki-wp/inc/setup.php
-git commit -m "feat(theme): theme supports, nav menu, sidebar widget area
-
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
+git commit -m "feat(theme): theme supports, nav menu, sidebar widget area"
 ```
 
 ---
@@ -1046,9 +1025,7 @@ Expected: 输出含 `--hue:` 行;`theme.json OK`。
 ```bash
 cd /root/mizuki
 git add theme/mizuki-wp/theme.json theme/mizuki-wp/inc/setup.php
-git commit -m "feat(theme): theme.json palette + single-source --hue injection
-
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
+git commit -m "feat(theme): theme.json palette + single-source --hue injection"
 ```
 
 ---
@@ -1123,9 +1100,7 @@ Expected: 后台 Theme Check 结果页 **REQUIRED 项为 0**;WARNING/RECOMMENDED
 ```bash
 cd /root/mizuki
 git add tools/visual-compare.mjs package.json package-lock.json
-git commit -m "test: visual regression harness + Theme Check verification
-
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
+git commit -m "test: visual regression harness + Theme Check verification"
 ```
 
 ---

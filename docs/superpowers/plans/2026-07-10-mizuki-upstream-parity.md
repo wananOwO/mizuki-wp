@@ -533,7 +533,7 @@ Expected: PASS for desktop overlay/reset/ARIA and existing mobile/banner/fullscr
 - Modify: `tests/theme-version-regression.php`
 
 **Interfaces:**
-- Produces one synchronized follow-up version `1.0.9` and release tag `v1.0.9`.
+- Produces one synchronized follow-up version `1.2.0` and release tag `v1.2.0`.
 - Does not publish a GitHub release during verification; only validates script metadata/syntax.
 
 - [x] **Step 1: Extend the failing version regression**
@@ -548,7 +548,7 @@ Expected: FAIL because current theme is `1.0.8`, readme/package metadata are sta
 
 - [x] **Step 3: Synchronize metadata and rewrite release notes**
 
-Set theme/cache/readme/package to `1.0.9`, release tag to `v1.0.9`, and describe the complete verified parity work. Keep the existing owner/repository and upload behavior; do not call the GitHub API without an explicit publishing request.
+Set theme/cache/readme/package to `1.2.0`, release tag to `v1.2.0`, and describe the complete verified parity work. Keep the existing owner/repository and upload behavior; do not call the GitHub API without an explicit publishing request.
 
 - [x] **Step 4: Verify GREEN and Python syntax**
 
@@ -599,7 +599,7 @@ Run all PHP files through `php -l`, execute `npm.cmd test`, `npm.cmd run test:br
 
 - [x] **Step 6: Rebuild and validate the archive**
 
-Run `npm.cmd run test:package`; require one `mizuki-wp/` top-level directory, forward-slash paths, synchronized `1.0.9` metadata, both fonts, all new CSS, and no test/debug/planning files. Delete only the explicitly temporary `tools/debug-followup.mjs` after its evidence has moved into the permanent audit.
+Run `npm.cmd run test:package`; require one `mizuki-wp/` top-level directory, forward-slash paths, synchronized `1.2.0` metadata, both fonts, all new CSS, and no test/debug/planning files. Delete only the explicitly temporary `tools/debug-followup.mjs` after its evidence has moved into the permanent audit.
 
 ---
 
@@ -620,6 +620,6 @@ Run `npm.cmd run test:package`; require one `mizuki-wp/` top-level directory, fo
 
 ## Follow-up Completion Gate (Phases 8-11)
 
-- Complete. Tasks 6-11 have fresh RED/GREEN regressions, native WordPress admin/front-end evidence, browser geometry/network/font assertions, clean incremental logs and routes, and a newly validated `1.0.9` archive.
+- Complete. Tasks 6-11 have fresh RED/GREEN regressions, native WordPress admin/front-end evidence, browser geometry/network/font assertions, clean incremental logs and routes, and a newly validated `1.2.0` archive.
 - The final browser gate covers five responsive/display scenarios, announcement save/sanitize/restore, desktop dropdown hover/focus/click/second-click/Escape/re-entry, seven HTTP routes, and both WordPress/PHP appended-log streams.
 - The final archive has one safe `mizuki-wp/` root, synchronized metadata, all unconditional PHP dependencies and required runtime/font assets, and no Markdown/test/tool/debug/planning content.

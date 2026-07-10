@@ -15,10 +15,10 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TOKEN = os.environ.get('GH_TOKEN', '')
 OWNER = 'wananOwO'
 REPO = 'mizuki-wp'
-TAG = 'v1.0.9'
+TAG = 'v1.2.0'
 ZIP_PATH = os.path.join(ROOT, 'mizuki-wp-theme.zip')
 
-RELEASE_BODY = """## v1.0.9 上游对齐与修复
+RELEASE_BODY = """## v1.2.0 上游对齐与修复
 
 ### 显示与布局
 

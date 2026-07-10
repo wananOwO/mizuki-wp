@@ -141,9 +141,7 @@ git add theme/mizuki-wp/inc/cpt.php theme/mizuki-wp/templates/ theme/mizuki-wp/f
 git commit -m "feat(theme): feature page CPTs (anime/friend/diary/album/project/skill)
 
 Custom post types with meta boxes. Page templates with Mizuki card
-layouts. Admin UI for managing special page content.
-
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
+layouts. Admin UI for managing special page content."
 ```
 
 ---
@@ -183,9 +181,7 @@ git add theme/mizuki-wp/assets/js/mizuki-theme.js
 git commit -m "feat(theme): Fancybox gallery binding for post images
 
 Auto-wraps .markdown-content images with data-fancybox links.
-KaTeX and Expressive Code CSS already enqueued (Phase 1).
-
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
+KaTeX and Expressive Code CSS already enqueued (Phase 1)."
 ```
 
 ---
@@ -241,9 +237,7 @@ git add theme/mizuki-wp/languages/ theme/mizuki-wp/readme.txt
 git commit -m "chore: i18n .pot file, readme.txt with license attribution
 
 Apache-2.0 license, Mizuki original author attribution.
-Pot file for translators.
-
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
+Pot file for translators."
 ```
 
 ### Task 5.2:最终 Theme Check + 兼容性测试
@@ -264,9 +258,7 @@ docker exec wp-manual sh -c 'cat /var/www/html/wp-content/debug.log 2>/dev/null 
 - [ ] **Step 3: 最终提交**
 
 ```bash
-git commit --allow-empty -m "chore: release readiness check — Theme Check clean, all pages verified
-
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
+git commit --allow-empty -m "chore: release readiness check — Theme Check clean, all pages verified"
 ```
 
 ---

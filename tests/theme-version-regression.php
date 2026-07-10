@@ -8,7 +8,7 @@ $readme      = file_get_contents( $root . '/theme/mizuki-wp/readme.txt' );
 $package     = json_decode( file_get_contents( $root . '/package.json' ), true );
 $package_lock = json_decode( file_get_contents( $root . '/package-lock.json' ), true );
 $release     = file_get_contents( $root . '/tools/create-release.py' );
-$expected    = '1.0.9';
+$expected    = '1.2.0';
 $failures    = array();
 
 preg_match( "/define\( 'MIZUKI_VERSION', '([^']+)' \)/", $functions, $constant_match );

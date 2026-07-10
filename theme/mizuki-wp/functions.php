@@ -8,7 +8,7 @@
 defined( 'ABSPATH' ) || exit;
 
 // 资源缓存版本:改 CSS/JS 时递增,使浏览器丢弃旧缓存。
-define( 'MIZUKI_VERSION', '1.0.9' );
+define( 'MIZUKI_VERSION', '1.2.0' );
 // 内容结构版本:每次新增页面/改菜单结构时 +1,触发升级迁移(即使主题是覆盖升级)。
 define( 'MIZUKI_CONTENT_VERSION', '2' );
 define( 'MIZUKI_DIR', get_template_directory() );
