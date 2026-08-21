@@ -3,7 +3,7 @@ Contributors: mizuki-wp-port
 Requires at least: 6.4
 Tested up to: 6.7
 Requires PHP: 8.0
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 License: Apache License 2.0
 License URI: https://www.apache.org/licenses/LICENSE-2.0
 
@@ -37,6 +37,10 @@ This WordPress port is an unofficial derivative work.
 The porting code is also licensed under Apache License 2.0.
 
 == Changelog ==
+
+= 1.2.1 =
+* 修复移动端文章容器因内容最小宽度导致的 Chromium/Firefox 正文裁切
+* QQ 社交按钮改用上游配置对应的 Font Awesome Brands 官方图标
 
 = 0.1.0 =
 * 初始版本

@@ -41,3 +41,7 @@ phpunit.xml
 Thumbs.db
 Desktop.ini
 
+.wp-local/
+tools/local-env/wp-cli.phar
+tools/local-env/php.ini
+

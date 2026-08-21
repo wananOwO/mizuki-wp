@@ -1,0 +1,818 @@
+/*!
+ * erphpdown-mizuki.css — ErphpDown 前端 Mizuki 皮肤层
+ * 依赖 erphpdown.css 之后加载，只覆盖视觉，不触碰 layui 弹窗引擎与图标字体。
+ * 全部颜色引用 Mizuki 主题令牌（--primary/--card-bg/--radius-*），带 fallback；
+ * 未装 Mizuki 时回退到中性默认值，仍可用。
+ *
+ * 分区：
+ *   [1] 令牌桥接      —— 任务10
+ *   [2] 卡片容器      —— 任务10 / 任务11
+ *   [3] 按钮体系      —— 任务10
+ *   [4] 价格与标签排版 —— 任务10
+ * （后续任务 12-16 追加：个人中心 / VIP / 弹窗 / 支付 / 独立页）
+ */
+
+/* ============ [1] 令牌桥接（只新增 --epd- 命名空间，不覆盖主题变量） ============ */
+:root{
+	--epd-primary: var(--primary, #4f46e5);
+	--epd-on-primary: #fff;
+	--epd-card-bg: var(--card-bg, #fff);
+	--epd-radius-lg: var(--radius-large, 1rem);
+	--epd-radius: var(--radius-std, .75rem);
+	--epd-radius-pill: 999px;
+	--epd-shadow: var(--shadow-lg, 0 4px 16px rgba(0,0,0,.1));
+	--epd-shadow-hover: 0 6px 20px rgba(0,0,0,.14);
+	/* 文字尽量继承页面色以自动适配明暗；仅需弱化时用 muted */
+	--epd-text: currentColor;
+	--epd-muted: color-mix(in srgb, currentColor 55%, transparent);
+	--epd-border: color-mix(in srgb, currentColor 12%, transparent);
+	--epd-surface-2: color-mix(in srgb, var(--epd-primary) 6%, transparent);
+	--epd-price: #e14d43;
+	--epd-primary-hover: color-mix(in srgb, var(--epd-primary) 88%, #000);
+	--epd-focus-ring: color-mix(in srgb, var(--epd-primary) 35%, transparent);
+}
+/* 暗色下卡片内表面与边框稍提亮，避免纯黑压暗 */
+:root.dark{
+	--epd-border: color-mix(in srgb, currentColor 20%, transparent);
+	--epd-surface-2: color-mix(in srgb, var(--epd-primary) 12%, transparent);
+	--epd-shadow: 0 4px 16px rgba(0,0,0,.4);
+	--epd-shadow-hover: 0 6px 20px rgba(0,0,0,.5);
+}
+
+/* ============ [2] 卡片容器（替换橙色虚线框为 Mizuki 实心圆角卡） ============ */
+.erphpdown,
+.erphpdown-content-vip,
+.erphpdown-box-default{
+	border: 1px solid var(--epd-border) !important;
+	background: var(--epd-card-bg);
+	border-radius: var(--epd-radius-lg) !important;
+	box-shadow: var(--epd-shadow);
+	padding: 1.25rem 1.5rem !important;
+	margin: 0 0 1.25rem !important;
+	line-height: 1.6 !important;
+	font-size: 14px !important;
+	color: var(--epd-text);
+	transition: box-shadow .2s ease, transform .2s ease;
+}
+.erphpdown:hover,
+.erphpdown-content-vip:hover{
+	box-shadow: var(--epd-shadow-hover);
+}
+/* 顶部标题图例：去掉旧橙色，改主色，融入卡片 */
+.erphpdown > legend,
+.erphpdown-title{
+	color: var(--epd-primary) !important;
+	font-weight: 700;
+	font-size: 1rem !important;
+	padding: 0 !important;
+	margin: 0 0 .5rem !important;
+	border: none !important;
+	display: block !important;
+	width: auto !important;
+}
+/* 子块（多资源分组）：虚线灰框→柔和分隔卡 */
+.erphpdown .erphpdown-child{
+	border: 1px solid var(--epd-border) !important;
+	background: var(--epd-surface-2);
+	border-radius: var(--epd-radius) !important;
+	padding: 1rem 1.125rem !important;
+	margin: 0 0 .75rem !important;
+}
+.erphpdown .erphpdown-child > legend{
+	color: var(--epd-primary) !important;
+	font-weight: 600;
+	border: none !important;
+}
+/* VIP 提示卡右上角标 */
+.erphpdown .epdvip{
+	top: 0; right: 0;
+	background: var(--epd-primary);
+	color: var(--epd-on-primary);
+	border-radius: 0 var(--epd-radius-lg) 0 var(--epd-radius);
+	padding: .25rem .6rem;
+	font-size: 12px;
+}
+/* 免费提示条 */
+.erphpdown-box-default.erphpdown-free-box{
+	border-color: color-mix(in srgb, #4caf50 40%, transparent) !important;
+	background: color-mix(in srgb, #4caf50 8%, transparent);
+}
+
+/* ============ [3] 按钮体系（统一为 Mizuki 药丸按钮，主色驱动） ============ */
+/* 主操作：购买 / 下载 / VIP / 查看 —— 实心主色 */
+.erphpdown .erphpdown-buy,
+.erphpdown .erphpdown-buy-index,
+.erphpdown-content-vip .erphpdown-buy,
+.erphpdown-content-vip .erphpdown-buy-index,
+.erphpdown .erphpdown-down,
+.erphpdown .erphpdown-vip,
+.erphpdown-content-vip .erphpdown-vip,
+.erphpdown-content-vip .erphpdown-see-btn,
+.erphpdown .erphp-login-must{
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: .4em;
+	background: var(--epd-primary) !important;
+	color: var(--epd-on-primary) !important;
+	border: none !important;
+	border-radius: var(--epd-radius-pill) !important;
+	padding: .5rem 1.15rem !important;
+	margin: .25rem .25rem .25rem 0 !important;
+	font-size: 14px !important;
+	font-weight: 600;
+	line-height: 1.2 !important;
+	text-decoration: none !important;
+	cursor: pointer;
+	box-shadow: 0 1px 2px rgba(0,0,0,.12);
+	transition: background .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+.erphpdown .erphpdown-buy:hover,
+.erphpdown .erphpdown-buy-index:hover,
+.erphpdown-content-vip .erphpdown-buy:hover,
+.erphpdown-content-vip .erphpdown-buy-index:hover,
+.erphpdown .erphpdown-down:hover,
+.erphpdown .erphpdown-vip:hover,
+.erphpdown-content-vip .erphpdown-vip:hover,
+.erphpdown-content-vip .erphpdown-see-btn:hover,
+.erphpdown .erphp-login-must:hover{
+	background: var(--epd-primary-hover) !important;
+	box-shadow: 0 4px 12px var(--epd-focus-ring);
+	transform: translateY(-1px);
+	opacity: 1;
+}
+.erphpdown .erphpdown-buy:active,
+.erphpdown .erphpdown-down:active,
+.erphpdown .erphpdown-vip:active,
+.erphpdown-content-vip .erphpdown-see-btn:active{
+	transform: translateY(0);
+	box-shadow: 0 1px 2px rgba(0,0,0,.12);
+}
+.erphpdown .erphpdown-buy:focus-visible,
+.erphpdown .erphpdown-down:focus-visible,
+.erphpdown .erphpdown-vip:focus-visible,
+.erphpdown-content-vip .erphpdown-see-btn:focus-visible,
+.erphpdown .erphp-login-must:focus-visible{
+	outline: 3px solid var(--epd-focus-ring);
+	outline-offset: 2px;
+}
+
+/* ============ [4] 价格与标签排版 ============ */
+.erphpdown .erphpdown-price,
+.erphpdown-content-vip .erphpdown-price{
+	color: var(--epd-price);
+	font-weight: 700;
+	font-size: 1.05rem;
+}
+.erphpdown .erphpdown-tips,
+.erphpdown .erphpdown-tips-free,
+.erphpdown-see-tips{
+	color: var(--epd-muted);
+	font-size: 13px;
+}
+.erphpdown .erphpdown-item{
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: .5rem;
+	margin-bottom: .5rem;
+	text-align: left;
+}
+.erphpdown-content-vip2{
+	text-align: center;
+	color: var(--epd-primary);
+}
+
+/* ============ [5] 购买框价格行排版（任务11） ============ */
+/* 付费资源块整体：让"价格 + 按钮 + 或 + 升级"成为可折行的弹性行 */
+.erphpdown-default{
+	display: block;
+}
+/* 价格数字与货币单位留白 */
+.erphpdown-default .erphpdown-price{
+	margin: 0 .15em;
+	padding: 0 .1em;
+}
+/* “或”分隔符：替代旧的 &nbsp;&nbsp;<b>或</b>&nbsp;&nbsp;，居中弱化 */
+.epd-or{
+	display: inline-block;
+	margin: 0 .6em;
+	color: var(--epd-muted);
+	font-weight: 400;
+	font-size: .92em;
+	position: relative;
+	user-select: none;
+}
+/* 免费资源区标题与分组间距 */
+.erphpdown-free{
+	margin-bottom: 1rem;
+}
+.erphpdown-free .erphpdown-item + .erphpdown-item{
+	margin-top: .35rem;
+}
+/* “复制”小按钮：次要幽灵按钮样式 */
+.erphpdown-copy{
+	display: inline-flex;
+	align-items: center;
+	margin-left: .4rem;
+	padding: .12rem .6rem;
+	border: 1px solid var(--epd-border);
+	border-radius: var(--epd-radius-pill);
+	background: var(--epd-surface-2);
+	color: var(--epd-primary) !important;
+	font-size: 12px;
+	text-decoration: none !important;
+	cursor: pointer;
+	transition: background .15s ease, border-color .15s ease;
+}
+.erphpdown-copy:hover{
+	background: color-mix(in srgb, var(--epd-primary) 14%, transparent);
+	border-color: var(--epd-primary);
+}
+/* 网盘检测/公众号等次要按钮：与主按钮同形，色调收敛（幽灵按钮） */
+.erphpdown .erphpdown-checkpan,
+.erphpdown .erphpdown-checkpan2,
+.erphpdown .ews-erphpdown-button{
+	background: transparent !important;
+	color: var(--epd-primary) !important;
+	border: 1.5px solid var(--epd-primary) !important;
+	box-shadow: none;
+}
+.erphpdown .erphpdown-checkpan:hover,
+.erphpdown .erphpdown-checkpan2:hover,
+.erphpdown .ews-erphpdown-button:hover{
+	background: var(--epd-surface-2) !important;
+	color: var(--epd-primary) !important;
+}
+
+/* ============ [6] 个人中心：侧栏导航 + 内容区（任务12） ============ */
+/* 外层：抛弃旧的 padding-left:150px 绝对定位，改 Flex 响应式两栏 */
+.erphpdown-sc-user-wrap{
+	display: flex !important;
+	gap: 1.25rem;
+	background: transparent !important;
+	position: static !important;
+	padding: 0 !important;
+	margin: 0 0 1.5rem !important;
+	font-size: 15px;
+	line-height: 1.6;
+	align-items: flex-start;
+}
+/* 侧栏：卡片式竖向导航 */
+.erphpdown-sc-user-aside{
+	position: static !important;
+	flex: 0 0 200px;
+	width: 200px !important;
+	list-style: none !important;
+	background: var(--epd-card-bg) !important;
+	border: 1px solid var(--epd-border);
+	border-radius: var(--epd-radius-lg);
+	box-shadow: var(--epd-shadow);
+	padding: .75rem !important;
+	margin: 0 !important;
+	box-sizing: border-box;
+	/* 桌面端吸顶跟随 */
+	position: sticky !important;
+	top: 5.5rem;
+}
+.erphpdown-sc-user-aside > li{
+	list-style: none !important;
+	margin: 0 !important;
+	padding: 0 !important;
+}
+.erphpdown-sc-user-aside > li > a{
+	display: block;
+	padding: .6rem .9rem;
+	margin: .15rem 0;
+	border-radius: var(--epd-radius);
+	color: var(--epd-text);
+	text-decoration: none !important;
+	font-size: 14px;
+	line-height: 1.4;
+	transition: background .15s ease, color .15s ease;
+}
+.erphpdown-sc-user-aside > li > a:hover{
+	background: var(--epd-surface-2);
+	color: var(--epd-primary);
+}
+/* 选中项：主色实心 */
+.erphpdown-sc-user-aside > li.active > a{
+	background: var(--epd-primary);
+	color: var(--epd-on-primary) !important;
+	font-weight: 600;
+	box-shadow: 0 2px 8px var(--epd-focus-ring);
+}
+/* 签到按钮（侧栏内）：主色药丸，已签到态置灰 */
+.erphpdown-sc-user-aside .usercheck.erphpdown-sc-btn{
+	background: var(--epd-primary) !important;
+	color: var(--epd-on-primary) !important;
+	border-radius: var(--epd-radius-pill) !important;
+	padding: .5rem .9rem !important;
+	font-size: 13px !important;
+	font-weight: 600;
+	text-align: center;
+	width: 100%;
+	box-sizing: border-box;
+	margin-bottom: .35rem;
+}
+.erphpdown-sc-user-aside .usercheck.erphpdown-sc-btn.active{
+	background: var(--epd-surface-2) !important;
+	color: var(--epd-muted) !important;
+	cursor: default;
+	box-shadow: none;
+}
+/* 内容区：卡片 */
+.erphpdown-sc-user-content{
+	flex: 1 1 auto;
+	min-width: 0;
+	background: var(--epd-card-bg);
+	border: 1px solid var(--epd-border) !important;
+	border-left: 1px solid var(--epd-border) !important;
+	border-radius: var(--epd-radius-lg);
+	box-shadow: var(--epd-shadow);
+	padding: 1.5rem !important;
+	min-height: auto !important;
+	box-sizing: border-box;
+}
+/* 内容区内区块标题 */
+.erphpdown-sc-user-content .erphpdown-sc{
+	margin-bottom: 1.5rem;
+	font-size: 15px;
+}
+.erphpdown-sc-user-content h2{
+	font-size: 1.15rem;
+	font-weight: 700;
+	margin: 0 0 1rem;
+	color: var(--epd-text);
+}
+/* 表单输入：Mizuki 输入框 */
+.erphpdown-sc-input{
+	border: 1px solid var(--epd-border) !important;
+	border-radius: var(--epd-radius) !important;
+	padding: .55rem .8rem !important;
+	background: var(--epd-card-bg);
+	color: var(--epd-text);
+	font-size: 14px;
+	transition: border-color .15s ease, box-shadow .15s ease;
+}
+.erphpdown-sc-input:focus{
+	outline: none;
+	border-color: var(--epd-primary) !important;
+	box-shadow: 0 0 0 3px var(--epd-focus-ring);
+}
+.erphpdown-sc-td-title{
+	color: var(--epd-muted);
+	vertical-align: middle;
+	padding: .5rem .75rem .5rem 0;
+}
+/* 通用提交按钮（非侧栏签到） */
+.erphpdown-sc .erphpdown-sc-btn,
+.erphpdown-sc-user-content .erphpdown-sc-btn{
+	background: var(--epd-primary) !important;
+	color: var(--epd-on-primary) !important;
+	border: none !important;
+	border-radius: var(--epd-radius-pill) !important;
+	padding: .55rem 1.4rem !important;
+	font-size: 14px !important;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+.erphpdown-sc .erphpdown-sc-btn:hover,
+.erphpdown-sc-user-content .erphpdown-sc-btn:hover{
+	background: var(--epd-primary-hover) !important;
+	transform: translateY(-1px);
+	box-shadow: 0 4px 12px var(--epd-focus-ring);
+}
+
+/* 移动端：两栏堆叠，侧栏变横向滚动标签条 */
+@media (max-width: 768px){
+	.erphpdown-sc-user-wrap{
+		flex-direction: column;
+		gap: 1rem;
+	}
+	.erphpdown-sc-user-aside{
+		position: static !important;
+		flex: none;
+		width: 100% !important;
+		display: flex;
+		flex-wrap: wrap;
+		gap: .35rem;
+		top: auto;
+	}
+	.erphpdown-sc-user-aside > li{
+		flex: 0 0 auto;
+	}
+	.erphpdown-sc-user-aside .usercheck.erphpdown-sc-btn{
+		width: auto;
+	}
+	.erphpdown-sc-user-content{
+		padding: 1.15rem !important;
+	}
+}
+
+/* ============ [7] 信息/记录表格（任务12「我的资产」+ 任务13 各记录表通用） ============ */
+.erphpdown-sc-table{
+	width: 100%;
+	border-collapse: separate;
+	border-spacing: 0;
+	font-size: 14px;
+}
+/* 资产表（键值两列）：左标题右值 */
+.erphpdown-sc-table td{
+	padding: .7rem .25rem !important;
+	text-align: left;
+	border-bottom: 1px solid var(--epd-border);
+	vertical-align: middle;
+}
+.erphpdown-sc-table tr:last-child td{
+	border-bottom: none;
+}
+.erphpdown-sc-table .erphpdown-sc-td-title{
+	color: var(--epd-muted);
+	white-space: nowrap;
+}
+/* 记录表（多列带表头）：表头主色淡底、行 hover */
+.erphpdown-sc-table thead th,
+.erphpdown-sc-table th{
+	background: var(--epd-surface-2);
+	color: var(--epd-primary);
+	font-weight: 600;
+	text-align: left;
+	padding: .7rem .75rem !important;
+	border-bottom: 2px solid var(--epd-border);
+}
+.erphpdown-sc-table thead th:first-child,
+.erphpdown-sc-table th:first-child{
+	border-top-left-radius: var(--epd-radius);
+}
+.erphpdown-sc-table thead th:last-child,
+.erphpdown-sc-table th:last-child{
+	border-top-right-radius: var(--epd-radius);
+}
+.erphpdown-sc-table tbody tr{
+	transition: background .12s ease;
+}
+.erphpdown-sc-table tbody tr:hover{
+	background: var(--epd-surface-2);
+}
+.erphpdown-sc-table tbody td{
+	padding: .65rem .75rem !important;
+}
+/* 数字/金额右对齐更易读（含货币） */
+.erphpdown-sc-table td .erphpdown-price,
+.erphpdown-sc-table .epd-num{
+	color: var(--epd-price);
+	font-weight: 600;
+}
+/* 记录表在窄屏可横向滚动，避免撑破卡片 */
+@media (max-width: 768px){
+	.erphpdown-sc-user-content .erphpdown-sc:has(.erphpdown-sc-table thead){
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+	}
+	.erphpdown-sc-table{
+		min-width: 480px;
+	}
+}
+
+/* ============ [8] VIP 定价卡（任务13）：float 布局 → 响应式 Grid ============ */
+.erphpdown-vip-content{
+	overflow: visible !important;
+	margin: 1.25rem 0 !important;
+	display: grid !important;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: 1.25rem;
+}
+.erphpdown-vip-content:after{ content: none !important; }
+.erphpdown-vip-content .vip-item{
+	width: auto !important;
+	float: none !important;
+	margin: 0 !important;
+	padding: 1.75rem 1.5rem !important;
+	background: var(--epd-card-bg) !important;
+	border: 1px solid var(--epd-border);
+	border-radius: var(--epd-radius-lg) !important;
+	box-shadow: var(--epd-shadow) !important;
+	text-align: center;
+	position: relative;
+	top: 0;
+	transition: transform .25s cubic-bezier(.4,0,.2,1), box-shadow .25s ease, border-color .25s ease !important;
+}
+.erphpdown-vip-content .vip-item:hover{
+	top: 0 !important;
+	transform: translateY(-8px);
+	box-shadow: var(--epd-shadow-hover) !important;
+	border-color: var(--epd-primary);
+}
+.erphpdown-vip-content .vip-item .name{
+	font-size: 1.25rem !important;
+	font-weight: 700 !important;
+	color: var(--epd-text);
+	margin: 0 0 .5rem !important;
+}
+.erphpdown-vip-content .vip-item .price{
+	font-size: 2.1rem !important;
+	font-weight: 800;
+	display: block;
+	margin: .5rem 0 !important;
+	color: var(--epd-primary);
+	line-height: 1.1;
+}
+.erphpdown-vip-content .vip-item .price small{
+	font-size: .85rem !important;
+	color: var(--epd-muted);
+	font-weight: 500;
+}
+.erphpdown-vip-content .vip-item p.border-decor{
+	margin: 0 0 1.25rem !important;
+	text-align: center;
+}
+.erphpdown-vip-content .vip-item p.border-decor span{
+	background: var(--epd-surface-2) !important;
+	color: var(--epd-primary) !important;
+	border-radius: var(--epd-radius-pill);
+	padding: .3rem .9rem;
+	display: inline-block;
+	line-height: 1;
+	font-size: 13px;
+}
+.erphpdown-vip-content .vip-item ul{
+	margin: 0 0 1.25rem !important;
+	padding: 0;
+	list-style: none;
+	text-align: left;
+}
+.erphpdown-vip-content .vip-item ul li{
+	font-size: 14px !important;
+	padding: .6rem 0 !important;
+	color: var(--epd-text);
+}
+.erphpdown-vip-content .vip-item ul li:not(:last-child){
+	border-bottom: 1px solid var(--epd-border) !important;
+}
+.erphpdown-vip-content .vip-item ul li i{
+	width: 8px; height: 8px;
+	border: 2px solid var(--epd-primary) !important;
+	border-radius: 50%;
+	display: inline-block;
+	margin-right: .5rem;
+	position: relative;
+	top: -1px;
+}
+.erphpdown-vip-content .vip-item .erphpdown-btn{
+	display: inline-block;
+	width: 100%;
+	box-sizing: border-box;
+	background: var(--epd-primary) !important;
+	color: var(--epd-on-primary) !important;
+	border: none !important;
+	border-radius: var(--epd-radius-pill) !important;
+	padding: .7rem 1.25rem !important;
+	font-size: 15px !important;
+	font-weight: 600;
+	min-width: 0 !important;
+	text-decoration: none !important;
+	cursor: pointer;
+	transition: background .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+.erphpdown-vip-content .vip-item .erphpdown-btn:hover{
+	background: var(--epd-primary-hover) !important;
+	box-shadow: 0 4px 14px var(--epd-focus-ring);
+	transform: translateY(-1px);
+}
+.erphpdown-vip-content .vip-item .erphpdown-btn.disabled{
+	visibility: hidden;
+}
+/* VIP 页无套餐时的占位（任务7问题4：价格未配置留空壳） */
+.erphpdown-vip-content:empty::after{
+	content: "暂无可购套餐，请稍后再来";
+	display: block;
+	grid-column: 1 / -1;
+	text-align: center;
+	color: var(--epd-muted);
+	padding: 2.5rem 1rem;
+	font-size: 15px;
+}
+
+/* ============ [9] layui 弹窗 + toast 换肤（任务14） ============ */
+/* 只改视觉皮肤，不动 layui 引擎结构/定位/动画（引擎在 erphpdown.css 第2行） */
+/* 弹窗主容器：圆角 + Mizuki 卡片阴影，适配暗色 */
+.layui-layer{
+	border-radius: var(--epd-radius-lg) !important;
+	box-shadow: 0 12px 48px rgba(0,0,0,.22) !important;
+	background-color: var(--epd-card-bg) !important;
+	color: var(--epd-text) !important;
+	overflow: hidden;
+}
+/* 遮罩：稍深，聚焦弹窗 */
+.layui-layer-shade{
+	background-color: #000 !important;
+	opacity: .45 !important;
+}
+/* 标题栏：主色淡底 + 主色标题（替换灰底 #F8F8F8） */
+.layui-layer-title{
+	background: var(--epd-surface-2) !important;
+	color: var(--epd-primary) !important;
+	border-bottom: 1px solid var(--epd-border) !important;
+	font-weight: 600 !important;
+	font-size: 15px !important;
+	height: 48px !important;
+	line-height: 48px !important;
+	padding: 0 3.5rem 0 1.25rem !important;
+}
+/* 内容区留白 */
+.layui-layer-dialog .layui-layer-content{
+	padding: 1.5rem 1.25rem !important;
+	color: var(--epd-text) !important;
+	line-height: 1.7 !important;
+}
+/* 底部按钮区 */
+.layui-layer-btn{
+	padding: 0 1.25rem 1.15rem !important;
+	text-align: right !important;
+}
+.layui-layer-btn a{
+	height: auto !important;
+	line-height: 1.2 !important;
+	padding: .55rem 1.25rem !important;
+	border-radius: var(--epd-radius-pill) !important;
+	border: 1px solid var(--epd-border) !important;
+	background: var(--epd-card-bg) !important;
+	color: var(--epd-text) !important;
+	font-size: 14px !important;
+	font-weight: 500;
+	margin-left: .5rem !important;
+}
+.layui-layer-btn a:hover{
+	border-color: var(--epd-primary) !important;
+	color: var(--epd-primary) !important;
+	opacity: 1 !important;
+}
+/* 主按钮（确定）：主色实心 */
+.layui-layer-btn .layui-layer-btn0{
+	background: var(--epd-primary) !important;
+	border-color: var(--epd-primary) !important;
+	color: var(--epd-on-primary) !important;
+	font-weight: 600;
+}
+.layui-layer-btn .layui-layer-btn0:hover{
+	background: var(--epd-primary-hover) !important;
+	color: var(--epd-on-primary) !important;
+}
+/* 关闭按钮位置微调，圆形 hover */
+.layui-layer-setwin .layui-layer-close1{
+	border-radius: 50%;
+	transition: background .15s ease;
+}
+.layui-layer-setwin .layui-layer-close1:hover{
+	background: color-mix(in srgb, currentColor 10%, transparent);
+	opacity: 1 !important;
+}
+/* toast（layer.msg 无图标那种）：深色胶囊居中 */
+.layui-layer-msg{
+	border-radius: var(--epd-radius-pill) !important;
+	border: none !important;
+	box-shadow: 0 6px 24px rgba(0,0,0,.25) !important;
+	min-width: 0 !important;
+}
+.layui-layer-msg .layui-layer-content{
+	padding: .7rem 1.4rem !important;
+	font-size: 14px !important;
+}
+/* 深色 toast（layui-layer-hui）：保持深底白字，仅圆角化 */
+.layui-layer-hui{
+	background-color: rgba(23,23,23,.92) !important;
+	border-radius: var(--epd-radius-pill) !important;
+	color: #fff !important;
+}
+/* 加载态 */
+.layui-layer-loading{
+	background: transparent !important;
+	box-shadow: none !important;
+}
+/* 弹窗内页面型内容（iframe/page）也套圆角 */
+.layui-layer-page .layui-layer-content{
+	border-radius: 0 0 var(--epd-radius-lg) var(--epd-radius-lg);
+}
+
+/* ============ [10] 独立页壳：buy.php / diy.php 下载页·等待页（任务16） ============ */
+/* 这些页脱离 WordPress 主题独立渲染，无 --primary 令牌，皮肤层自动落到 fallback（靛蓝）。
+   仅浅色（独立页 <html> 无 .dark 类），保证可用与观感一致，不做暗色分支。 */
+/* 页面画布：浅灰底 + 居中留白，替代原纯白无边距 */
+body.erphpdown-body{
+	background: #f5f6f8;
+	min-height: 100vh;
+	margin: 0 !important;
+	padding: 2rem 1rem !important;
+	box-sizing: border-box;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft Yahei", sans-serif;
+	color: #1a1a1a;
+}
+/* 下载信息卡 / 等待卡：inline-block 居中 → 白色圆角卡 */
+body.erphpdown-body #erphpdown-download{
+	background: var(--epd-card-bg, #fff);
+	border: 1px solid var(--epd-border);
+	border-radius: var(--epd-radius-lg);
+	box-shadow: var(--epd-shadow);
+	max-width: 420px !important;
+	width: 100%;
+	padding: 2rem 1.75rem !important;
+	margin: 0 auto;
+	text-align: center;
+	box-sizing: border-box;
+}
+body.erphpdown-body #erphpdown-download h1{
+	font-size: 1.2rem;
+	font-weight: 700;
+	margin: 0 0 1.25rem;
+	color: var(--epd-primary);
+}
+/* 分组小标题：两侧灰线改柔和边框色 */
+body.erphpdown-body #erphpdown-download .title{
+	font-size: 14px;
+	color: var(--epd-muted);
+	margin-top: 1.5rem;
+}
+body.erphpdown-body #erphpdown-download .title span:before,
+body.erphpdown-body #erphpdown-download .title span:after{
+	background: var(--epd-border) !important;
+}
+/* 核心：立即下载按钮，橙色 #ff5f33 → 主色药丸 */
+body.erphpdown-body #erphpdown-download .link{
+	display: inline-flex !important;
+	align-items: center;
+	justify-content: center;
+	width: auto !important;
+	min-width: 180px;
+	padding: .75rem 1.5rem !important;
+	margin: .75rem auto !important;
+	background: var(--epd-primary) !important;
+	color: var(--epd-on-primary) !important;
+	border-radius: var(--epd-radius-pill) !important;
+	font-size: 15px !important;
+	font-weight: 600;
+	line-height: 1.2 !important;
+	box-shadow: 0 2px 8px var(--epd-focus-ring);
+	transition: background .18s ease, transform .18s ease, box-shadow .18s ease;
+}
+body.erphpdown-body #erphpdown-download .link:hover{
+	background: var(--epd-primary-hover) !important;
+	transform: translateY(-1px);
+	box-shadow: 0 4px 14px var(--epd-focus-ring);
+}
+/* 提取码/激活码代码块：等宽浅底胶囊 */
+body.erphpdown-body .erphpdown-code{
+	display: inline-block;
+	background: var(--epd-surface-2);
+	color: var(--epd-primary);
+	border-radius: var(--epd-radius);
+	padding: .15rem .55rem;
+	font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+	font-size: 13px;
+}
+/* 复制按钮：幽灵小按钮（已在[5]定义，此处仅确保独立页内也生效） */
+body.erphpdown-body .erphpdown-copy{
+	color: var(--epd-primary) !important;
+}
+/* 等待页倒计时数字：橙 → 主色 */
+body.erphpdown-body #time{
+	color: var(--epd-primary) !important;
+	font-weight: 700;
+}
+/* 等待页“升级VIP”按钮：内联 lightgreen → 主色（!important 覆盖内联样式） */
+body.erphpdown-body #erphpdown-download .erphpdown-btn{
+	display: inline-block;
+	background: var(--epd-primary) !important;
+	color: var(--epd-on-primary) !important;
+	border-radius: var(--epd-radius-pill) !important;
+	padding: .6rem 1.4rem !important;
+	font-size: 14px !important;
+	font-weight: 600;
+	text-decoration: none !important;
+	box-shadow: 0 2px 8px var(--epd-focus-ring);
+}
+/* 等待动画条：lightgreen/lightblue → 主色调（仅换色，不动关键帧结构） */
+body.erphpdown-body .loading span{
+	background: var(--epd-primary) !important;
+}
+
+/* buy.php 自助购买框：容器加宽居中卡片化 */
+body #erphpdown-paybox{
+	max-width: 640px;
+	margin: 1rem auto !important;
+	color: #1a1a1a;
+}
+/* buy.php 错误提示条：红底圆角卡 */
+#erphpdown-paybox .error,
+body.erphpdown-body .error{
+	background: color-mix(in srgb, var(--epd-price) 10%, #fff);
+	border: 1px solid color-mix(in srgb, var(--epd-price) 35%, transparent);
+	color: var(--epd-price);
+	border-radius: var(--epd-radius);
+	padding: 1rem 1.25rem;
+	margin: 1rem auto;
+	max-width: 420px;
+	text-align: center;
+	font-size: 14px;
+}

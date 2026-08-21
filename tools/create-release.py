@@ -15,25 +15,23 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TOKEN = os.environ.get('GH_TOKEN', '')
 OWNER = 'wananOwO'
 REPO = 'mizuki-wp'
-TAG = 'v1.2.0'
+TAG = 'v1.2.1'
 ZIP_PATH = os.path.join(ROOT, 'mizuki-wp-theme.zip')
 
-RELEASE_BODY = """## v1.2.0 上游对齐与修复
+RELEASE_BODY = """## v1.2.1 移动端文章与 QQ 图标修复
 
-### 显示与布局
+### 本次修复
 
-- 显示设置继续对齐上游统一面板,桌面端集中管理主题色、壁纸和布局
-- 全屏模式首屏直接显示文章卡片,网格模式隐藏右侧栏
-- 新增叠加壁纸模式,支持壁纸不透明度、模糊和卡片不透明度
-- 移动端不显示或应用壁纸、叠加效果与布局切换
+- 恢复上游单篇文章容器的 `w-full` 宽度约束,修复移动端 Chromium/Firefox 下文章卡片和普通正文被内容最小宽度撑开、裁切的问题
+- QQ 社交按钮改用上游配置对应的 Font Awesome Brands 官方图标,保持原有尺寸、颜色和交互动效
+- 新增 Chromium/Firefox 双引擎回归,覆盖长链接文章的卡片边界和 QQ SVG 契约
 
-### WordPress 与交互
+### 延续的上游对齐能力
 
-- 在「Mizuki 主题」后台增加可编辑的网站公告
-- 恢复「我的 / 关于 / 更多」悬停子菜单,保留键盘与点击状态
-- 修正网格卡片标题蓝色装饰条对齐
-- 实际加载主题打包的 Zen Maru Gothic 与 Loli 字体
-- 修正文章卡片的 Unicode 字数统计和设置按钮 `aria-expanded`
+- 保留叠加壁纸模式及不透明度、模糊和卡片透明度设置
+- 保留 WordPress 后台可编辑的网站公告
+- 保留「我的 / 关于 / 更多」悬停子菜单及键盘、点击状态
+- 保留 Zen Maru Gothic 与 Loli 字体加载和现有统一显示设置面板
 
 ### 验证与打包
 
@@ -97,7 +95,7 @@ def main():
         data={
             'tag_name': TAG,
             'target_commitish': 'main',
-            'name': f'{TAG} - Mizuki 上游设计与交互对齐',
+            'name': f'{TAG} - 移动端文章与 QQ 图标修复',
             'body': RELEASE_BODY,
             'draft': False,
             'prerelease': False,

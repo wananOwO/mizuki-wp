@@ -1,0 +1,811 @@
+msgid ""
+msgstr ""
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Project-Id-Version: ErphpDown\n"
+"POT-Creation-Date: 2022-12-30 11:35+0800\n"
+"PO-Revision-Date: 2022-12-30 15:52+0800\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.4.3\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-Flags-xgettext: --add-comments=translators:\n"
+"X-Poedit-WPHeader: erphpdown.php\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;"
+"esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;_n_noop:1,2;"
+"_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
+"Last-Translator: \n"
+"Language: zh_HK\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: *.min.js\n"
+
+#: addon/pancheck/index.php:12
+#, php-format
+msgid "<a href=\"%s\"%s>网盘失效 <span class=\"count\">（%d）</span></a>"
+msgstr "<a href=\"%s\"%s>網盤失效 <span class=\"count\">（%d）</span>"
+
+#: buy.php:47
+msgid "请先在后台erphpdown-基础设置里启用激活码发放扩展！"
+msgstr "請先在後台erphpdown-基礎設置里啟用啟動碼發放擴展！"
+
+#: buy.php:47 checkout.php:301 checkout.php:316 checkout.php:332
+#: checkout.php:370 checkout.php:377 checkout.php:469 checkout.php:474
+#: download.php:24 download.php:30 download.php:54 download.php:60
+#: download.php:159 download.php:169 download.php:196 download.php:202
+#: download.php:208 download.php:214 download.php:220 download.php:254
+#: download.php:260 download.php:268 download.php:274 download.php:282
+#: download.php:288 download.php:296 download.php:302 download.php:310
+#: download.php:316 download.php:371 download.php:375 download.php:389
+#: download.php:416 download.php:427 downloadfile.php:17 downloadfile.php:23
+#: downloadfile.php:46 downloadfile.php:163 downloadfile.php:175
+#: downloadfile.php:185 downloadfile.php:213 downloadfile.php:219
+#: downloadfile.php:225 downloadfile.php:231 downloadfile.php:237
+#: downloadfile.php:271 downloadfile.php:277 downloadfile.php:285
+#: downloadfile.php:291 downloadfile.php:299 downloadfile.php:305
+#: downloadfile.php:313 downloadfile.php:319 downloadfile.php:327
+#: downloadfile.php:333 downloadfile.php:341 downloadfile.php:344
+#: downloadfile.php:349 downloadfile.php:357 downloadfile.php:457
+#: downloadfile.php:460 includes/pay.erphp.php:32 includes/pay.erphp.php:38
+#: includes/pay.erphp.php:48 includes/pay.erphp.php:78
+#: includes/pay.erphp.php:121 includes/pay.erphp.php:230
+#: includes/pay.erphp.php:258 includes/pay.erphp.php:261
+#: includes/pay.erphp.php:267 includes/pay.erphp.php:281
+#: includes/pay.erphp.php:286 includes/pay.erphp.php:305
+#: includes/pay.erphp.php:473 includes/pay.erphp.php:642 payment/paypal.php:169
+msgid "友情提示"
+msgstr "友情提示"
+
+#: buy.php:56 buy.php:282 buy.php:439 buy.php:591 buy.php:714
+msgid "购买内容"
+msgstr "購買內容"
+
+#: buy.php:56
+msgid "库存："
+msgstr "庫存："
+
+#: buy.php:60
+msgid "购买数量"
+msgstr "購買數量"
+
+#: buy.php:64
+msgid "合计"
+msgstr "合計"
+
+#: buy.php:64 buy.php:287 includes/shortcode.php:1566
+msgid "元"
+msgstr "元"
+
+#: buy.php:67
+msgid "接收邮箱"
+msgstr "接收郵箱"
+
+#: buy.php:77 buy.php:79 buy.php:89 buy.php:93 buy.php:99 buy.php:104
+#: buy.php:108 buy.php:113 buy.php:117 buy.php:294 buy.php:296 buy.php:306
+#: buy.php:310 buy.php:316 buy.php:321 buy.php:325 buy.php:330 buy.php:334
+#: buy.php:468 buy.php:470 buy.php:480 buy.php:484 buy.php:490 buy.php:495
+#: buy.php:499 buy.php:504 buy.php:508 buy.php:621 buy.php:623 buy.php:633
+#: buy.php:637 buy.php:643 buy.php:648 buy.php:652 buy.php:657 buy.php:661
+#: buy.php:732 buy.php:734 buy.php:744 buy.php:748 buy.php:754 buy.php:759
+#: buy.php:763 buy.php:768 buy.php:772
+msgid "微信支付"
+msgstr "微信支付"
+
+#: buy.php:83 buy.php:86 buy.php:90 buy.php:96 buy.php:100 buy.php:103
+#: buy.php:109 buy.php:114 buy.php:118 buy.php:300 buy.php:303 buy.php:307
+#: buy.php:313 buy.php:317 buy.php:320 buy.php:326 buy.php:331 buy.php:335
+#: buy.php:474 buy.php:477 buy.php:481 buy.php:487 buy.php:491 buy.php:494
+#: buy.php:500 buy.php:505 buy.php:509 buy.php:627 buy.php:630 buy.php:634
+#: buy.php:640 buy.php:644 buy.php:647 buy.php:653 buy.php:658 buy.php:662
+#: buy.php:738 buy.php:741 buy.php:745 buy.php:751 buy.php:755 buy.php:758
+#: buy.php:764 buy.php:769 buy.php:773 includes/shortcode.php:1144
+#: includes/shortcode.php:1150 includes/shortcode.php:1159
+#: includes/shortcode.php:1165 includes/shortcode.php:1171
+#: includes/shortcode.php:1177 includes/shortcode.php:1186
+#: includes/shortcode.php:1195 includes/shortcode.php:1201
+#: includes/shortcode.php:1234 includes/shortcode.php:1237
+#: includes/shortcode.php:1240 includes/shortcode.php:1247
+#: includes/shortcode.php:1250 includes/shortcode.php:1255
+#: includes/shortcode.php:1259 includes/shortcode.php:1264
+#: includes/shortcode.php:1268 includes/shortcode.php:1586
+#: includes/shortcode.php:1592 includes/shortcode.php:1601
+#: includes/shortcode.php:1607 includes/shortcode.php:1613
+#: includes/shortcode.php:1619 includes/shortcode.php:1628
+#: includes/shortcode.php:1637 includes/shortcode.php:1643
+#: includes/shortcode.php:1676 includes/shortcode.php:1679
+#: includes/shortcode.php:1682 includes/shortcode.php:1689
+#: includes/shortcode.php:1692 includes/shortcode.php:1697
+#: includes/shortcode.php:1701 includes/shortcode.php:1706
+#: includes/shortcode.php:1710 includes/shortcode.php:1792
+msgid "支付宝"
+msgstr "支付寶"
+
+#: buy.php:105 buy.php:110 buy.php:322 buy.php:327 buy.php:496 buy.php:501
+#: buy.php:649 buy.php:654 buy.php:760 buy.php:765 includes/shortcode.php:1180
+#: includes/shortcode.php:1189 includes/shortcode.php:1252
+#: includes/shortcode.php:1260 includes/shortcode.php:1622
+#: includes/shortcode.php:1631 includes/shortcode.php:1694
+#: includes/shortcode.php:1702
+msgid "QQ钱包"
+msgstr "QQ錢包"
+
+#: buy.php:121 buy.php:338 buy.php:512 buy.php:665 buy.php:776
+#: includes/shortcode.php:1207 includes/shortcode.php:1225
+#: includes/shortcode.php:1649 includes/shortcode.php:1667
+msgid "信用卡"
+msgstr "信用卡"
+
+#: buy.php:124 buy.php:341 buy.php:515 buy.php:668 buy.php:779
+#: includes/shortcode.php:1210 includes/shortcode.php:1228
+#: includes/shortcode.php:1652 includes/shortcode.php:1670
+msgid "新台币"
+msgstr "新臺幣"
+
+#: buy.php:127 buy.php:344 buy.php:518 buy.php:671 buy.php:782
+#: includes/shortcode.php:1204 includes/shortcode.php:1219
+#: includes/shortcode.php:1646 includes/shortcode.php:1661
+msgid "USDT"
+msgstr "USDT"
+
+#: buy.php:139 buy.php:351
+#, php-format
+msgid "<a href=\"%s\" target=\"_blank\">登录</a>后购买可保存购买记录"
+msgstr "<a href=\"%s\" target=\"_blank\">登錄</a>后購買可保存購買記錄"
+
+#: buy.php:140 buy.php:157 buy.php:456 buy.php:458 buy.php:527 buy.php:530
+#: buy.php:532 buy.php:608 buy.php:611 buy.php:680 buy.php:683 buy.php:685
+#: buy.php:833
+msgid "余额支付"
+msgstr "餘額支付"
+
+#: buy.php:147 buy.php:824
+msgid "处理中..."
+msgstr "處理中..."
+
+#: buy.php:164
+msgid "购买成功"
+msgstr "購買成功"
+
+#: buy.php:184
+msgid "请输入购买数量"
+msgstr "請輸入購買數量"
+
+#: buy.php:187
+msgid "请输入邮箱，用于接收卡密"
+msgstr "請輸入郵箱，用於接收卡密"
+
+#: buy.php:254 buy.php:356 buy.php:541 buy.php:694 buy.php:793 checkout.php:50
+#: checkout.php:180 checkout.php:370 includes/shortcode.php:726
+msgid "价格错误"
+msgstr "價格錯誤"
+
+#: buy.php:286 buy.php:443 buy.php:595 buy.php:724
+msgid "购买结算"
+msgstr "購買結算"
+
+#: buy.php:287
+msgid "小计"
+msgstr "小計"
+
+#: buy.php:378
+msgid "您已购买过，请关闭此窗口后刷新页面试试"
+msgstr "您已購買過，請關閉此視窗后刷新頁面試試"
+
+#: buy.php:408 buy.php:560 checkout.php:187 checkout.php:377
+msgid "您无权购买此资源"
+msgstr "您無權購買此資源"
+
+#: buy.php:444 buy.php:596
+msgid "原价"
+msgstr "原價"
+
+#: buy.php:448 buy.php:600
+msgid "账户余额："
+msgstr "帳戶餘額："
+
+#: buy.php:796 includes/shortcode.php:746
+msgid "VIP类型错误"
+msgstr "VIP類型錯誤"
+
+#: buy.php:799
+msgid "文章ID错误"
+msgstr "文章ID錯誤"
+
+#: buy.php:804
+msgid "优惠码："
+msgstr "優惠碼："
+
+#: buy.php:804
+msgid "使用"
+msgstr "使用"
+
+#: checkout.php:17 checkout.php:301 download.php:30 download.php:371
+#: downloadfile.php:23 downloadfile.php:163
+msgid "请先登录"
+msgstr "請先登錄"
+
+#: checkout.php:35
+msgid "抱歉，库存不足!"
+msgstr "抱歉，庫存不足！"
+
+#: checkout.php:38
+msgid "抱歉，网站未启用【激活码发放】扩展（Erphpdown-基础设置 里的免费扩展）!"
+msgstr ""
+"抱歉，網站未啟用【啟動碼發放】擴展（Erphpdown-基礎設置 里的免費擴展）！"
+
+#: checkout.php:44
+msgid "请填写一个接收卡密的邮箱!"
+msgstr "請填寫一個接收卡密的郵箱！"
+
+#: checkout.php:76 checkout.php:228 checkout.php:417
+msgid "购买资源"
+msgstr "購買資源"
+
+#: checkout.php:111 checkout.php:272 checkout.php:278 checkout.php:462
+#: checkout.php:469
+msgid "系统错误"
+msgstr "系統錯誤"
+
+#: checkout.php:114 checkout.php:283 checkout.php:474
+#: includes/shortcode.php:728 includes/shortcode.php:1301
+#: includes/shortcode.php:1763
+msgid "余额不足"
+msgstr "餘額不足"
+
+#: checkout.php:124 checkout.php:316
+msgid "不支持余额购买，请直接在线支付购买"
+msgstr "不支持餘額購買，請直接在線支付購買"
+
+#: checkout.php:142
+msgid "请勿重复购买"
+msgstr "請勿重複購買"
+
+#: checkout.php:332
+msgid "请勿重复购买，请返回原页面刷新页面！"
+msgstr "請勿重複購買，請返回原頁面刷新頁面！"
+
+#: diy.php:18 download.php:16
+msgid "文件下载"
+msgstr "檔下載"
+
+#: diy.php:49
+msgid "文件下载等待"
+msgstr "檔下載等待"
+
+#: diy.php:101
+msgid "下载即将开始，剩余等待时间..."
+msgstr "下載即將開始，剩餘等待時間..."
+
+#: diy.php:102
+msgid "升级VIP，下载不用等待"
+msgstr "升級VIP，下載不用等待"
+
+#: download.php:24 download.php:54 download.php:60 download.php:375
+#: download.php:416 download.php:427 downloadfile.php:17 downloadfile.php:46
+#: downloadfile.php:341 downloadfile.php:344 downloadfile.php:349
+#: downloadfile.php:357 downloadfile.php:457 downloadfile.php:460
+msgid "下载信息错误！"
+msgstr "下載信息錯誤！"
+
+#: download.php:389
+msgid "下载权限已过期，请重新购买"
+msgstr "下載許可權已過期，請重新購買"
+
+#: download.php:485 download.php:502 download.php:512 download.php:519
+msgid "下载地址"
+msgstr "下載位址"
+
+#: download.php:485 download.php:487 download.php:493 download.php:495
+#: download.php:502 download.php:506 download.php:512 download.php:514
+#: download.php:516 download.php:519
+msgid "立即下载"
+msgstr "立即下載"
+
+#: download.php:493 download.php:495 download.php:506 download.php:516
+#: download.php:532 download.php:534 download.php:539 download.php:544
+#: includes/pay.erphp.php:344 includes/pay.erphp.php:345
+#: includes/pay.erphp.php:346 includes/pay.erphp.php:512
+#: includes/pay.erphp.php:513 includes/pay.erphp.php:514
+#: includes/pay.erphp.php:681 includes/pay.erphp.php:682
+#: includes/pay.erphp.php:683
+msgid "复制"
+msgstr "複製"
+
+#: download.php:506
+msgid "提取码："
+msgstr "提取碼："
+
+#: download.php:527 download.php:539
+msgid "隐藏信息"
+msgstr "隱藏資訊"
+
+#: download.php:544
+msgid "激活码"
+msgstr "激活碼"
+
+#: includes/class.erphp.php:702 includes/class.erphp.php:771
+#: payment/xhpay3.php:369
+msgid "Invalid sign!"
+msgstr "Invalid sign!"
+
+#: includes/init.php:210
+msgid "首页"
+msgstr "首頁"
+
+#: includes/init.php:212
+msgid "上一页"
+msgstr "上一頁"
+
+#: includes/init.php:225
+msgid "下一页"
+msgstr "下一頁"
+
+#: includes/init.php:227
+msgid "尾页"
+msgstr "尾頁"
+
+#: includes/shortcode.php:148
+msgid "个人资料"
+msgstr "個人資料"
+
+#: includes/shortcode.php:151
+msgid "用户名"
+msgstr "用戶名"
+
+#: includes/shortcode.php:157 includes/shortcode.php:380
+msgid "注册时间"
+msgstr "註冊時間"
+
+#: includes/shortcode.php:163
+msgid "昵称"
+msgstr "暱稱"
+
+#: includes/shortcode.php:169
+msgid "邮箱"
+msgstr "郵件"
+
+#: includes/shortcode.php:175
+msgid "简介"
+msgstr "簡介"
+
+#: includes/shortcode.php:181
+msgid "修改资料"
+msgstr "修改資料"
+
+#: includes/shortcode.php:184
+msgid "新密码"
+msgstr "新密碼"
+
+#: includes/shortcode.php:190
+msgid "重复新密码"
+msgstr "重複新密碼"
+
+#: includes/shortcode.php:196
+msgid "修改密码"
+msgstr "修改密碼"
+
+#: includes/shortcode.php:207
+msgid "请输入昵称"
+msgstr "請輸入暱稱"
+
+#: includes/shortcode.php:211
+msgid "请输入正确邮箱，以免忘记密码时无法找回"
+msgstr "請輸入正確郵箱，以免忘記密碼時無法找回"
+
+#: includes/shortcode.php:215 includes/shortcode.php:242
+msgid "修改中..."
+msgstr "變更中..."
+
+#: includes/shortcode.php:222 includes/shortcode.php:249
+msgid "修改成功"
+msgstr "密碼修改成功"
+
+#: includes/shortcode.php:225 includes/shortcode.php:252
+#: includes/shortcode.php:737 includes/shortcode.php:740
+#: includes/shortcode.php:743 includes/shortcode.php:1311
+#: includes/shortcode.php:1373 includes/shortcode.php:1781
+msgid "系统超时，请稍后重试"
+msgstr "系統超時，請稍後重試"
+
+#: includes/shortcode.php:234
+msgid "请输入密码"
+msgstr "請輸入密碼"
+
+#: includes/shortcode.php:238
+msgid "两次输入密码不一样"
+msgstr "兩次輸入密碼不一樣"
+
+#: includes/shortcode.php:280
+msgid "我的资产"
+msgstr "我的資產"
+
+#: includes/shortcode.php:284
+msgid "收入+推广"
+msgstr "收入+推廣"
+
+#: includes/shortcode.php:290 includes/shortcode.php:1816
+msgid "可提现余额"
+msgstr "可提現餘額："
+
+#: includes/shortcode.php:298
+msgid "可用余额"
+msgstr "可用餘額"
+
+#: includes/shortcode.php:323
+msgid "购买清单"
+msgstr "購買清單"
+
+#: includes/shortcode.php:327 includes/shortcode.php:422
+#: includes/shortcode.php:520 includes/shortcode.php:1961
+msgid "名称"
+msgstr "名稱"
+
+#: includes/shortcode.php:328 includes/shortcode.php:424
+#: includes/shortcode.php:521 includes/shortcode.php:1962
+msgid "订单号"
+msgstr "訂單號"
+
+#: includes/shortcode.php:329 includes/shortcode.php:425
+#: includes/shortcode.php:477 includes/shortcode.php:523
+#: includes/shortcode.php:574 includes/shortcode.php:1911
+#: includes/shortcode.php:1963
+msgid "价格"
+msgstr "價格"
+
+#: includes/shortcode.php:330 includes/shortcode.php:426
+#: includes/shortcode.php:478 includes/shortcode.php:524
+#: includes/shortcode.php:575 includes/shortcode.php:617
+#: includes/shortcode.php:1861 includes/shortcode.php:1964
+msgid "时间"
+msgstr "時間"
+
+#: includes/shortcode.php:331 includes/shortcode.php:1916
+msgid "操作"
+msgstr "操作"
+
+#: includes/shortcode.php:345
+msgid "下载"
+msgstr "下載"
+
+#: includes/shortcode.php:347
+msgid "查看"
+msgstr "查看"
+
+#: includes/shortcode.php:352 includes/shortcode.php:394
+#: includes/shortcode.php:441 includes/shortcode.php:494
+#: includes/shortcode.php:542 includes/shortcode.php:590
+#: includes/shortcode.php:640 includes/shortcode.php:1884
+#: includes/shortcode.php:1933 includes/shortcode.php:1982
+msgid "暂无记录"
+msgstr "暫無記錄"
+
+#: includes/shortcode.php:374
+msgid "推广用户"
+msgstr "推廣使用者"
+
+#: includes/shortcode.php:375
+#, php-format
+msgid "已推广注册 %s 人"
+msgstr "已推廣註冊 %s 人"
+
+#: includes/shortcode.php:375 includes/shortcode.php:471
+msgid "，您的专属推广链接："
+msgstr "，您的專屬推廣連結："
+
+#: includes/shortcode.php:379 includes/shortcode.php:423
+#: includes/shortcode.php:475 includes/shortcode.php:522
+msgid "用户"
+msgstr "用戶"
+
+#: includes/shortcode.php:381
+msgid "消费金额"
+msgstr "消費金額"
+
+#: includes/shortcode.php:418
+msgid "推广订单"
+msgstr "推廣訂單"
+
+#: includes/shortcode.php:470
+msgid "推广VIP"
+msgstr "推廣VIP"
+
+#: includes/shortcode.php:471
+#, php-format
+msgid "已推广VIP %s 单"
+msgstr "已推廣VIP %s 單"
+
+#: includes/shortcode.php:476 includes/shortcode.php:573
+#: includes/shortcode.php:799 includes/shortcode.php:1047
+msgid "VIP类型"
+msgstr "VIP類型"
+
+#: includes/shortcode.php:516
+msgid "销售订单"
+msgstr "銷售訂單"
+
+#: includes/shortcode.php:569
+msgid "VIP订单"
+msgstr "VIP訂單"
+
+#: includes/shortcode.php:611
+msgid "充值记录"
+msgstr "充值記錄"
+
+#: includes/shortcode.php:615
+msgid "金额"
+msgstr "金額"
+
+#: includes/shortcode.php:616
+msgid "方式"
+msgstr "方式"
+
+#: includes/shortcode.php:626 includes/shortcode.php:1561
+msgid "在线充值"
+msgstr "在線充值"
+
+#: includes/shortcode.php:628
+msgid "后台充值"
+msgstr "後台充值"
+
+#: includes/shortcode.php:630
+msgid "积分兑换"
+msgstr "積分兌換"
+
+#: includes/shortcode.php:632 includes/shortcode.php:1378
+#: includes/shortcode.php:1431
+msgid "充值卡"
+msgstr "充值卡"
+
+#: includes/shortcode.php:634
+msgid "未知"
+msgstr "未知"
+
+#: includes/shortcode.php:735
+msgid "升级成功"
+msgstr "升級成功"
+
+#: includes/shortcode.php:768 includes/shortcode.php:1016
+#: includes/shortcode.php:1431
+msgid "升级VIP"
+msgstr "升級VIP"
+
+#: includes/shortcode.php:768 includes/shortcode.php:886
+msgid "余额"
+msgstr "餘額"
+
+#: includes/shortcode.php:769 includes/shortcode.php:1017
+msgid "当前类型："
+msgstr "目前類型："
+
+#: includes/shortcode.php:792 includes/shortcode.php:1040
+msgid "普通用户"
+msgstr "普通使用者"
+
+#: includes/shortcode.php:794 includes/shortcode.php:1042
+msgid "，到期时间："
+msgstr "，到期時間："
+
+#: includes/shortcode.php:890 includes/shortcode.php:1275
+#: includes/shortcode.php:1441
+msgid "立即升级"
+msgstr "立即升級"
+
+#: includes/shortcode.php:1016
+msgid "支付"
+msgstr "支付寶"
+
+#: includes/shortcode.php:1134 includes/shortcode.php:1576
+msgid "支付方式"
+msgstr "支付方式"
+
+#: includes/shortcode.php:1147 includes/shortcode.php:1156
+#: includes/shortcode.php:1162 includes/shortcode.php:1168
+#: includes/shortcode.php:1174 includes/shortcode.php:1183
+#: includes/shortcode.php:1192 includes/shortcode.php:1198
+#: includes/shortcode.php:1231 includes/shortcode.php:1241
+#: includes/shortcode.php:1244 includes/shortcode.php:1251
+#: includes/shortcode.php:1256 includes/shortcode.php:1261
+#: includes/shortcode.php:1265 includes/shortcode.php:1269
+#: includes/shortcode.php:1589 includes/shortcode.php:1598
+#: includes/shortcode.php:1604 includes/shortcode.php:1610
+#: includes/shortcode.php:1616 includes/shortcode.php:1625
+#: includes/shortcode.php:1634 includes/shortcode.php:1640
+#: includes/shortcode.php:1673 includes/shortcode.php:1683
+#: includes/shortcode.php:1686 includes/shortcode.php:1693
+#: includes/shortcode.php:1698 includes/shortcode.php:1703
+#: includes/shortcode.php:1707 includes/shortcode.php:1711
+msgid "微信"
+msgstr "同步微信圖片成功"
+
+#: includes/shortcode.php:1153 includes/shortcode.php:1222
+#: includes/shortcode.php:1595 includes/shortcode.php:1664
+msgid "美元汇率："
+msgstr "美元匯率："
+
+#: includes/shortcode.php:1309
+msgid "兑换成功"
+msgstr "兌換成功"
+
+#: includes/shortcode.php:1318
+#, php-format
+msgid "%s兑换"
+msgstr "%s兌換"
+
+#: includes/shortcode.php:1322
+msgid "兑换比例"
+msgstr "兌換比例"
+
+#: includes/shortcode.php:1330
+#, php-format
+msgid "输入兑换的 %s 数量"
+msgstr "輸入兌換的 %s 數量"
+
+#: includes/shortcode.php:1340
+msgid "立即兑换"
+msgstr "立即兌換"
+
+#: includes/shortcode.php:1365
+msgid "充值卡不存在"
+msgstr "充值卡不存在"
+
+#: includes/shortcode.php:1367
+msgid "充值卡已被使用"
+msgstr "充值卡已被使用"
+
+#: includes/shortcode.php:1369
+msgid "充值卡密错误"
+msgstr "充值卡密錯誤"
+
+#: includes/shortcode.php:1371 payment/paypal.php:169
+msgid "充值成功"
+msgstr "充值成功"
+
+#: includes/shortcode.php:1382
+msgid "充值卡号"
+msgstr "充值卡號"
+
+#: includes/shortcode.php:1388
+msgid "充值卡密"
+msgstr "充值卡密"
+
+#: includes/shortcode.php:1394 includes/shortcode.php:1718
+msgid "立即充值"
+msgstr "立即充值"
+
+#: includes/shortcode.php:1435
+msgid "VIP卡号"
+msgstr "VIP卡號"
+
+#: includes/shortcode.php:1564
+msgid "充值比例"
+msgstr "充值比例"
+
+#: includes/shortcode.php:1570
+msgid "充值金额"
+msgstr "充值金額"
+
+#: includes/shortcode.php:1755
+msgid "提现金额不得低于"
+msgstr "提現金額不得低於"
+
+#: includes/shortcode.php:1759
+msgid "请输入支付宝帐号和姓名"
+msgstr "請輸入支付寶帳號和姓名"
+
+#: includes/shortcode.php:1777
+msgid "申请成功"
+msgstr "申請成功"
+
+#: includes/shortcode.php:1788
+msgid "申请提现"
+msgstr "申請提現"
+
+#: includes/shortcode.php:1799
+msgid "姓名"
+msgstr "姓名"
+
+#: includes/shortcode.php:1805
+msgid "手续费"
+msgstr "手續費"
+
+#: includes/shortcode.php:1811
+msgid "提现金额"
+msgstr "提現金額"
+
+#: includes/shortcode.php:1821
+msgid "立即提现"
+msgstr "立即提現"
+
+#: includes/shortcode.php:1857
+msgid "提现列表"
+msgstr "提現清單"
+
+#: includes/shortcode.php:1862
+msgid "申请金额"
+msgstr "申請金額"
+
+#: includes/shortcode.php:1863
+msgid "到账金额"
+msgstr "到賬金額"
+
+#: includes/shortcode.php:1864 includes/shortcode.php:1915
+#: includes/shortcode.php:1966
+msgid "状态"
+msgstr "狀態"
+
+#: includes/shortcode.php:1865
+msgid "备注"
+msgstr "備註"
+
+#: includes/shortcode.php:1872 includes/shortcode.php:1978
+msgid "已完成"
+msgstr "已完成"
+
+#: includes/shortcode.php:1906
+msgid "广告订单"
+msgstr "廣告訂單"
+
+#: includes/shortcode.php:1910
+msgid "广告位"
+msgstr "廣告位"
+
+#: includes/shortcode.php:1912
+msgid "生效时间"
+msgstr "生效時間"
+
+#: includes/shortcode.php:1913
+msgid "周期"
+msgstr "週期"
+
+#: includes/shortcode.php:1914
+msgid "说明"
+msgstr "說明"
+
+#: includes/shortcode.php:1928
+msgid "正常"
+msgstr "正常"
+
+#: includes/shortcode.php:1928
+msgid "过期"
+msgstr "過期"
+
+#: includes/shortcode.php:1957
+msgid "拼团订单"
+msgstr "拼團訂單"
+
+#: includes/shortcode.php:1965
+msgid "进度"
+msgstr "進度"
+
+#: includes/shortcode.php:1978
+msgid "进行中"
+msgstr "進行中"
+
+#: payment/paypal.php:45
+msgid "网站充值"
+msgstr "網站充值"
+
+#. Plugin Name of the plugin/theme
+msgid "ErphpDown"
+msgstr "ErphpDown"
+
+#. Plugin URI of the plugin/theme
+msgid "http://www.mobantu.com/1780.html"
+msgstr "http://www.mobantu.com/1780.html"
+
+#. Description of the plugin/theme
+msgid ""
+"会员推广下载专业版：支持在线支付(支付宝、微信支付、贝宝)，用户推广、提现，发"
+"布收费下载与收费内容查看，下载加密，VIP会员权限等功能的插件。"
+msgstr ""
+"會員推廣下載專業版：支援在線支付（支付寶、微信支付、貝寶），用戶推廣、提現，"
+"發佈收費下載與收費內容查看，下載加密，VIP會員許可權等功能的外掛程式。"
+
+#. Author of the plugin/theme
+msgid "模板兔"
+msgstr "範本兔"
+
+#. Author URI of the plugin/theme
+msgid "http://www.mobantu.com"
+msgstr "http://www.mobantu.com"
