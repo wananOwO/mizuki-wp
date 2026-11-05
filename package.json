@@ -4,9 +4,9 @@
   "version": "1.2.1",
   "description": "Mizuki theme ported to WordPress",
   "scripts": {
-	"test": "php tests/word-count-regression.php && php tests/layout-geometry-test.php && php tests/theme-version-regression.php && php tests/announcement-settings-regression.php && php tests/font-loading-regression.php && node tests/mobile-content-social-regression.mjs && node tests/settings-panel-regression.mjs && node tests/navigation-grid-regression.mjs && node tests/package-tool-regression.mjs && node tests/audit-local-regression.mjs && php test-full-render.php && php test-layout-fixes.php",
-	"test:browser": "node tools/audit-local.mjs",
-	"test:package": "node tools/pack-theme.mjs",
+    "test": "php tests/word-count-regression.php && php tests/layout-geometry-test.php && php tests/theme-version-regression.php && php tests/announcement-settings-regression.php && php tests/font-loading-regression.php && node tests/mobile-content-social-regression.mjs && node tests/settings-panel-regression.mjs && node tests/navigation-grid-regression.mjs && node tests/package-tool-regression.mjs && node tests/audit-local-regression.mjs && php test-full-render.php && php test-layout-fixes.php",
+    "test:browser": "node tools/audit-local.mjs",
+    "test:package": "node tools/pack-theme.mjs",
     "env:up": "cd /root/wp-env/a2f1695a3ac249d65eabc5cd9da46ed2 && docker compose up -d mysql && docker rm -f wp-manual 2>/dev/null; docker run -d --name wp-manual --network a2f1695a3ac249d65eabc5cd9da46ed2_default -p 8888:80 -e WORDPRESS_DB_HOST=mysql -e WORDPRESS_DB_USER=root -e WORDPRESS_DB_PASSWORD=password -e WORDPRESS_DB_NAME=wordpress -v /root/wp-env/a2f1695a3ac249d65eabc5cd9da46ed2/WordPress:/var/www/html wordpress:php8.2 && docker exec wp-manual sh -c 'curl -sL https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -o /usr/local/bin/wp && chmod +x /usr/local/bin/wp'",
     "env:stop": "docker rm -f wp-manual 2>/dev/null; cd /root/wp-env/a2f1695a3ac249d65eabc5cd9da46ed2 && docker compose down",
     "cli": "bash tools/wp-cli.sh",
@@ -17,7 +17,6 @@
     "playwright": "^1.49.0"
   },
   "dependencies": {
-    "jsdom": "^29.1.1",
-    "puppeteer": "^25.1.0"
+    "jsdom": "^29.1.1"
   }
 }
