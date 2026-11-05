@@ -417,10 +417,14 @@
     // === 通用面板切换函数 ===
     var settingBtn = document.getElementById('display-settings-switch');
     var settingPanel = document.getElementById('display-setting');
+    function setPanelOpen(panel, button, open) {
+      if (!panel || !button) return;
+      panel.classList.toggle('float-panel-closed', !open);
+      button.setAttribute('aria-expanded', String(open));
+    }
+
     function setSettingsPanelOpen(open) {
-      if (!settingBtn || !settingPanel) return;
-      settingPanel.classList.toggle('float-panel-closed', !open);
-      settingBtn.setAttribute('aria-expanded', String(open));
+      setPanelOpen(settingPanel, settingBtn, open);
     }
 
     function closeAllPanels(exceptId) {
@@ -432,7 +436,7 @@
           if (panels[i] === 'display-setting') {
             setSettingsPanelOpen(false);
           } else {
-            el.classList.add('float-panel-closed');
+            setPanelOpen(el, panels[i] === 'nav-menu-panel' ? menuBtn : searchBtn, false);
           }
         }
       }
@@ -457,17 +461,18 @@
     var menuBtn = document.getElementById('nav-menu-switch');
     var menuPanel = document.getElementById('nav-menu-panel');
     if (menuBtn && menuPanel) {
+      setPanelOpen(menuPanel, menuBtn, !menuPanel.classList.contains('float-panel-closed'));
       menuBtn.addEventListener('click', function (e) {
         e.stopPropagation();
         e.preventDefault(); // 防止触发其他默认行为
         var isOpen = !menuPanel.classList.contains('float-panel-closed');
         if (isOpen) {
           // 如果已打开,直接关闭(不调用 closeAllPanels,避免 toggle 后再打开)
-          menuPanel.classList.add('float-panel-closed');
+          setPanelOpen(menuPanel, menuBtn, false);
         } else {
           // 如果已关闭,先关闭其他面板再打开
           closeAllPanels('nav-menu-panel');
-          menuPanel.classList.remove('float-panel-closed');
+          setPanelOpen(menuPanel, menuBtn, true);
         }
       });
     }
@@ -476,15 +481,16 @@
     var searchBtn = document.getElementById('search-switch');
     var searchPanel = document.getElementById('search-panel');
     if (searchBtn && searchPanel) {
+      setPanelOpen(searchPanel, searchBtn, !searchPanel.classList.contains('float-panel-closed'));
       searchBtn.addEventListener('click', function (e) {
         e.stopPropagation();
         e.preventDefault();
         var isOpen = !searchPanel.classList.contains('float-panel-closed');
         if (isOpen) {
-          searchPanel.classList.add('float-panel-closed');
+          setPanelOpen(searchPanel, searchBtn, false);
         } else {
           closeAllPanels('search-panel');
-          searchPanel.classList.remove('float-panel-closed');
+          setPanelOpen(searchPanel, searchBtn, true);
           var input = searchPanel.querySelector('input');
           if (input) input.focus();
         }
@@ -506,7 +512,18 @@
     });
 
     document.addEventListener('keydown', function (event) {
-      if (event.key === 'Escape') closeAllPanels();
+      if (event.key !== 'Escape') return;
+      var panels = [settingPanel, menuPanel, searchPanel];
+      var buttons = [settingBtn, menuBtn, searchBtn];
+      var returnFocus;
+      for (var i = 0; i < panels.length; i++) {
+        if (panels[i] && !panels[i].classList.contains('float-panel-closed') &&
+            panels[i].contains(document.activeElement)) {
+          returnFocus = buttons[i];
+        }
+      }
+      closeAllPanels();
+      if (returnFocus) returnFocus.focus();
     });
 
     // === 导航下拉菜单(点击展开/收起,点击子项跳转,点击外部关闭) ===
