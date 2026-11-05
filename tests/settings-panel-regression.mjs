@@ -218,7 +218,9 @@ try {
 	searchButton.click();
 	check(searchButton.getAttribute('aria-expanded') === 'true', 'Search announces its open state.');
 	check(window.document.activeElement === searchPanel.querySelector('input'), 'Opening search focuses its input.');
-	window.document.activeElement.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+	const searchEscape = new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true });
+	window.document.activeElement.dispatchEvent(searchEscape);
+	check(searchEscape.defaultPrevented, 'Dismissing search prevents the native Escape action from clearing the query.');
 	check(searchButton.getAttribute('aria-expanded') === 'false', 'Escape resets search expanded state.');
 	check(window.document.activeElement === searchButton, 'Escape returns search focus to its trigger.');
 	searchButton.click();

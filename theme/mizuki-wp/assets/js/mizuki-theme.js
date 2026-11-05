@@ -523,7 +523,10 @@
         }
       }
       closeAllPanels();
-      if (returnFocus) returnFocus.focus();
+      if (returnFocus) {
+        event.preventDefault();
+        returnFocus.focus();
+      }
     });
 
     // === 导航下拉菜单(点击展开/收起,点击子项跳转,点击外部关闭) ===
