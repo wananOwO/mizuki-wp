@@ -17,7 +17,6 @@
     "playwright": "^1.49.0"
   },
   "dependencies": {
-    "jsdom": "^29.1.1",
-    "puppeteer": "^25.1.0"
+    "jsdom": "^29.1.1"
   }
 }
