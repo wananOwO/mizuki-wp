@@ -1,0 +1,6 @@
+{
+  "scripts": {
+    "setup": "npm ci",
+    "run": "npx --no-install wp-playground-cli server --port=3000 --workers=1 --auto-mount=theme/mizuki-wp --blueprint=tools/preview-blueprint.json"
+  }
+}

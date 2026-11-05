@@ -1,0 +1,8 @@
+{
+  "steps": [
+    {
+      "step": "runPHP",
+      "code": "<?php require '/wordpress/wp-load.php'; switch_theme('mizuki-wp'); update_option('blogname', 'Mizuki Preview'); wp_insert_post(['post_title' => 'Welcome to Mizuki', 'post_content' => '<h2>A quiet place to read</h2><p>Explore posts, search the blog, and customize your reading experience.</p><h2>Keep exploring</h2><p>Use the navigation to return home.</p>', 'post_status' => 'publish']);"
+    }
+  ]
+}

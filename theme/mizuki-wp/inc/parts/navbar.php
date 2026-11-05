@@ -331,9 +331,9 @@ if ( ! function_exists( 'mizuki_render_navbar' ) ) {
 					<?php // 搜索入口(桌面端悬停展开搜索条,移动端点击弹出面板)。 ?>
 					<form id="search-bar" class="search-bar hidden lg:flex items-center relative h-11 rounded-lg shrink-0" role="search" action="<?php echo esc_url( home_url( '/' ) ); ?>" method="get" aria-label="<?php esc_attr_e( '搜索', 'mizuki' ); ?>">
 						<svg class="search-bar-icon" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-						<input type="search" name="s" class="search-bar-input" placeholder="<?php esc_attr_e( '搜索…', 'mizuki' ); ?>" aria-label="<?php esc_attr_e( '搜索', 'mizuki' ); ?>" />
+						<input type="search" name="s" value="<?php echo get_search_query(); ?>" class="search-bar-input" placeholder="<?php esc_attr_e( '搜索…', 'mizuki' ); ?>" aria-label="<?php esc_attr_e( '搜索', 'mizuki' ); ?>" />
 					</form>
-					<button id="search-switch" aria-label="<?php esc_attr_e( '搜索', 'mizuki' ); ?>" class="btn-plain scale-animation rounded-lg w-11 h-11 active:scale-90 lg:!hidden">
+					<button id="search-switch" aria-controls="search-panel" aria-expanded="false" aria-label="<?php esc_attr_e( '搜索', 'mizuki' ); ?>" class="btn-plain scale-animation rounded-lg w-11 h-11 active:scale-90 lg:!hidden">
 						<svg class="text-[1.25rem]" viewBox="0 0 24 24" width="1em" height="1em"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
 					</button>
 					<button id="theme-toggle" aria-label="<?php esc_attr_e( '切换明暗', 'mizuki' ); ?>" class="btn-plain scale-animation rounded-lg h-11 w-11 active:scale-90">
@@ -342,7 +342,7 @@ if ( ! function_exists( 'mizuki_render_navbar' ) ) {
 					<button aria-label="<?php esc_attr_e( 'Display Settings', 'mizuki' ); ?>" aria-haspopup="dialog" aria-expanded="false" class="btn-plain scale-animation rounded-lg h-11 w-11 active:scale-90<?php echo mizuki_get_theme_mod( 'mizuki_hue_fixed', false ) ? ' settings-desktop-only' : ''; ?>" id="display-settings-switch">
 						<svg class="text-[1.25rem]" viewBox="0 0 24 24" width="1em" height="1em"><path fill="currentColor" d="M12 22q-2.05 0-3.875-.788t-3.187-2.15t-2.15-3.187T2 12q0-2.075.813-3.9t2.2-3.175T8.25 2.788T12.05 2q2 0 3.788.738t3.125 2.025t2.137 3T21.1 11.4q.275 2.45-1.225 4.025T16 17h-1.85q-.225 0-.312.125t-.088.275q0 .3.375.863t.375 1.287q0 1.05-.725 1.75T12 22m-5.5-9q.65 0 1.075-.425T8 11.5t-.425-1.075T6.5 10t-1.075.425T5 11.5t.425 1.075T6.5 13m3-4q.65 0 1.075-.425T11 7.5t-.425-1.075T9.5 6t-1.075.425T8 7.5t.425 1.075T9.5 9m5 0q.65 0 1.075-.425T16 7.5t-.425-1.075T14.5 6t-1.075.425T13 7.5t.425 1.075T14.5 9m3 4q.65 0 1.075-.425T19 11.5t-.425-1.075T17.5 10t-1.075.425T16 11.5t.425 1.075T17.5 13"/></svg>
 					</button>
-					<button aria-label="<?php esc_attr_e( 'Menu', 'mizuki' ); ?>" name="Nav Menu" class="btn-plain scale-animation rounded-lg w-11 h-11 active:scale-90 md:!hidden" id="nav-menu-switch">
+					<button aria-label="<?php esc_attr_e( 'Menu', 'mizuki' ); ?>" name="Nav Menu" class="btn-plain scale-animation rounded-lg w-11 h-11 active:scale-90 md:!hidden" id="nav-menu-switch" aria-controls="nav-menu-panel" aria-expanded="false">
 						<svg class="text-[1.25rem]" viewBox="0 0 24 24" width="1em" height="1em"><path fill="currentColor" d="m12 21l-4.5-4.5l1.45-1.45L12 18.1l3.05-3.05l1.45 1.45zM8.95 9.05L7.5 7.6L12 3.1l4.5 4.5l-1.45 1.45L12 5.9z"/></svg>
 					</button>
 				</div>
@@ -455,7 +455,7 @@ if ( ! function_exists( 'mizuki_render_navbar' ) ) {
 	<div id="search-panel" class="float-panel float-panel-closed fixed left-4 right-4 top-[5.25rem] md:w-[30rem] md:left-[unset] z-50 shadow-2xl rounded-2xl p-2">
 		<form class="search-panel-form flex relative items-center h-11 rounded-xl bg-black/[0.04] hover:bg-black/[0.06] focus-within:bg-black/[0.06] dark:bg-white/5 dark:hover:bg-white/10 dark:focus-within:bg-white/10" role="search" action="<?php echo esc_url( home_url( '/' ) ); ?>" method="get">
 			<svg class="absolute ml-3 text-[1.25rem] text-black/30 dark:text-white/30 pointer-events-none" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-			<input type="search" name="s" class="pl-10 w-full text-sm bg-transparent outline-0 text-black/50 dark:text-white/50" placeholder="<?php esc_attr_e( '搜索…', 'mizuki' ); ?>" aria-label="<?php esc_attr_e( '搜索', 'mizuki' ); ?>" />
+			<input type="search" name="s" value="<?php echo get_search_query(); ?>" class="pl-10 w-full text-sm bg-transparent outline-0 text-black/50 dark:text-white/50" placeholder="<?php esc_attr_e( '搜索…', 'mizuki' ); ?>" aria-label="<?php esc_attr_e( '搜索', 'mizuki' ); ?>" />
 		</form>
 	</div>
 </div>

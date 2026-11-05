@@ -8,6 +8,9 @@ const navbarSource = fs.readFileSync(
 	path.join(root, 'theme/mizuki-wp/inc/parts/navbar.php'),
 	'utf8',
 );
+const searchInputs = navbarSource.match(/<input type="search"[^>]*value="<\?php echo get_search_query\(\); \?>"/g) || [];
+if (searchInputs.length !== 2) throw new Error('Both navbar search fields must preserve the escaped query.');
+
 const scriptSource = fs.readFileSync(
 	path.join(root, 'theme/mizuki-wp/assets/js/mizuki-theme.js'),
 	'utf8',
@@ -114,7 +117,7 @@ function harness(isDesktop, stored = {}) {
 			<div class="right-sidebar-container"></div>
 			<button id="display-settings-switch" aria-expanded="false"></button>
 			<button id="nav-menu-switch"></button>
-			<div id="nav-menu-panel" class="float-panel-closed"></div>
+			<div id="nav-menu-panel" class="float-panel-closed"><a href="#main">Home</a></div>
 			<button id="search-switch"></button>
 			<div id="search-panel" class="float-panel-closed"><input /></div>
 			<div id="display-setting" class="float-panel-closed">
@@ -199,6 +202,44 @@ try {
 	settingsButton.click();
 	window.document.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
 	check(settingsButton.getAttribute('aria-expanded') === 'false', 'Escape resets settings aria-expanded.');
+
+	const menuButton = window.document.getElementById('nav-menu-switch');
+	const menuPanel = window.document.getElementById('nav-menu-panel');
+	const searchButton = window.document.getElementById('search-switch');
+	const searchPanel = window.document.getElementById('search-panel');
+	check(menuButton.getAttribute('aria-expanded') === 'false', 'Menu starts collapsed.');
+	check(searchButton.getAttribute('aria-expanded') === 'false', 'Search starts collapsed.');
+	menuButton.click();
+	check(menuButton.getAttribute('aria-expanded') === 'true', 'Menu announces its open state.');
+	menuPanel.querySelector('a').focus();
+	window.document.activeElement.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+	check(menuButton.getAttribute('aria-expanded') === 'false', 'Escape resets menu expanded state.');
+	check(window.document.activeElement === menuButton, 'Escape returns menu focus to its trigger.');
+	searchButton.click();
+	check(searchButton.getAttribute('aria-expanded') === 'true', 'Search announces its open state.');
+	check(window.document.activeElement === searchPanel.querySelector('input'), 'Opening search focuses its input.');
+	const searchEscape = new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true });
+	window.document.activeElement.dispatchEvent(searchEscape);
+	check(searchEscape.defaultPrevented, 'Dismissing search prevents the native Escape action from clearing the query.');
+	check(searchButton.getAttribute('aria-expanded') === 'false', 'Escape resets search expanded state.');
+	check(window.document.activeElement === searchButton, 'Escape returns search focus to its trigger.');
+	searchButton.click();
+	menuButton.click();
+	check(searchButton.getAttribute('aria-expanded') === 'false', 'Opening menu resets search expanded state.');
+	menuButton.click();
+	check(menuButton.getAttribute('aria-expanded') === 'false', 'Toggling menu closed resets expanded state.');
+	searchButton.click();
+	searchButton.click();
+	check(searchButton.getAttribute('aria-expanded') === 'false', 'Toggling search closed resets expanded state.');
+	menuButton.click();
+	window.document.body.click();
+	check(menuButton.getAttribute('aria-expanded') === 'false', 'Outside click resets menu expanded state.');
+	searchButton.click();
+	window.document.body.click();
+	check(searchButton.getAttribute('aria-expanded') === 'false', 'Outside click resets search expanded state.');
+	settingsButton.focus();
+	window.document.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+	check(window.document.activeElement === settingsButton, 'Escape without an open panel does not move focus.');
 
 	window.document.querySelector('.wallpaper-mode-btn[data-mode="overlay"]').click();
 	const wallpaper = window.document.querySelector('[data-fullscreen-wallpaper]');
